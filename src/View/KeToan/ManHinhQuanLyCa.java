@@ -119,9 +119,7 @@ public class ManHinhQuanLyCa extends JFrame {
         JButton moca = new JButton("Mở ca làm việc");
         JButton dongca = new JButton("Đóng ca hiện tại");
         moca.setMaximumSize(new Dimension(170,50));
-
         dongca.setMaximumSize(new Dimension(170,50));
-
 
         card2.add(moca);
         card2.add(Box.createVerticalStrut(10));
