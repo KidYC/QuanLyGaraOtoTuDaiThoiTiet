@@ -126,7 +126,6 @@ public class ManHinhQuanLyCa extends JFrame {
         card2.add(moca);
         card2.add(Box.createVerticalStrut(10));
         card2.add(dongca);
-
         pCenter.add(tieude);
         pCenter.add(Box.createVerticalStrut(20));
         pCenter.add(card1);
