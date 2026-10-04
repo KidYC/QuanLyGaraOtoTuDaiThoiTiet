@@ -3,9 +3,11 @@ package View.KeToan;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class ManHinhDanhSachKHNo extends JFrame {
-
+public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
+    private JButton btnquaylai;
     public ManHinhDanhSachKHNo(){
         super("DANH SÁCH KHÁCH HÀNG NỢ");
         setSize(900,600);
@@ -111,7 +113,7 @@ public class ManHinhDanhSachKHNo extends JFrame {
         JScrollPane srcoll = new JScrollPane(table);
         pCenter3.add(srcoll,BorderLayout.CENTER);
 
-        JButton btnquaylai = new JButton("Quay lại Trang chủ Kế toán");
+        btnquaylai = new JButton("Quay lại Trang chủ Kế toán");
         btnquaylai.setPreferredSize(new Dimension(200,50));
         btnquaylai.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -124,20 +126,25 @@ public class ManHinhDanhSachKHNo extends JFrame {
         pCenter.add(Box.createVerticalStrut(20));
         pCenter.add(pCenter3);
         pCenter.add(Box.createVerticalStrut(20));
+        //pCenter4
+
         pCenter.add(btnquaylai);
         add(pCenter,BorderLayout.CENTER);
 
+        btnquaylai.addActionListener(this);
+
 
     }
-
-
-
-
-
-
-
     public static void main(String[] args) {
         ManHinhDanhSachKHNo UI = new ManHinhDanhSachKHNo();
         UI.setVisible(true);
+    }
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if (o == btnquaylai) {
+            ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
+            UI.setVisible(true);
+            dispose();
+        }
     }
 }

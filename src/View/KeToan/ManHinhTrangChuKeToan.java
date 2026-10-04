@@ -2,12 +2,23 @@ package View.KeToan;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class ManHinhTrangChuKeToan extends JFrame {
+public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
+    private JButton trangchu;
+    private JButton qlca;
+    private JButton qlcongno;
+    private JButton hoadonvatt;
+    private JButton dangxuat;
+
+    private JButton moca;
+    private JButton laphoadonvatt;
+    private JButton qlCongno;
 
     public ManHinhTrangChuKeToan(){
         super("TRANG CHỦ KẾ TOÁN");
-        setSize(900,600);
+        setSize(1000,600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -32,19 +43,22 @@ public class ManHinhTrangChuKeToan extends JFrame {
         pWest.setPreferredSize(new Dimension(200,0));
 
 
-        JButton trangchu = new JButton("Trang chủ");
+         trangchu = new JButton("Trang chủ");
         trangchu.setAlignmentX(Component.CENTER_ALIGNMENT);
         trangchu.setMaximumSize(new Dimension(170, 35));
-        JButton qlca = new JButton("Quản lý ca");
+         qlca = new JButton("Quản lý ca");
+
+
+
         qlca.setAlignmentX(Component.CENTER_ALIGNMENT);
         qlca.setMaximumSize(new Dimension(170, 35));
-        JButton qlcongno = new JButton("Quản lý công nợ");
+         qlcongno = new JButton("Quản lý công nợ");
         qlcongno.setAlignmentX(Component.CENTER_ALIGNMENT);
         qlcongno.setMaximumSize(new Dimension(170,35));
-        JButton hoadonvatt = new JButton("Hóa đơn & Thanh toán");
+         hoadonvatt = new JButton("Hóa đơn & Thanh toán");
         hoadonvatt.setAlignmentX(Component.CENTER_ALIGNMENT);
         hoadonvatt.setMaximumSize(new Dimension(170, 35));
-        JButton dangxuat = new JButton("Đăng xuất");
+         dangxuat = new JButton("Đăng xuất");
         dangxuat.setAlignmentX(Component.CENTER_ALIGNMENT);
         dangxuat.setMaximumSize(new Dimension(170, 35));
 
@@ -84,9 +98,9 @@ public class ManHinhTrangChuKeToan extends JFrame {
 
         JLabel lblthaotac = new JLabel("THAO TÁC NHANH");
         lblthaotac.setFont(new Font ("Arial",Font.BOLD,20));
-        JButton moca = new JButton("Mở ca");
-        JButton laphoadonvatt = new JButton("Lập hóa đơn & thanh toán");
-        JButton qlCongno = new JButton("Quản lý công nợ");
+         moca = new JButton("Mở ca");
+         laphoadonvatt = new JButton("Lập hóa đơn & thanh toán");
+         qlCongno = new JButton("Quản lý công nợ");
         moca.setMaximumSize(new Dimension(170,35));
         laphoadonvatt.setMaximumSize(new Dimension(170,35));
         qlCongno.setMaximumSize(new Dimension(170,35));
@@ -131,9 +145,40 @@ public class ManHinhTrangChuKeToan extends JFrame {
 
         pCenter.add(Box.createVerticalGlue());
         add(pCenter,BorderLayout.CENTER);
+
+        trangchu.addActionListener(this);
+        qlca.addActionListener(this);
+        qlcongno.addActionListener(this);
+        hoadonvatt.addActionListener(this);
+        dangxuat.addActionListener(this);
+
+        moca.addActionListener(this);
+        laphoadonvatt.addActionListener(this);
+        qlCongno.addActionListener(this);
     }
     public static void main(String[] args){
         ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
         UI.setVisible(true);
+    }
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if(o == qlcongno || o == qlCongno) {
+            ManHinhDanhSachKHNo UI = new ManHinhDanhSachKHNo();
+            UI.setVisible(true);
+            this.dispose();
+        } else if (o == qlca || o == moca) {
+            ManHinhQuanLyCa UI = new ManHinhQuanLyCa();
+            UI.setVisible(true);
+            this.dispose();
+        } else if (o == hoadonvatt) {
+            ManHinhChiTietHDVaThanhToan UI = new ManHinhChiTietHDVaThanhToan();
+            UI.setVisible(true);
+            this.dispose();
+        } else if (o == dangxuat){
+            int chon = JOptionPane.showConfirmDialog(this,"Bạn có chắc chắn muốn đăng xuất không?","Xác nhận đăng xuất",JOptionPane.YES_NO_OPTION);
+            if(chon == JOptionPane.YES_OPTION){
+                this.dispose();
+            }
+        }
     }
 }

@@ -3,8 +3,16 @@ package View.KeToan;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame {
+public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements ActionListener {
+    private JButton trangchu;
+    private JButton qlca;
+    private JButton dsphieusuachua;
+    private JButton quanlycongno;
+    private JButton baocaodoanhthu;
+    private JButton quaylai;
     public ManHinhDanhSachPhieuSuaChuaDaHoanThanh(){
         setSize(1000,480);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -31,27 +39,27 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame {
         lblmenu.setFont(new Font("Arial",Font.BOLD,20));
         lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton trangchu = new JButton("Trang chủ kế toán");
+        trangchu = new JButton("Trang chủ kế toán");
         trangchu.setAlignmentX(Component.CENTER_ALIGNMENT);
         trangchu.setMaximumSize(new Dimension(190, 35));
 
-        JButton qlca = new JButton("Quản lý ca");
+        qlca = new JButton("Quản lý ca");
         qlca.setAlignmentX(Component.CENTER_ALIGNMENT);
         qlca.setMaximumSize(new Dimension(190, 35));
 
-        JButton dsphieusuachua = new JButton("Danh sách phiếu sửa chữa");
+        dsphieusuachua = new JButton("Danh sách phiếu sửa chữa");
         dsphieusuachua.setAlignmentX(Component.CENTER_ALIGNMENT);
         dsphieusuachua.setMaximumSize(new Dimension(190,35));
 
-        JButton quanlycongno = new JButton("Quản lý công nợ");
+        quanlycongno = new JButton("Quản lý công nợ");
         quanlycongno.setAlignmentX(Component.CENTER_ALIGNMENT);
         quanlycongno.setMaximumSize(new Dimension(190, 35));
 
-        JButton baocaodoanhthu = new JButton("Báo cáo doanh thu");
+        baocaodoanhthu = new JButton("Báo cáo doanh thu");
         baocaodoanhthu.setAlignmentX(Component.CENTER_ALIGNMENT);
         baocaodoanhthu.setMaximumSize(new Dimension(190, 35));
 
-        JButton quaylai = new JButton("Quay lại");
+        quaylai = new JButton("Quay lại trang chủ");
         quaylai.setAlignmentX(Component.CENTER_ALIGNMENT);
         quaylai.setMaximumSize(new Dimension(190,35));
 
@@ -110,13 +118,40 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame {
         JTable table = new JTable(model);
         JScrollPane scroll = new JScrollPane(table);
         pCenter.add(scroll,BorderLayout.CENTER);
-
-
         add(pCenter,BorderLayout.CENTER);
+        trangchu.addActionListener(this);
+        qlca.addActionListener(this);
+        dsphieusuachua.addActionListener(this);
+        quanlycongno.addActionListener(this);
+        baocaodoanhthu.addActionListener(this);
+        quaylai.addActionListener(this);
     }
-
     public static void main(String[] args) {
         ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
         UI.setVisible(true);
+    }
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if (o == trangchu){
+            ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
+            UI.setVisible(true);
+            dispose();
+        } else if (o == qlca) {
+            ManHinhQuanLyCa UI = new ManHinhQuanLyCa();
+            UI.setVisible(true);
+            dispose();
+        } else if (o == dsphieusuachua) {
+            ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
+            UI.setVisible(true);
+            dispose();
+        }else if (o== quanlycongno){
+            ManHinhDanhSachKHNo UI = new ManHinhDanhSachKHNo();
+            UI.setVisible(true);
+            dispose();
+        }else if (o == quaylai) {
+            ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
+            UI.setVisible(true);
+            dispose();
+        }
     }
 }

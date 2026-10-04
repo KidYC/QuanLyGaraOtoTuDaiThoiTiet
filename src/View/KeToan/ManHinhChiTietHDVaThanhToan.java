@@ -3,8 +3,13 @@ package View.KeToan;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class ManHinhChiTietHDVaThanhToan extends JFrame {
+public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListener {
+    private JButton thanhtoan;
+    private JButton huybo;
+    private JButton quaylai;
     public ManHinhChiTietHDVaThanhToan(){
         super("CHI TIẾT HOÁ ĐƠN VÀ THANH TOÁN");
         setSize(700,700);
@@ -128,9 +133,9 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame {
         //pCenter4
         JPanel pCenter4 = new JPanel();
         pCenter4.setLayout(new FlowLayout());
-        JButton thanhtoan = new JButton("Thanh toán");
-        JButton huybo = new JButton("Huỷ bỏ");
-        JButton quaylai = new JButton("Quay lại danh sách");
+        thanhtoan = new JButton("Thanh toán");
+        huybo = new JButton("Huỷ bỏ");
+        quaylai = new JButton("Quay lại danh sách");
         thanhtoan.setMaximumSize(new Dimension(170,50));
         huybo.setMaximumSize(new Dimension(170,50));
         quaylai.setMaximumSize(new Dimension(170,50));
@@ -157,13 +162,24 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame {
         pCenter.add(pCenter4);
 
         add(pCenter,BorderLayout.CENTER);
-
+        thanhtoan.addActionListener(this);
+        huybo.addActionListener(this);
+        quaylai.addActionListener(this);
     }
-
     public static void main(String[] args) {
         ManHinhChiTietHDVaThanhToan UI = new ManHinhChiTietHDVaThanhToan();
         UI.setVisible(true);
     }
 
 
+
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if (o == quaylai){
+            ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
+            UI.setVisible(true);
+            dispose();
+
+        }
+    }
 }
