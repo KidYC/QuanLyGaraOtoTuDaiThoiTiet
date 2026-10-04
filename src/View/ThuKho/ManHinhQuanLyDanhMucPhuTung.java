@@ -1,4 +1,4 @@
-package QuanLyGaraOtoTuDaiThoiTiet.src.View.ThuKho;
+package View.ThuKho;
 
 public class ManHinhQuanLyDanhMucPhuTung {
 }
