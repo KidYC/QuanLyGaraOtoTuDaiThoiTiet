@@ -26,9 +26,10 @@ public class ManHinhTrangChuThuKho extends JFrame {
         pWest.setLayout(new BoxLayout(pWest, BoxLayout.Y_AXIS));
         pWest.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         JLabel lblmenu = new JLabel("MENU");
+        lblmenu.setForeground(Color.WHITE);
         lblmenu.setFont(new Font("Arial",Font.BOLD,20));
         lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
-        pWest.setBackground(new Color(240, 246, 252));
+        pWest.setBackground(new Color(0, 70, 70));
         pWest.setPreferredSize(new Dimension(180,0));
         pWest.add(lblmenu);
 
@@ -81,7 +82,10 @@ public class ManHinhTrangChuThuKho extends JFrame {
         JLabel lbltongquan = new JLabel("TỔNG QUAN KHO");
         lbltongquan.setFont(new Font("Arial",Font.BOLD,20));
         lbltongquan.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        pCenter.add(Box.createVerticalStrut(20));
         pCenter.add(lbltongquan);
+
 
         //card
         JPanel pCard = new JPanel(new FlowLayout(FlowLayout.CENTER,40,0));
