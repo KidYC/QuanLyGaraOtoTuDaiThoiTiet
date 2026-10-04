@@ -3,9 +3,11 @@ package View.KeToan;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class ManHinhChiTietCongNo extends JFrame {
-
+public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
+    private JButton quaylai;
     public ManHinhChiTietCongNo(){
         super("CHI TIẾT CÔNG NỢ KHÁCH HÀNG");
         setSize(650,700);
@@ -109,13 +111,25 @@ public class ManHinhChiTietCongNo extends JFrame {
         JScrollPane srcoll = new JScrollPane(table);
         pCenter3.add(srcoll);
         pCenter.add(pCenter3);
-        JButton quaylai = new JButton("Quay lại danh sách khách hàng nợ");
+        quaylai = new JButton("Quay lại danh sách khách hàng nợ");
         quaylai.setAlignmentX(Component.LEFT_ALIGNMENT);
         pCenter.add(quaylai);
         add(pCenter,BorderLayout.CENTER);
+
+        quaylai.addActionListener(this);
     }
     public static void main(String[] args) {
         ManHinhChiTietCongNo UI = new ManHinhChiTietCongNo();
         UI.setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if(o == quaylai){
+            ManHinhDanhSachKHNo UI = new ManHinhDanhSachKHNo();
+            UI.setVisible(true);
+            dispose();
+        }
+
     }
 }
