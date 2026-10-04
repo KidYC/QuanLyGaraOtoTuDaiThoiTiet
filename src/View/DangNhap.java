@@ -51,7 +51,7 @@ public class DangNhap extends JFrame {
         pNo = new JPanel(new BorderLayout());
         pNo.setBackground(backgroundColor);
 
-        logo = new JLabel(loadIcon("/resources/icons/logo.png", 160, 110));
+        logo = new JLabel(loadIcon("/resources/icons/logo.png", 230, 210));
         logo.setHorizontalAlignment(JLabel.CENTER);
 
         pNo.add(logo, BorderLayout.CENTER);
