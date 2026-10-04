@@ -102,10 +102,6 @@ public class ManHinhQuanLyCa extends JFrame {
         card1.add(giomo);
         card1.add(sotien);
 
-
-
-
-
         JPanel card2 = new JPanel();
         card2.setLayout(new BoxLayout(card2, BoxLayout.Y_AXIS));
 
