@@ -7,6 +7,41 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListener {
+    private final JPanel pCenter;
+    private final JPanel pNorth;
+    private final JLabel lbltieude;
+    private final JLabel ttchung;
+    private final JLabel mahd;
+    private final JPanel pCenter1;
+    private final JTextField txtmahd;
+    private final JLabel ngaylap;
+    private final JTextField txtngaylap;
+    private final JLabel maphieusc;
+    private final JTextField txtmaphieu;
+    private final JLabel khachhang;
+    private final JTextField txtkhachhang;
+    private final JLabel bienso;
+    private final JTextField txtbienso;
+    private final JLabel sdt;
+    private final JTextField txtsdt;
+    private final JLabel chitietsuachuavaphutung;
+    private final JPanel pCenter2;
+    private final DefaultTableModel model;
+    private final JTable table;
+    private final JScrollPane srcoll;
+    private final JLabel tomtat;
+    private final JPanel pCenter3;
+    private final JLabel tongtienphutung;
+    private final JTextField txttongtienphutung;
+    private final JLabel tongtiendichvu;
+    private final JTextField txttongtiendichvu;
+    private final JLabel khuyenmai;
+    private final JTextField txtkhuyenmai;
+    private final JLabel tongcong;
+    private final JTextField txttongcong;
+    private final JLabel trangthai;
+    private final JTextField txttrangthai;
+    private final JPanel pCenter4;
     private JButton thanhtoan;
     private JButton huybo;
     private JButton quaylai;
@@ -18,9 +53,9 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         setLayout(new BorderLayout(5,20));
 
         //pNorth
-        JPanel pNorth = new JPanel();
+        pNorth = new JPanel();
         pNorth.setLayout(new FlowLayout());
-        JLabel lbltieude = new JLabel("CHI TIẾT HÓA ĐƠN VÀ THANH TOÁN");
+        lbltieude = new JLabel("CHI TIẾT HÓA ĐƠN VÀ THANH TOÁN");
         lbltieude.setFont(new Font("Arial",Font.BOLD,24));
         lbltieude.setForeground(Color.BLUE);
         lbltieude.setAlignmentX(CENTER_ALIGNMENT);
@@ -28,29 +63,29 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         add(pNorth,BorderLayout.NORTH);
 
         //pCenter
-        JPanel pCenter = new JPanel();
+        pCenter = new JPanel();
         pCenter.setLayout(new BoxLayout(pCenter,BoxLayout.Y_AXIS));
-        JLabel ttchung = new JLabel("THÔNG TIN CHUNG");
+        ttchung = new JLabel("THÔNG TIN CHUNG");
         ttchung.setFont(new Font("Arial",Font.BOLD,20));
         ttchung.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel pCenter1 = new JPanel();
+        pCenter1 = new JPanel();
         pCenter1.setLayout(new GridLayout(3,4,5,15));
         //Hang1
-        JLabel mahd = new JLabel("Mã Hóa đơn: ");
-        JTextField txtmahd = new JTextField("HD-20231026-001");
-        JLabel ngaylap = new JLabel("Ngày lập: ");
-        JTextField txtngaylap = new JTextField("26/10/2023");
+        mahd = new JLabel("Mã Hóa đơn: ");
+        txtmahd = new JTextField("HD-20231026-001");
+        ngaylap = new JLabel("Ngày lập: ");
+        txtngaylap = new JTextField("26/10/2023");
         //Hang2
-        JLabel maphieusc = new JLabel("Mã Phiếu sửa chữa: ");
-        JTextField txtmaphieu = new JTextField("PSC-20231026-001");
-        JLabel khachhang = new JLabel("Khách hàng: ");
-        JTextField txtkhachhang = new JTextField("Trần Thanh Liêm");
+        maphieusc = new JLabel("Mã Phiếu sửa chữa: ");
+        txtmaphieu = new JTextField("PSC-20231026-001");
+        khachhang = new JLabel("Khách hàng: ");
+        txtkhachhang = new JTextField("Trần Thanh Liêm");
         //Hang3
-        JLabel bienso = new JLabel("Biển số xe: ");
-        JTextField txtbienso = new JTextField("29A-12345");
-        JLabel sdt =  new JLabel("Số điện thoại: ");
-        JTextField txtsdt = new JTextField("0123456789");
+        bienso = new JLabel("Biển số xe: ");
+        txtbienso = new JTextField("29A-12345");
+        sdt =  new JLabel("Số điện thoại: ");
+        txtsdt = new JTextField("0123456789");
         pCenter1.add(mahd);
         pCenter1.add(txtmahd);
         pCenter1.add(ngaylap);
@@ -67,12 +102,12 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 
-        JLabel chitietsuachuavaphutung = new JLabel("CHI TIẾT SỬA CHỮA & PHỤ TÙNG");
+        chitietsuachuavaphutung = new JLabel("CHI TIẾT SỬA CHỮA & PHỤ TÙNG");
         chitietsuachuavaphutung.setFont(new Font("Arial",Font.BOLD,20));
         chitietsuachuavaphutung.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         //pCenter2
-        JPanel pCenter2 = new JPanel();
+        pCenter2 = new JPanel();
         pCenter2.setLayout(new BorderLayout());
         String [] columns = {"STT","Mã Phụ tùng","Tên Phụ tùng/Dịch vụ","Số lượng","Đơn giá","Thành tiền"};
         Object[][] data = {
@@ -80,12 +115,12 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
                 {"2","PT000002","Công thay nhớt","1","200.000 VNĐ","200.000 VNĐ"},
                 {"3","PT000003","Lọc nhớt","1","300.000 VNĐ","300.000 VNĐ"},
         };
-        DefaultTableModel model = new DefaultTableModel(data,columns);
-        JTable table = new JTable(model);
+        model = new DefaultTableModel(data,columns);
+        table = new JTable(model);
         table.setRowHeight(30);
         table.setFont(new Font("Arial", Font.PLAIN, 13));
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 13));
-        JScrollPane srcoll = new JScrollPane(table);
+        srcoll = new JScrollPane(table);
         pCenter2.setPreferredSize(new Dimension(850,150));
         pCenter2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         pCenter2.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -94,28 +129,28 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
 
 
 
-        JLabel tomtat = new JLabel("TÓM TẮT & THANH TOÁN");
+        tomtat = new JLabel("TÓM TẮT & THANH TOÁN");
         tomtat.setFont(new Font("Arial",Font.BOLD,20));
         tomtat.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         //pCenter3
-        JPanel pCenter3 = new JPanel();
+        pCenter3 = new JPanel();
         pCenter3.setLayout(new GridLayout(5,2,0,5));
           //Hang1
-          JLabel tongtienphutung = new JLabel("Tổng tiền phụ tùng: ");
-          JTextField txttongtienphutung = new JTextField("1.300.000 VNĐ");
+        tongtienphutung = new JLabel("Tổng tiền phụ tùng: ");
+        txttongtienphutung = new JTextField("1.300.000 VNĐ");
           //Hang2
-          JLabel tongtiendichvu = new JLabel("Tổng tiền dịch vụ: ");
-          JTextField txttongtiendichvu = new JTextField("200.000 VNĐ");
+        tongtiendichvu = new JLabel("Tổng tiền dịch vụ: ");
+        txttongtiendichvu = new JTextField("200.000 VNĐ");
           //Hang3
-          JLabel khuyenmai = new JLabel("Khuyến mãi: ");
-          JTextField txtkhuyenmai = new JTextField("0 VNĐ");
+        khuyenmai = new JLabel("Khuyến mãi: ");
+        txtkhuyenmai = new JTextField("0 VNĐ");
           //Hang4
-          JLabel tongcong = new JLabel("TỔNG CỘNG: ");
-          JTextField txttongcong = new JTextField("1.500.000 VNĐ");
+        tongcong = new JLabel("TỔNG CỘNG: ");
+        txttongcong = new JTextField("1.500.000 VNĐ");
           //Hang5
-          JLabel trangthai = new JLabel("Trạng thái: ");
-          JTextField txttrangthai= new JTextField("Chờ thanh toán");
+        trangthai = new JLabel("Trạng thái: ");
+        txttrangthai= new JTextField("Chờ thanh toán");
         pCenter3.add(tongtienphutung);
         pCenter3.add(txttongtienphutung);
         pCenter3.add(tongtiendichvu);
@@ -131,7 +166,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
                 new Dimension(Integer.MAX_VALUE, 200)
         );
         //pCenter4
-        JPanel pCenter4 = new JPanel();
+        pCenter4 = new JPanel();
         pCenter4.setLayout(new FlowLayout());
         thanhtoan = new JButton("Thanh toán");
         huybo = new JButton("Huỷ bỏ");
@@ -165,6 +200,37 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         thanhtoan.addActionListener(this);
         huybo.addActionListener(this);
         quaylai.addActionListener(this);
+        chinhmau();
+
+    }
+    private void chinhmau (){
+        Color maunen = new Color(244, 246, 248);
+        Color maumenu = new Color(226, 232, 240);
+        Color btnchinh =  new Color(186, 230, 253);
+        Color chuchinh = new Color(17, 24, 39);
+        Color maucotbang = new Color(186,230,253);
+
+        lbltieude.setForeground(chuchinh);
+        ttchung.setForeground(chuchinh);
+        mahd.setForeground(chuchinh);
+        maphieusc.setForeground(chuchinh);
+        bienso.setForeground(chuchinh);
+        ngaylap.setForeground(chuchinh);
+        khachhang.setForeground(chuchinh);
+        sdt.setForeground(chuchinh);
+        chitietsuachuavaphutung.setForeground(chuchinh);
+
+        table.getTableHeader().setBackground(maucotbang);
+        table.getTableHeader().setForeground(chuchinh);
+        tomtat.setForeground(chuchinh);
+        tongtienphutung.setForeground(chuchinh);
+        tongtiendichvu.setForeground(chuchinh);
+        khuyenmai.setForeground(chuchinh);
+        tongcong.setForeground(chuchinh);
+        trangthai.setForeground(chuchinh);
+        thanhtoan.setBackground(btnchinh);
+        huybo.setBackground(btnchinh);
+        quaylai.setBackground(btnchinh);
     }
     public static void main(String[] args) {
         ManHinhChiTietHDVaThanhToan UI = new ManHinhChiTietHDVaThanhToan();
