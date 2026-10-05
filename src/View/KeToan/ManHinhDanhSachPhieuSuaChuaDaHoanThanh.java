@@ -7,6 +7,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements ActionListener {
+    private final JPanel pCenter;
+    private final JPanel pNorth;
+    private final JLabel lbltieude;
+    private final JPanel pWest;
+    private final JLabel lblmenu;
+    private final JPanel card;
+    private final JLabel trangthai;
+    private final JLabel timkiem;
+    private final JTextField txttimkiem;
+    private final JComboBox<String> txttrangthai;
+    private final DefaultTableModel model;
+    private final JTable table;
+    private final JScrollPane scroll;
     private JButton trangchu;
     private JButton qlca;
     private JButton dsphieusuachua;
@@ -19,9 +32,9 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0,10));
 
-        JPanel pNorth = new JPanel();
+        pNorth = new JPanel();
 
-        JLabel lbltieude = new JLabel("DANH SÁCH PHIẾU SỬA CHỮA ĐÃ HOÀN THÀNH");
+        lbltieude = new JLabel("DANH SÁCH PHIẾU SỬA CHỮA ĐÃ HOÀN THÀNH");
         lbltieude.setFont(new Font("Arial",Font.BOLD,30));
         lbltieude.setForeground(Color.BLUE);
 
@@ -30,12 +43,12 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         add(pNorth,BorderLayout.NORTH);
 
         //pWest
-        JPanel pWest = new JPanel();
+        pWest = new JPanel();
         pWest.setLayout(new BoxLayout(pWest,BoxLayout.Y_AXIS));
         pWest.setBackground(new Color(240,245,250));
         pWest.setPreferredSize(new Dimension(200,0));
 
-        JLabel lblmenu = new JLabel("MENU CHÍNH");
+        lblmenu = new JLabel("MENU CHÍNH");
         lblmenu.setFont(new Font("Arial",Font.BOLD,20));
         lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -81,10 +94,10 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         add(pWest,BorderLayout.WEST);
 
         //pCenter
-        JPanel pCenter = new JPanel();
+        pCenter = new JPanel();
         pCenter.setLayout(new BorderLayout());
 
-        JPanel card = new JPanel();
+        card = new JPanel();
         card.setLayout(new GridLayout(2,2,5,20));
 
 
@@ -95,12 +108,12 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY),
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
-        JLabel timkiem = new JLabel("Ô nhập tìm kiếm (Mã Phiếu,Tên KH): ");
+        timkiem = new JLabel("Ô nhập tìm kiếm (Mã Phiếu,Tên KH): ");
         timkiem.setFont(new Font("Arial",Font.BOLD,15));
-        JTextField txttimkiem = new JTextField();
-        JLabel trangthai = new JLabel("Trạng thái: ");
+        txttimkiem = new JTextField();
+        trangthai = new JLabel("Trạng thái: ");
         trangthai.setFont(new Font("Arial",Font.BOLD,15));
-        JComboBox<Object> txttrangthai = new JComboBox<>(new String []{"Tất cả","Đang xử lý","Hoàn thành"});
+        txttrangthai = new JComboBox<>(new String []{"Tất cả","Đang xử lý","Hoàn thành"});
 
 
         card.add(timkiem);
@@ -114,9 +127,9 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
                 {"2","PSC20231026002","29-44444","Phan Xuân Phụng","0123456789","26/10/2023","Hùng Nguyễn","5,500,000 VNĐ","Đã lập hoá đơn"},
                 {"3","PSC20231026003","29-99999","Nguyễn Quan Huy","0123456789","26/10/2023","Hùng Nguyễn","10,000,000 VNĐ","Chờ thanh toán"},
                 {"4","PSC20231026004","29-03979","Lê Duy Minh","0123456789","26/10/2023","Hùng Nguyễn","15,500,000 VNĐ","Đã lập hoá đơn"}};
-        DefaultTableModel model = new DefaultTableModel(data, columns);
-        JTable table = new JTable(model);
-        JScrollPane scroll = new JScrollPane(table);
+        model = new DefaultTableModel(data, columns);
+        table = new JTable(model);
+        scroll = new JScrollPane(table);
         pCenter.add(scroll,BorderLayout.CENTER);
         add(pCenter,BorderLayout.CENTER);
         trangchu.addActionListener(this);
@@ -125,6 +138,29 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         quanlycongno.addActionListener(this);
         baocaodoanhthu.addActionListener(this);
         quaylai.addActionListener(this);
+        chinhmau();
+    }
+    private void chinhmau (){
+        Color maunen = new Color(244, 246, 248);
+        Color maumenu = new Color(226, 232, 240);
+        Color btnchinh =  new Color(186, 230, 253);
+        Color btnphu = new Color(219, 234, 254);
+        Color chuchinh = new Color(17, 24, 39);
+
+        lbltieude.setForeground(chuchinh);
+        lblmenu.setForeground(chuchinh);
+        trangchu.setBackground(btnchinh);
+        qlca.setBackground(btnchinh);
+        dsphieusuachua.setBackground(btnchinh);
+        quanlycongno.setBackground(btnchinh);
+        baocaodoanhthu.setBackground(btnchinh);
+        quaylai.setBackground(btnchinh);
+        timkiem.setForeground(chuchinh);
+        trangthai.setForeground(chuchinh);
+        pNorth.setBackground(maunen);
+        pWest.setBackground(maumenu);
+        pCenter.setBackground(maunen);
+        table.getTableHeader().setBackground(new Color(186,230,253));
     }
     public static void main(String[] args) {
         ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
