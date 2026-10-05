@@ -24,78 +24,70 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 public class CapNhatTienDoSuaChua extends JFrame {
-
     private JPanel headerPanel;
     private JSplitPane splitPane;
-
-    // Panel bên trái (Danh sách lệnh sửa chữa)
     private JPanel leftPanel;
     private JTextField searchTxt;
     private JButton timBtn;
     private JTable tableLenhSC;
     private DefaultTableModel tableModelLenhSC;
-
-    // Panel bên phải (Chi tiết & Cập nhật tiến độ)
     private JPanel rightPanel;
     private JTextField maLenhTxt;
     private JTextField bienSoTxt;
     private JTextField khachHangTxt;
-    
     private JTable tableChiTietCV;
     private DefaultTableModel tableModelChiTietCV;
-
     private JComboBox trangThaiCb;
     private JComboBox tienDoCb;
     private JProgressBar progressBar;
     private JTextArea ghiChuTa;
-
     private JButton luuTienDoBtn;
     private JButton lamMoiBtn;
+    private JButton quayLaiBtn;
 
-    // Bảng màu chuẩn
-    private Color backgroundColor = new Color(241, 245, 249);
-    private Color primaryColor = new Color(37, 99, 235);
-    private Color textColor = new Color(15, 23, 42);
-    private Color secondaryColor = new Color(71, 85, 105);
-    private Color borderColor = new Color(203, 213, 225);
-    private Color dangerColor = new Color(220, 38, 38);
-    private Color successColor = new Color(22, 163, 74);
-    private Color warningColor = new Color(217, 119, 6);
+    private Color maunen = new Color(244, 246, 248);
+    private Color maumenu = new Color(226, 232, 240);
+    private Color btnchinh = new Color(186, 230, 253);
+    private Color btnphu = new Color(219, 234, 254);
+    private Color chuchinh = new Color(17, 24, 39);
+    private Color maucotbang = new Color(186, 230, 253);
+    private Color mauphu = new Color(107, 114, 128);
+    private Color maudo = new Color(220, 38, 38);
+    private Color mauxanh = new Color(34, 197, 94);
 
     public CapNhatTienDoSuaChua() {
-
         setTitle("Công việc được phân công & Tiến độ - Garage Management");
         setSize(1200, 750);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-
-        getContentPane().setBackground(backgroundColor);
+        getContentPane().setBackground(maunen);
         setLayout(new BorderLayout(0, 10));
-
         taoHeader();
         taoContent();
-
         setVisible(true);
     }
 
     private void taoHeader() {
-
         headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.WHITE);
         headerPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
-        headerPanel.setPreferredSize(new Dimension(1200, 70));
+        headerPanel.setPreferredSize(new Dimension(1200, 75));
 
         JLabel titleLb = new JLabel("CÔNG VIỆC ĐƯỢC PHÂN CÔNG & CẬP NHẬT TIẾN ĐỘ");
         titleLb.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLb.setForeground(textColor);
+        titleLb.setForeground(chuchinh);
+
+        quayLaiBtn = taoButton("Quay lại", btnphu);
+        quayLaiBtn.setPreferredSize(new Dimension(110, 40));
+        quayLaiBtn.addActionListener(e -> quayLaiTrangChu());
 
         headerPanel.add(titleLb, BorderLayout.WEST);
+        headerPanel.add(quayLaiBtn, BorderLayout.EAST);
 
         add(headerPanel, BorderLayout.NORTH);
     }
 
     private void taoContent() {
-
         taoDanhSachLenhPanel();
         taoChiTietTienDoPanel();
 
@@ -103,34 +95,31 @@ public class CapNhatTienDoSuaChua extends JFrame {
         splitPane.setDividerLocation(460);
         splitPane.setDividerSize(6);
         splitPane.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 20));
-        splitPane.setBackground(backgroundColor);
+        splitPane.setBackground(maunen);
 
         add(splitPane, BorderLayout.CENTER);
     }
 
     private void taoDanhSachLenhPanel() {
-
         leftPanel = new JPanel(new BorderLayout(0, 12));
-        leftPanel.setBackground(backgroundColor);
+        leftPanel.setBackground(maunen);
 
-        // Ô tìm kiếm
         JPanel searchPanel = new JPanel(new BorderLayout(10, 0));
-        searchPanel.setBackground(backgroundColor);
+        searchPanel.setBackground(maunen);
 
         searchTxt = new JTextField();
         searchTxt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchTxt.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor, 1),
+                BorderFactory.createLineBorder(maucotbang, 1),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10)
         ));
         searchTxt.setPreferredSize(new Dimension(250, 40));
 
-        timBtn = taoButton("Tìm lệnh", primaryColor);
+        timBtn = taoButton("Tìm lệnh", btnchinh);
 
         searchPanel.add(searchTxt, BorderLayout.CENTER);
         searchPanel.add(timBtn, BorderLayout.EAST);
 
-        // Bảng danh sách lệnh sửa chữa được phân công
         String[] columns = {"Mã lệnh", "Biển số", "Trạng thái", "Tiến độ"};
         Object[][] data = {
             {"SC001", "51A-123.45", "Đang sửa chữa", "60%"},
@@ -147,14 +136,14 @@ public class CapNhatTienDoSuaChua extends JFrame {
         };
 
         tableLenhSC = taoTable(tableModelLenhSC);
+
         JScrollPane scrollPane = new JScrollPane(tableLenhSC);
-        scrollPane.setBorder(BorderFactory.createLineBorder(borderColor));
+        scrollPane.setBorder(BorderFactory.createLineBorder(maucotbang));
         scrollPane.getViewport().setBackground(Color.WHITE);
 
         leftPanel.add(searchPanel, BorderLayout.NORTH);
         leftPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Chọn dòng trên bảng để tải thông tin
         tableLenhSC.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 hienThiChiTietLenhDuocChon();
@@ -163,23 +152,21 @@ public class CapNhatTienDoSuaChua extends JFrame {
     }
 
     private void taoChiTietTienDoPanel() {
-
         rightPanel = new JPanel(new BorderLayout(0, 12));
         rightPanel.setBackground(Color.WHITE);
         rightPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor, 1),
+                BorderFactory.createLineBorder(maucotbang, 1),
                 BorderFactory.createEmptyBorder(15, 18, 15, 18)
         ));
 
-        // 1. Thông tin chung về Lệnh sửa chữa
         JPanel infoPanel = new JPanel(new GridLayout(2, 3, 10, 10));
         infoPanel.setBackground(Color.WHITE);
         infoPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(borderColor),
+                BorderFactory.createLineBorder(maucotbang),
                 "Thông tin lệnh sửa chữa",
                 0, 0,
                 new Font("Segoe UI", Font.BOLD, 13),
-                secondaryColor
+                chuchinh
         ));
 
         maLenhTxt = taoTextFieldReadOnly();
@@ -189,12 +176,10 @@ public class CapNhatTienDoSuaChua extends JFrame {
         infoPanel.add(taoLabel("Mã lệnh SC:"));
         infoPanel.add(taoLabel("Biển số xe:"));
         infoPanel.add(taoLabel("Khách hàng:"));
-
         infoPanel.add(maLenhTxt);
         infoPanel.add(bienSoTxt);
         infoPanel.add(khachHangTxt);
 
-        // 2. Bảng các hạng mục công việc chi tiết
         JPanel taskTablePanel = new JPanel(new BorderLayout(0, 8));
         taskTablePanel.setBackground(Color.WHITE);
 
@@ -215,22 +200,22 @@ public class CapNhatTienDoSuaChua extends JFrame {
         };
 
         tableChiTietCV = taoTable(tableModelChiTietCV);
+
         JScrollPane scrollCV = new JScrollPane(tableChiTietCV);
-        scrollCV.setBorder(BorderFactory.createLineBorder(borderColor));
+        scrollCV.setBorder(BorderFactory.createLineBorder(maucotbang));
         scrollCV.setPreferredSize(new Dimension(0, 140));
 
         taskTablePanel.add(taskTitle, BorderLayout.NORTH);
         taskTablePanel.add(scrollCV, BorderLayout.CENTER);
 
-        // 3. Khối Cập nhật Trạng thái & Tiến độ
         JPanel updateFormPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         updateFormPanel.setBackground(Color.WHITE);
         updateFormPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(borderColor),
+                BorderFactory.createLineBorder(maucotbang),
                 "Cập nhật tiến độ & Kết quả thực hiện",
                 0, 0,
                 new Font("Segoe UI", Font.BOLD, 13),
-                secondaryColor
+                chuchinh
         ));
 
         trangThaiCb = new JComboBox<>(new String[]{
@@ -240,53 +225,51 @@ public class CapNhatTienDoSuaChua extends JFrame {
             "Hoàn thành"
         });
         trangThaiCb.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        trangThaiCb.setBackground(Color.WHITE);
 
         tienDoCb = new JComboBox<>(new String[]{
             "0%", "20%", "40%", "60%", "80%", "100%"
         });
         tienDoCb.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tienDoCb.setBackground(Color.WHITE);
         tienDoCb.setSelectedItem("60%");
 
         progressBar = new JProgressBar(0, 100);
         progressBar.setValue(60);
         progressBar.setStringPainted(true);
         progressBar.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        progressBar.setForeground(successColor);
-        progressBar.setBackground(new Color(226, 232, 240));
+        progressBar.setForeground(btnchinh);
+        progressBar.setBackground(maumenu);
 
         updateFormPanel.add(taoLabel("Trạng thái chung:"));
         updateFormPanel.add(trangThaiCb);
-
         updateFormPanel.add(taoLabel("Tiến độ tổng thể (%):"));
         updateFormPanel.add(tienDoCb);
-
         updateFormPanel.add(taoLabel("Thanh tiến độ:"));
         updateFormPanel.add(progressBar);
 
-        // Ghi chú kết quả
         JPanel notePanel = new JPanel(new BorderLayout(0, 5));
         notePanel.setBackground(Color.WHITE);
 
         ghiChuTa = taoTextArea();
+
         JScrollPane scrollNote = new JScrollPane(ghiChuTa);
-        scrollNote.setBorder(BorderFactory.createLineBorder(borderColor));
+        scrollNote.setBorder(BorderFactory.createLineBorder(maucotbang));
         scrollNote.setPreferredSize(new Dimension(0, 75));
 
         notePanel.add(taoLabel("Ghi chú kết quả / Báo cáo sự cố phát sinh:"), BorderLayout.NORTH);
         notePanel.add(scrollNote, BorderLayout.CENTER);
 
-        // Cụm Nút Thao tác
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         btnPanel.setBackground(Color.WHITE);
 
-        lamMoiBtn = taoButton("Làm mới", secondaryColor);
-        luuTienDoBtn = taoButton("Lưu tiến độ & Kết quả", successColor);
+        lamMoiBtn = taoButton("Làm mới", maumenu);
+        luuTienDoBtn = taoButton("Lưu tiến độ & Kết quả", btnchinh);
         luuTienDoBtn.setPreferredSize(new Dimension(210, 40));
 
         btnPanel.add(lamMoiBtn);
         btnPanel.add(luuTienDoBtn);
 
-        // Gom các khối vào Right Panel
         JPanel centerContainer = new JPanel(new BorderLayout(0, 10));
         centerContainer.setBackground(Color.WHITE);
         centerContainer.add(infoPanel, BorderLayout.NORTH);
@@ -301,7 +284,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
         rightPanel.add(centerContainer, BorderLayout.CENTER);
         rightPanel.add(bottomContainer, BorderLayout.SOUTH);
 
-        // Lắng nghe sự kiện đổi ComboBox tiến độ để cập nhật ProgressBar
         tienDoCb.addActionListener(e -> {
             String val = tienDoCb.getSelectedItem().toString().replace("%", "");
             progressBar.setValue(Integer.parseInt(val));
@@ -312,7 +294,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
     }
 
     private void hienThiChiTietLenhDuocChon() {
-
         int row = tableLenhSC.getSelectedRow();
 
         if (row != -1) {
@@ -339,7 +320,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
     }
 
     private void luuTienDo() {
-
         int row = tableLenhSC.getSelectedRow();
 
         if (row == -1) {
@@ -355,7 +335,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
         String trangThaiMoi = trangThaiCb.getSelectedItem().toString();
         String tienDoMoi = tienDoCb.getSelectedItem().toString();
 
-        // Cập nhật lên Bảng danh sách bên trái
         tableModelLenhSC.setValueAt(trangThaiMoi, row, 2);
         tableModelLenhSC.setValueAt(tienDoMoi, row, 3);
 
@@ -368,7 +347,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
     }
 
     private void xoaForm() {
-
         maLenhTxt.setText("");
         bienSoTxt.setText("");
         khachHangTxt.setText("");
@@ -378,68 +356,62 @@ public class CapNhatTienDoSuaChua extends JFrame {
     }
 
     private JTable taoTable(DefaultTableModel model) {
-
         JTable table = new JTable(model);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setRowHeight(36);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setSelectionBackground(new Color(219, 234, 254));
-        table.setSelectionForeground(textColor);
+        table.setSelectionBackground(btnphu);
+        table.setSelectionForeground(chuchinh);
         table.setShowVerticalLines(false);
-
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.getTableHeader().setBackground(new Color(30, 41, 59));
+        table.getTableHeader().setForeground(chuchinh);
+        table.getTableHeader().setBackground(btnchinh);
         table.getTableHeader().setPreferredSize(new Dimension(0, 38));
-
         return table;
     }
 
     private JLabel taoLabel(String text) {
-
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        label.setForeground(secondaryColor);
-
+        label.setForeground(chuchinh);
         return label;
     }
 
     private JTextField taoTextFieldReadOnly() {
-
         JTextField textField = new JTextField();
         textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         textField.setEditable(false);
-        textField.setBackground(new Color(248, 250, 252));
+        textField.setBackground(maunen);
         textField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor, 1),
+                BorderFactory.createLineBorder(maucotbang, 1),
                 BorderFactory.createEmptyBorder(0, 8, 0, 8)
         ));
-
         return textField;
     }
 
     private JTextArea taoTextArea() {
-
         JTextArea textArea = new JTextArea();
         textArea.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
-
         return textArea;
     }
 
     private JButton taoButton(String text, Color color) {
-
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        button.setForeground(Color.WHITE);
+        button.setForeground(chuchinh);
         button.setBackground(color);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         return button;
+    }
+
+    private void quayLaiTrangChu() {
+        dispose();
+        new TrangChuKyThuatVien();
     }
 
     public static void main(String[] args) {

@@ -49,23 +49,22 @@ public class TrangChuKyThuatVien extends JFrame {
     private JButton moLapPhieuBtn;
     private JButton moTienDoBtn;
     private JButton moChatLuongBtn;
-    private Color backgroundColor = new Color(244, 246, 248);
-    private Color primaryColor = new Color(249, 115, 22);
-    private Color textColor = new Color(17, 24, 39);
-    private Color secondaryColor = new Color(107, 114, 128);
-    private Color borderColor = new Color(229, 231, 235);
-    private Color dangerColor = new Color(220, 38, 38);
-    private Color successColor = new Color(37, 99, 235);
-    private Color purpleColor = new Color(37, 99, 235);
-    private Color menuColor = new Color(31, 41, 55);
-    private String tenKyThuatVien = "Nguyễn Văn An";
+    private Color maunen = new Color(244, 246, 248);
+    private Color maumenu = new Color(226, 232, 240);
+    private Color btnchinh = new Color(186, 230, 253);
+    private Color btnphu = new Color(219, 234, 254);
+    private Color chuchinh = new Color(17, 24, 39);
+    private Color maucotbang = new Color(186, 230, 253);
+    private Color mauphu = new Color(107, 114, 128);
+    private Color maudo = new Color(220, 38, 38);
+    private String tenKyThuatVien = "Phan Xuân Phụng";
 
     public TrangChuKyThuatVien() {
         setTitle("Trang chủ kỹ thuật viên - Garage Management");
         setSize(1100, 820);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(backgroundColor);
+        getContentPane().setBackground(maunen);
         setLayout(new BorderLayout(0, 15));
         taoHeader();
         taoBody();
@@ -82,26 +81,26 @@ public class TrangChuKyThuatVien extends JFrame {
         headerPanel.setPreferredSize(new Dimension(1100, 75));
         titleLb = new JLabel("TRANG CHỦ KỸ THUẬT VIÊN");
         titleLb.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        titleLb.setForeground(textColor);
+        titleLb.setForeground(chuchinh);
         headerPanel.add(titleLb, BorderLayout.WEST);
         add(headerPanel, BorderLayout.NORTH);
     }
 
     private void taoBody() {
         bodyPanel = new JPanel(new BorderLayout(15, 0));
-        bodyPanel.setBackground(backgroundColor);
+        bodyPanel.setBackground(maunen);
         bodyPanel.setBorder(BorderFactory.createEmptyBorder(0, 25, 25, 25));
         add(bodyPanel, BorderLayout.CENTER);
     }
 
     private void taoMenu() {
         menuPanel = new JPanel(new BorderLayout());
-        menuPanel.setBackground(menuColor);
+        menuPanel.setBackground(maumenu);
         menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
         menuPanel.setPreferredSize(new Dimension(230, 0));
 
         JPanel menuTopPanel = new JPanel(new BorderLayout(0, 15));
-        menuTopPanel.setBackground(menuColor);
+        menuTopPanel.setBackground(maumenu);
 
         logo = new JLabel(loadIcon("/resources/icons/logo.png", 180, 165));
         logo.setHorizontalAlignment(SwingConstants.CENTER);
@@ -109,13 +108,13 @@ public class TrangChuKyThuatVien extends JFrame {
         menuTopPanel.add(logo, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 0, 15));
-        buttonPanel.setBackground(menuColor);
+        buttonPanel.setBackground(maumenu);
 
-        trangChuBtn = taoMenuButton("Trang chủ", primaryColor, true);
-        kiemTraXeBtn = taoMenuButton("Kiểm tra xe", menuColor, false);
-        lapPhieuBtn = taoMenuButton("Lập phiếu sửa chữa", menuColor, false);
-        tienDoBtn = taoMenuButton("Tiến độ sửa chữa", menuColor, false);
-        chatLuongBtn = taoMenuButton("Kiểm tra chất lượng", menuColor, false);
+        trangChuBtn = taoMenuButton("Trang chủ", btnchinh, true);
+        kiemTraXeBtn = taoMenuButton("Kiểm tra xe", maumenu, false);
+        lapPhieuBtn = taoMenuButton("Lập phiếu sửa chữa", maumenu, false);
+        tienDoBtn = taoMenuButton("Tiến độ sửa chữa", maumenu, false);
+        chatLuongBtn = taoMenuButton("Kiểm tra chất lượng", maumenu, false);
 
         buttonPanel.add(trangChuBtn);
         buttonPanel.add(kiemTraXeBtn);
@@ -134,25 +133,25 @@ public class TrangChuKyThuatVien extends JFrame {
     private JPanel taoThongTinKTV() {
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
-        profilePanel.setBackground(new Color(30, 41, 59));
+        profilePanel.setBackground(maumenu);
         profilePanel.setBorder(BorderFactory.createEmptyBorder(15, 5, 0, 5));
 
         JSeparator separator = new JSeparator();
-        separator.setForeground(new Color(71, 85, 105));
+        separator.setForeground(maucotbang);
         separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
 
         JLabel tenLb = new JLabel(tenKyThuatVien);
         tenLb.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        tenLb.setForeground(Color.WHITE);
+        tenLb.setForeground(chuchinh);
         tenLb.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel chucVuLb = new JLabel("Kỹ thuật viên");
         chucVuLb.setFont(new Font("Segoe UI", Font.PLAIN, 17));
-        chucVuLb.setForeground(new Color(148, 163, 184));
+        chucVuLb.setForeground(mauphu);
         chucVuLb.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel logoutPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        logoutPanel.setBackground(new Color(30, 41, 59));
+        logoutPanel.setBackground(maumenu);
         logoutPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         logoutPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
@@ -160,7 +159,7 @@ public class TrangChuKyThuatVien extends JFrame {
         logoutLabel.setIcon(loadIcon("/resources/icons/logout.png", 18, 18));
         logoutLabel.setIconTextGap(7);
         logoutLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-        logoutLabel.setForeground(dangerColor);
+        logoutLabel.setForeground(maudo);
         logoutLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         logoutPanel.add(logoutLabel);
@@ -173,12 +172,12 @@ public class TrangChuKyThuatVien extends JFrame {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                logoutLabel.setForeground(new Color(248, 113, 113));
+                logoutLabel.setForeground(new Color(185, 28, 28));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                logoutLabel.setForeground(dangerColor);
+                logoutLabel.setForeground(maudo);
             }
         });
 
@@ -195,26 +194,26 @@ public class TrangChuKyThuatVien extends JFrame {
 
     private void taoContent() {
         contentPanel = new JPanel(new BorderLayout(0, 15));
-        contentPanel.setBackground(backgroundColor);
+        contentPanel.setBackground(maunen);
 
         JPanel welcomePanel = new JPanel(new GridLayout(2, 1, 0, 5));
-        welcomePanel.setBackground(backgroundColor);
+        welcomePanel.setBackground(maunen);
         welcomePanel.setPreferredSize(new Dimension(700, 60));
 
         welcomeLb = new JLabel("XIN CHÀO KỸ THUẬT VIÊN");
         welcomeLb.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        welcomeLb.setForeground(textColor);
+        welcomeLb.setForeground(chuchinh);
 
         subWelcomeLb = new JLabel("Chọn chức năng bên dưới hoặc từ thanh menu để bắt đầu làm việc");
         subWelcomeLb.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        subWelcomeLb.setForeground(secondaryColor);
+        subWelcomeLb.setForeground(mauphu);
 
         welcomePanel.add(welcomeLb);
         welcomePanel.add(subWelcomeLb);
         contentPanel.add(welcomePanel, BorderLayout.NORTH);
 
         JPanel mainDashboardPanel = new JPanel(new BorderLayout(0, 15));
-        mainDashboardPanel.setBackground(backgroundColor);
+        mainDashboardPanel.setBackground(maunen);
 
         taoCard();
         taoChart();
@@ -225,8 +224,8 @@ public class TrangChuKyThuatVien extends JFrame {
         JScrollPane scrollPane = new JScrollPane(mainDashboardPanel);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(12);
-        scrollPane.setBackground(backgroundColor);
-        scrollPane.getViewport().setBackground(backgroundColor);
+        scrollPane.setBackground(maunen);
+        scrollPane.getViewport().setBackground(maunen);
 
         contentPanel.add(scrollPane, BorderLayout.CENTER);
         bodyPanel.add(contentPanel, BorderLayout.CENTER);
@@ -234,34 +233,34 @@ public class TrangChuKyThuatVien extends JFrame {
 
     private void taoCard() {
         cardPanel = new JPanel(new GridLayout(2, 2, 15, 15));
-        cardPanel.setBackground(backgroundColor);
+        cardPanel.setBackground(maunen);
 
-        moKiemTraBtn = taoButton("Xem chi tiết", primaryColor);
-        moLapPhieuBtn = taoButton("Xem chi tiết", successColor);
-        moTienDoBtn = taoButton("Xem chi tiết", purpleColor);
-        moChatLuongBtn = taoButton("Xem chi tiết", new Color(245, 158, 11));
+        moKiemTraBtn = taoButton("Xem chi tiết", btnchinh);
+        moLapPhieuBtn = taoButton("Xem chi tiết", btnphu);
+        moTienDoBtn = taoButton("Xem chi tiết", btnphu);
+        moChatLuongBtn = taoButton("Xem chi tiết", btnchinh);
 
-        cardPanel.add(taoCardItem("Xe cần kiểm tra", "5", primaryColor, moKiemTraBtn));
-        cardPanel.add(taoCardItem("Phiếu tiếp nhận chờ lập", "3", successColor, moLapPhieuBtn));
-        cardPanel.add(taoCardItem("Xe đang sửa chữa", "4", purpleColor, moTienDoBtn));
-        cardPanel.add(taoCardItem("Xe chờ kiểm tra KCS", "2", new Color(245, 158, 11), moChatLuongBtn));
+        cardPanel.add(taoCardItem("Xe cần kiểm tra", "5", btnchinh, moKiemTraBtn));
+        cardPanel.add(taoCardItem("Phiếu tiếp nhận chờ lập", "3", btnphu, moLapPhieuBtn));
+        cardPanel.add(taoCardItem("Xe đang sửa chữa", "4", btnphu, moTienDoBtn));
+        cardPanel.add(taoCardItem("Xe chờ kiểm tra KCS", "2", btnchinh, moChatLuongBtn));
     }
 
     private JPanel taoCardItem(String title, String soLuong, Color color, JButton button) {
         JPanel card = new JPanel(new BorderLayout(0, 10));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor, 1),
+                BorderFactory.createLineBorder(maucotbang, 1),
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
 
         JLabel titleCardLb = new JLabel(title);
         titleCardLb.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        titleCardLb.setForeground(secondaryColor);
+        titleCardLb.setForeground(mauphu);
 
         JLabel soLuongLb = new JLabel(soLuong, SwingConstants.LEFT);
         soLuongLb.setFont(new Font("Segoe UI", Font.BOLD, 42));
-        soLuongLb.setForeground(color);
+        soLuongLb.setForeground(chuchinh);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         bottomPanel.setBackground(Color.WHITE);
@@ -296,7 +295,7 @@ public class TrangChuKyThuatVien extends JFrame {
                 int barWidth = Math.min(42, chartWidth / days.length - 20);
                 int gap = (chartWidth - (barWidth * days.length)) / (days.length + 1);
 
-                g2.setColor(new Color(241, 245, 249));
+                g2.setColor(maucotbang);
 
                 for (int i = 0; i <= 4; i++) {
                     int y = paddingTop + (chartHeight * i / 4);
@@ -308,17 +307,17 @@ public class TrangChuKyThuatVien extends JFrame {
                     int x = paddingLeftRight + gap + i * (barWidth + gap);
                     int y = paddingTop + (chartHeight - barHeight);
 
-                    g2.setColor(primaryColor);
+                    g2.setColor(btnchinh);
                     g2.fillRoundRect(x, y, barWidth, barHeight, 8, 8);
 
-                    g2.setColor(textColor);
+                    g2.setColor(chuchinh);
                     g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
                     String valStr = String.valueOf(values[i]);
                     int strWidth = g2.getFontMetrics().stringWidth(valStr);
                     g2.drawString(valStr, x + (barWidth - strWidth) / 2, y - 6);
 
-                    g2.setColor(secondaryColor);
+                    g2.setColor(mauphu);
                     g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
                     int dayWidth = g2.getFontMetrics().stringWidth(days[i]);
@@ -329,14 +328,14 @@ public class TrangChuKyThuatVien extends JFrame {
 
         chartPanel.setBackground(Color.WHITE);
         chartPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor, 1),
+                BorderFactory.createLineBorder(maucotbang, 1),
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
         chartPanel.setPreferredSize(new Dimension(700, 220));
 
         JLabel chartTitle = new JLabel("Thống kê năng suất: Số xe hoàn thành sửa chữa 7 ngày gần nhất");
         chartTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        chartTitle.setForeground(textColor);
+        chartTitle.setForeground(chuchinh);
 
         chartPanel.add(chartTitle, BorderLayout.NORTH);
     }
@@ -355,7 +354,7 @@ public class TrangChuKyThuatVien extends JFrame {
     private JButton taoMenuButton(String text, Color color, boolean isActive) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        button.setForeground(Color.WHITE);
+        button.setForeground(chuchinh);
         button.setBackground(color);
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
@@ -363,16 +362,16 @@ public class TrangChuKyThuatVien extends JFrame {
         button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        if (!isActive && color.equals(menuColor)) {
+        if (!isActive && color.equals(maumenu)) {
             button.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    button.setBackground(new Color(55, 65, 81));
+                    button.setBackground(btnphu);
                 }
 
                 @Override
                 public void mouseExited(MouseEvent e) {
-                    button.setBackground(menuColor);
+                    button.setBackground(maumenu);
                 }
             });
         }
@@ -383,7 +382,7 @@ public class TrangChuKyThuatVien extends JFrame {
     private JButton taoButton(String text, Color color) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        button.setForeground(Color.WHITE);
+        button.setForeground(chuchinh);
         button.setBackground(color);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
