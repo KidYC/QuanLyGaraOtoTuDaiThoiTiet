@@ -5,6 +5,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class TrangChuLeTan extends JFrame implements ActionListener {
     private JLabel lblTieuDe;
@@ -18,9 +20,6 @@ public class TrangChuLeTan extends JFrame implements ActionListener {
     private JPanel pCenter;
 
     private CardLayout cardLayout;
-    private JPanel pQuanLyKhachHang;
-    private JPanel pXeChoBaoGia;
-    private JPanel pDanhSachXeDaSua;
     private JLabel lblTieuDeQLKH;
     private JLabel lblTieuDeDSXCBG;
     private JLabel lblTieuDeDSXDSC;
@@ -85,37 +84,7 @@ public class TrangChuLeTan extends JFrame implements ActionListener {
         b.add(Box.createVerticalStrut(10));
         b4.add(btnBanGiaoXe);
 
-        //pCenter
-        cardLayout = new CardLayout();
-        pCenter = new JPanel(cardLayout);
-        add(pCenter, BorderLayout.CENTER);
-
-        //Chuyển hướng Button Tiếp Nhận Xe
-        pQuanLyKhachHang = new JPanel();
-        pQuanLyKhachHang.setBackground(Color.WHITE);
-        lblTieuDeQLKH = new JLabel("GIAO DIỆN QUẢN LÝ KHÁCH HÀNG");
-        lblTieuDeQLKH.setFont(new Font("Arial", Font.BOLD, 20));
-        lblTieuDeQLKH.setForeground(new Color(44, 62, 80));
-        pQuanLyKhachHang.add(lblTieuDeQLKH);
-        //Chuyển hướng Button Lập Báo Giá
-        pXeChoBaoGia = new JPanel();
-        pXeChoBaoGia.setBackground(new Color(240, 248, 255));
-        lblTieuDeDSXCBG = new JLabel("GIAO DIỆN DANH SÁCH XE CHỜ BÁO GIÁ");
-        lblTieuDeDSXCBG.setFont(new Font("Arial", Font.BOLD, 20));
-        lblTieuDeDSXCBG.setForeground(new Color(44, 62, 80));
-        pXeChoBaoGia.add(lblTieuDeDSXCBG);
-        //Chuyển hướng Button Bàn Giao Xe
-        pDanhSachXeDaSua = new JPanel();
-        pDanhSachXeDaSua.setBackground(new Color(255, 250, 240));
-        lblTieuDeDSXDSC = new JLabel("GIAO DIỆN DANH SÁCH XE ĐÃ HOÀN THÀNH SỬA CHỮA");
-        lblTieuDeDSXDSC.setFont(new Font("Arial", Font.BOLD, 20));
-        lblTieuDeDSXDSC.setForeground(new Color(44, 62, 80));
-        pDanhSachXeDaSua.add(lblTieuDeDSXDSC);
-        //Thêm Card vào pCen
-        pCenter.add(pQuanLyKhachHang, "CardTiepNhan");
-        pCenter.add(pXeChoBaoGia, "CardLapBaoGia");
-        pCenter.add(pDanhSachXeDaSua, "CardBanGiaoXe");
-        //Thêm các ActionListener
+        initListener();
         initListener();
     }
 
@@ -123,7 +92,6 @@ public class TrangChuLeTan extends JFrame implements ActionListener {
         JButton btn = new JButton(text);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setFont(new Font("Arial", Font.BOLD, 12));
-
         Dimension btnSize = new Dimension(180, 35);
         btn.setPreferredSize(btnSize);
         btn.setMaximumSize(btnSize);
@@ -132,7 +100,7 @@ public class TrangChuLeTan extends JFrame implements ActionListener {
         return btn;
     }
 
-    public void initListener(){
+    private void initListener(){
         btnTiepNhanXe.addActionListener(this);
         btnLapBaoGia.addActionListener(this);
         btnBanGiaoXe.addActionListener(this);
@@ -142,13 +110,19 @@ public class TrangChuLeTan extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if(btnTiepNhanXe.equals(source)){
-            cardLayout.show(pCenter, "CardTiepNhan");
+            ManHinhQuanLyKhachHang UI = new ManHinhQuanLyKhachHang();
+            UI.setVisible(true);
+            this.dispose();
         }
         else if(btnLapBaoGia.equals(source)){
-            cardLayout.show(pCenter, "CardLapBaoGia");
+            ManHinhDanhSachXeChoBaoGia UI = new ManHinhDanhSachXeChoBaoGia();
+            UI.setVisible(true);
+            this.dispose();
         }
         else if(btnBanGiaoXe.equals(source)){
-            cardLayout.show(pCenter, "CardBanGiaoXe");
+            ManHinhDanhSachXeDaHoanThanhSuaChua UI = new ManHinhDanhSachXeDaHoanThanhSuaChua();
+            UI.setVisible(true);
+            this.dispose();
         }
     }
 
@@ -156,4 +130,5 @@ public class TrangChuLeTan extends JFrame implements ActionListener {
         TrangChuLeTan UI = new TrangChuLeTan();
         UI.setVisible(true);
     }
+
 }
