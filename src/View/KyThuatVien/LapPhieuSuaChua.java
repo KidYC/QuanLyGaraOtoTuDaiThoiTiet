@@ -525,7 +525,6 @@ public class LapPhieuSuaChua extends JFrame {
 
     private void quayLaiTrangChu() {
         dispose();
-        new TrangChuKyThuatVien();
     }
 
     public static void main(String[] args) {
