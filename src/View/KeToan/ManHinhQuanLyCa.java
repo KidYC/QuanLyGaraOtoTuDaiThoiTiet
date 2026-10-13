@@ -31,7 +31,7 @@ public class ManHinhQuanLyCa extends JFrame implements ActionListener {
     public ManHinhQuanLyCa(){
 
         setSize(580,480);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 

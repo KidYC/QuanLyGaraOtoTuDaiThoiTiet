@@ -55,7 +55,7 @@
 	
 	        setTitle("Quản lý kỹ thuật viên");
 	        setSize(1000, 650);
-	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	        setLocationRelativeTo(null);
 	
 	        getContentPane().setBackground(backgroundColor);

@@ -28,7 +28,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
     private JButton quaylai;
     public ManHinhDanhSachPhieuSuaChuaDaHoanThanh(){
         setSize(1000,480);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0,10));
 
