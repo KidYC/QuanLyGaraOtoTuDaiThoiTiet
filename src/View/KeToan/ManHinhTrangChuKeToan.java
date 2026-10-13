@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
     private final JPanel pNorth;
     private final JLabel lbltieude;
-    private final JPanel pThongTin;
     private final JPanel pWest;
     private final JLabel lblmenu;
     private final JPanel pCenter;
@@ -15,19 +14,6 @@ public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
     private final JLabel lblthaotac;
     private final JPanel pCenter1;
     private final JLabel lbltongquantrongngay;
-    private final JPanel pThongKe;
-    private final JPanel card1;
-    private final JLabel title1;
-    private final JPanel card2;
-    private final JLabel title2;
-    private final JLabel value2;
-    private final JPanel card3;
-    private final JLabel title3;
-    private final JLabel nd2;
-    private final JLabel value3;
-    private final JLabel lblthongtin;
-    private final JLabel nd1;
-    private final JLabel nd3;
     private JButton trangchu;
     private JButton qlca;
     private JButton qlcongno;
@@ -38,7 +24,7 @@ public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
     private JButton qlCongno;
     public ManHinhTrangChuKeToan() {
         super("TRANG CHỦ KẾ TOÁN");
-        setSize(1000, 600);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -58,11 +44,11 @@ public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
         lblmenu = new JLabel("MENU CHÍNH");
         lblmenu.setFont(new Font("Arial", Font.BOLD, 20));
         lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
-        trangchu = new JButton("Trang chủ");
-        qlca = new JButton("Quản lý ca");
-        qlcongno = new JButton("Quản lý công nợ");
-        hoadonvatt = new JButton("Hóa đơn & Thanh toán");
-        dangxuat = new JButton("Đăng xuất");
+        trangchu = new ButtonBoTron("Trang chủ");
+        qlca = new ButtonBoTron("Quản lý ca");
+        qlcongno = new ButtonBoTron("Quản lý công nợ");
+        hoadonvatt = new ButtonBoTron("Hóa đơn & Thanh toán");
+        dangxuat = new ButtonBoTron("Đăng xuất");
         // Cấu hình các nút menu
         JButton[] menuButtons = {
                 trangchu, qlca, qlcongno, hoadonvatt, dangxuat
@@ -140,83 +126,10 @@ public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
         pCenter.add(Box.createVerticalStrut(25));
         pCenter.add(lbltongquantrongngay);
         pCenter.add(Box.createVerticalStrut(15));
-        // Panel chứa các thẻ thống kê
-        pThongKe = new JPanel(new GridLayout(1, 3, 15, 0));
-        pThongKe.setMaximumSize(new Dimension(700, 110));
-        pThongKe.setBackground(Color.WHITE);
-        // Thẻ 1
-        card1 = new JPanel();
-        card1.setLayout(new BoxLayout(card1, BoxLayout.Y_AXIS));
-        card1.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        title1 = new JLabel("CA ĐANG MỞ");
-        title1.setFont(new Font("Arial", Font.BOLD, 14));
-        title1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel value1 = new JLabel("1");
-        value1.setFont(new Font("Arial", Font.BOLD, 30));
-        value1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        card1.add(Box.createVerticalStrut(12));
-        card1.add(title1);
-        card1.add(Box.createVerticalStrut(5));
-        card1.add(value1);
-        // Thẻ 2
-        card2 = new JPanel();
-        card2.setLayout(new BoxLayout(card2, BoxLayout.Y_AXIS));
-        card2.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        title2 = new JLabel("HÓA ĐƠN CHỜ THU");
-        title2.setFont(new Font("Arial", Font.BOLD, 14));
-        title2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        value2 = new JLabel("5");
-        value2.setFont(new Font("Arial", Font.BOLD, 30));
-        value2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        card2.add(Box.createVerticalStrut(12));
-        card2.add(title2);
-        card2.add(Box.createVerticalStrut(5));
-        card2.add(value2);
-        // Thẻ 3
-        card3 = new JPanel();
-        card3.setLayout(new BoxLayout(card3, BoxLayout.Y_AXIS));
-        card3.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        title3 = new JLabel("KH ĐẾN HẠN NỢ");
-        title3.setFont(new Font("Arial", Font.BOLD, 14));
-        title3.setAlignmentX(Component.CENTER_ALIGNMENT);
-        value3 = new JLabel("2");
-        value3.setFont(new Font("Arial", Font.BOLD, 30));
-        value3.setAlignmentX(Component.CENTER_ALIGNMENT);
-        card3.add(Box.createVerticalStrut(12));
-        card3.add(title3);
-        card3.add(Box.createVerticalStrut(5));
-        card3.add(value3);
-        pThongKe.add(card1);
-        pThongKe.add(card2);
-        pThongKe.add(card3);
-        pCenter.add(pThongKe);
-        //THÔNG TIN NHANH
-        pThongTin = new JPanel();
-        pThongTin.setLayout(new BoxLayout(pThongTin, BoxLayout.Y_AXIS));
-        pThongTin.setMaximumSize(new Dimension(700, 90));
-        pThongTin.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220)),
-                BorderFactory.createEmptyBorder(10, 15, 10, 15)
-        ));
-        lblthongtin = new JLabel("THÔNG TIN NHANH");
-        lblthongtin.setFont(new Font("Arial", Font.BOLD, 15));
-        lblthongtin.setAlignmentX(Component.LEFT_ALIGNMENT);
-        nd1 = new JLabel("• Hệ thống đang hoạt động bình thường.");
-        nd2 = new JLabel("• Có 5 hóa đơn đang chờ thu tiền.");
-        nd3 = new JLabel("• Có 2 khách hàng đến hạn thanh toán công nợ.");
-        nd1.setFont(new Font("Arial", Font.PLAIN, 13));
-        nd2.setFont(new Font("Arial", Font.PLAIN, 13));
-        nd3.setFont(new Font("Arial", Font.PLAIN, 13));
-        pThongTin.add(lblthongtin);
-        pThongTin.add(Box.createVerticalStrut(5));
-        pThongTin.add(nd1);
-        pThongTin.add(nd2);
-        pThongTin.add(nd3);
-        pThongTin.setAlignmentX(Component.CENTER_ALIGNMENT);
-        pCenter.add(Box.createVerticalStrut(15));
-        pCenter.add(pThongTin);
-        pCenter.add(Box.createVerticalGlue());
-        add(pCenter, BorderLayout.CENTER);
+        BieuDoCot bieuDoCot = new BieuDoCot();
+        pCenter.add(Box.createVerticalStrut(10));
+        pCenter.add(bieuDoCot);
+        add(pCenter,BorderLayout.CENTER);
         //ACTION LISTENER
         trangchu.addActionListener(this);
         qlca.addActionListener(this);
@@ -226,6 +139,7 @@ public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
         moca.addActionListener(this);
         laphoadonvatt.addActionListener(this);
         qlCongno.addActionListener(this);
+
         chinhmau();
     }
     private void chinhmau (){
@@ -251,9 +165,223 @@ public class ManHinhTrangChuKeToan extends JFrame implements ActionListener {
         pCenter.setBackground(maunen);
         pCenter1.setBackground(maunen);
     }
+    public class ButtonBoTron extends JButton {
+        private int radius = 15;
+        public ButtonBoTron(String text) {
+            super(text);
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setOpaque(false);
+        }
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            super.paintComponent(g);
+            g2.dispose();
+        }
+    }
+    public class BieuDoCot extends JPanel {
+
+        private int[] values = {1, 5, 2, 12};
+
+        private String[] labels = {
+                "Ca đang mở",
+                "Hóa đơn chờ thu",
+                "KH đến hạn nợ",
+                "Đã thanh toán"
+        };
+
+        public BieuDoCot() {
+            setPreferredSize(new Dimension(700, 300));
+            setMaximumSize(new Dimension(700, 300));
+            setBackground(Color.WHITE);
+
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
+            ));
+        }
+        protected void paintComponent(Graphics g) {
+
+            super.paintComponent(g);
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            int width = getWidth();
+            int height = getHeight();
+
+            g2.setColor(new Color(17, 24, 39));
+
+            g2.setFont(
+                    new Font("Arial", Font.BOLD, 18)
+            );
+
+            g2.drawString(
+                    "TỔNG QUAN KẾ TOÁN",
+                    25,
+                    30
+            );
+            int xStart = 70;
+            int yTop = 55;
+
+            int xEnd = width - 30;
+            int yBottom = height - 55;
+
+            int chartHeight = yBottom - yTop;
+
+            int max = 15;
+
+            g2.setFont(
+                    new Font("Arial", Font.PLAIN, 11)
+            );
+            for (int i = 0; i <= max; i += 5) {
+
+                int y =
+                        yBottom
+                                - (i * chartHeight / max);
+                g2.setColor(
+                        new Color(225, 230, 235)
+                );
+
+                g2.drawLine(
+                        xStart,
+                        y,
+                        xEnd,
+                        y
+                );
+                g2.setColor(
+                        new Color(80, 80, 80)
+                );
+
+                String value = String.valueOf(i);
+                g2.drawString(
+                        value,
+                        xStart - 25,
+                        y + 4
+                );
+            }
+            g2.setColor(
+                    new Color(100, 100, 100)
+            );
+
+            g2.drawLine(
+                    xStart,
+                    yTop,
+                    xStart,
+                    yBottom
+            );
+
+            g2.drawLine(
+                    xStart,
+                    yBottom,
+                    xEnd,
+                    yBottom
+            );
+            int barWidth = 75;
+
+            int khoangcach = 55;
+
+            for (int i = 0; i < values.length; i++) {
+
+                int barHeight =
+                        values[i] * chartHeight / max;
+
+                int x =
+                        xStart
+                                + 40
+                                + i * (barWidth + khoangcach);
+
+                int y =
+                        yBottom - barHeight;
+
+                if (i == 0) {
+                    g2.setColor(
+                            new Color(186, 230, 253)
+                    );
+                } else if (i == 1) {
+                    g2.setColor(
+                            new Color(147, 197, 253)
+                    );
+                } else if (i == 2) {
+                    g2.setColor(
+                            new Color(125, 211, 252)
+                    );
+                } else {
+                    g2.setColor(
+                            new Color(96, 165, 250)
+                    );
+                }
+                g2.fillRoundRect(
+                        x,
+                        y,
+                        barWidth,
+                        barHeight,
+                        8,
+                        8
+                );
+                g2.setColor(
+                        new Color(80, 120, 150)
+                );
+                g2.drawRoundRect(
+                        x,
+                        y,
+                        barWidth,
+                        barHeight,
+                        8,
+                        8
+                );
+                g2.setColor(
+                        new Color(17, 24, 39)
+                );
+                g2.setFont(
+                        new Font("Arial", Font.BOLD, 14)
+                );
+                String value =
+                        String.valueOf(values[i]);
+
+                int valueWidth =
+                        g2.getFontMetrics()
+                                .stringWidth(value);
+                g2.drawString(
+                        value,
+                        x + (barWidth - valueWidth) / 2,
+                        y - 8
+                );
+                g2.setFont(
+                        new Font("Arial", Font.PLAIN, 11)
+                );
+
+                String label = labels[i];
+
+                int labelWidth =
+                        g2.getFontMetrics()
+                                .stringWidth(label);
+
+                g2.drawString(
+                        label,
+                        x + (barWidth - labelWidth) / 2,
+                        yBottom + 22
+                );
+            }
+            g2.dispose();
+        }
+    }
     public static void main(String[] args) {
-        ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
-        UI.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
+            UI.setVisible(true);
+        });
     }
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
