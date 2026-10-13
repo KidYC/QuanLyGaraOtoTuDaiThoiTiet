@@ -27,6 +27,13 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
         initUI();
     }
 
+    public DanhSachXeKhachHang(){
+        this.maKH = "";
+        this.hoTen = "";
+        this.soDienThoai = "";
+
+        initUI();
+    }
     private void initUI() {
         setTitle("Danh Sách Xe Của Khách Hàng - " + hoTen);
         setSize(850, 520);
