@@ -34,7 +34,7 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
     public ManHinhDanhSachKHNo(){
         super("DANH SÁCH KHÁCH HÀNG NỢ");
         setSize(900,600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(5,20));
 

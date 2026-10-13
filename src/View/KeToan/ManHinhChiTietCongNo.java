@@ -40,7 +40,7 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
     public ManHinhChiTietCongNo(){
         super("CHI TIẾT CÔNG NỢ KHÁCH HÀNG");
         setSize(650,700);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0,10));
         pNorth = new JPanel();

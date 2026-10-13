@@ -411,7 +411,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
 
     private void quayLaiTrangChu() {
         dispose();
-        new TrangChuKyThuatVien();
     }
 
     public static void main(String[] args) {
