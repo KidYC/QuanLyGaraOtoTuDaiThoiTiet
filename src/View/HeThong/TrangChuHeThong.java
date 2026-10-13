@@ -1,5 +1,7 @@
 package View.HeThong;
 
+import java.awt.Component;
+import java.awt.Window;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -45,6 +47,11 @@ import View.KyThuatVien.ChiTietKiemTraChanDoan;
 import View.KyThuatVien.KiemTraChatLuong;
 import View.KyThuatVien.LapPhieuSuaChua;
 import View.KyThuatVien.QuanLyKyThuatVien;
+import View.KeToan.ManHinhChiTietHDVaThanhToan;
+import View.KeToan.ManHinhDanhSachKHNo;
+import View.KeToan.ManHinhQuanLyCa;
+import View.LeTan.*;
+import View.ThuKho.ManHinhQuanLyDanhMucPhuTung;
 
 public class TrangChuHeThong extends JFrame {
     private static final Color MAU_NEN = new Color(244, 246, 248);
@@ -271,6 +278,19 @@ public class TrangChuHeThong extends JFrame {
         return btnMenu;
     }
 
+    private JComponent taoVungNoiDung() {
+        cardLayout = new CardLayout();
+        pnlNoiDung = new NenTrang(cardLayout, loadImage("/resources/images/background.jpg"));
+        pnlNoiDung.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
+        pnlNoiDung.add(new TongQuanPanel(hoTen, vaiTro), ChucNang.TONG_QUAN.name());
+        for (ChucNang cn : ChucNang.values()) {
+            if (cn != ChucNang.TONG_QUAN && cn.choPhep(vaiTro)) {
+                pnlNoiDung.add(taoTrang(cn), cn.name());
+            }
+        }
+        return pnlNoiDung;
+    }
+
     private void chonChucNang(ChucNang cn, JButton btnMenu) {
         if (btnDangChon != null) {
             btnDangChon.setBackground(MAU_SIDEBAR);
@@ -283,30 +303,63 @@ public class TrangChuHeThong extends JFrame {
             btnMenu.setFont(FONT_NHAN_DAM);
             btnDangChon = btnMenu;
         }
-        if (cn == ChucNang.CHAN_DOAN) {
-            new ChiTietKiemTraChanDoan();
-        } else if (cn == ChucNang.PHIEU_SUA_CHUA) {
-            new LapPhieuSuaChua();
-        } else if (cn == ChucNang.THUC_HIEN_SUA_CHUA) {
-            new CapNhatTienDoSuaChua();
-        } else if (cn == ChucNang.KIEM_TRA_CHAT_LUONG) {
-            new KiemTraChatLuong();
-        } else if (cn == ChucNang.QUAN_LY_NHAN_VIEN) {
-            new QuanLyKyThuatVien();
-        } else {
+        // Chức năng có màn hình riêng thì mở cửa sổ đó, còn lại hiện trang tạm trong khung chính
+        if (!moManHinhNghiepVu(cn) && cardLayout != null) {
             cardLayout.show(pnlNoiDung, cn.name());
         }
     }
 
-    private JComponent taoVungNoiDung() {
-        cardLayout = new CardLayout();
-        pnlNoiDung = new NenTrang(cardLayout, loadImage("/resources/images/background.jpg"));
-        pnlNoiDung.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
-        pnlNoiDung.add(new TongQuanPanel(hoTen, vaiTro), ChucNang.TONG_QUAN.name());
-        for (ChucNang cn : ChucNang.values()) {
-            if (cn != ChucNang.TONG_QUAN && cn.choPhep(vaiTro)) pnlNoiDung.add(taoTrang(cn), cn.name());
+    /** Điểm liên kết duy nhất: mở màn hình nghiệp vụ của actor tương ứng. Trả về false nếu chưa có màn hình riêng. */
+    static boolean moManHinhNghiepVu(ChucNang cn) {
+        switch (cn) {
+            // Lễ tân
+            case QUAN_LY_XE:            hienThi(new DanhSachXeKhachHang("001","Minh Lo", "0123456789")); return true;
+            case TIEP_NHAN_XE:          hienThi(new ManHinhLapPhieuTiepNhan()); return true;
+            case LAP_BAO_GIA:           hienThi(new ManHinhLapBaoGia()); return true;
+            case XAC_NHAN_PHUONG_AN:    hienThi(new ManHinhXacNhanPhuongAn()); return true;
+            case BAN_GIAO_XE:           hienThi(new ManHinhChiTietBanGiao()); return true;
+            case BAO_HANH:              hienThi(new FormQuanLyBaoHanh()); return true;
+//            case LICH_SU_SUA_CHUA:      hienThi(new DanhSachXeDaHoanThanhSuaChua()); return true;
+
+            // Kỹ thuật viên
+            case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
+            case PHIEU_SUA_CHUA:        hienThi(new LapPhieuSuaChua()); return true;
+            case THUC_HIEN_SUA_CHUA:    hienThi(new CapNhatTienDoSuaChua()); return true;
+            case KIEM_TRA_CHAT_LUONG:   hienThi(new KiemTraChatLuong()); return true;
+
+            // Thủ kho
+//            case DANH_MUC_PHU_TUNG:     hienThi(new ManHinhQuanLyDanhMucPhuTung()); return true;
+
+            // Kế toán
+            case HOA_DON:
+            case THANH_TOAN:            hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
+            case CONG_NO:               hienThi(new ManHinhDanhSachKHNo()); return true;
+            case CA_THU_NGAN:           hienThi(new ManHinhQuanLyCa()); return true;
+
+            // Admin
+            case QUAN_LY_NHAN_VIEN:     hienThi(new QuanLyKyThuatVien()); return true;
+
+            default:                    return false;
         }
-        return pnlNoiDung;
+    }
+
+    private static void hienThi(Component manHinh) {
+        if (manHinh instanceof Window) {
+            // Màn hình là JFrame/JDialog sẵn có
+            Window cua = (Window) manHinh;
+            cua.setLocationRelativeTo(null);
+            cua.setVisible(true);
+            return;
+        }
+
+        // Màn hình là JPanel: bọc vào một JFrame riêng để mở
+        JFrame khung = new JFrame(manHinh.getClass().getSimpleName());
+        khung.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // đóng cửa sổ này, không thoát cả app
+        khung.add(manHinh);
+        khung.pack();
+        khung.setSize(Math.max(khung.getWidth(), 1100), Math.max(khung.getHeight(), 680));
+        khung.setLocationRelativeTo(null);
+        khung.setVisible(true);
     }
 
     private JComponent taoTrang(ChucNang cn) {
@@ -561,18 +614,38 @@ public class TrangChuHeThong extends JFrame {
             super(new BorderLayout(0, 18));
             setOpaque(false);
             boolean xemDoanhThu = vt == VaiTro.ADMIN || vt == VaiTro.KE_TOAN;
+
             add(taoTieuDeTrang("Xin chào, " + hoTen, null), BorderLayout.NORTH);
+
             JPanel pnlHangThe = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangThe.setOpaque(false);
-            pnlHangThe.add(new TheThongKe("Xe cần kiểm tra", "5", MAU_CAM, () -> new ChiTietKiemTraChanDoan()));
-            pnlHangThe.add(new TheThongKe("Phiếu chờ lập", "3", MAU_XANH_LA, () -> new LapPhieuSuaChua()));
-            pnlHangThe.add(new TheThongKe("Xe đang sửa chữa", "8", MAU_TIM, () -> new CapNhatTienDoSuaChua()));
-            pnlHangThe.add(new TheThongKe("Xe chờ KCS", "2", MAU_XANH_LA, () -> new KiemTraChatLuong()));
-            if (xemDoanhThu) pnlHangThe.add(new TheThongKe("Doanh thu hôm nay", "18,5 tr", MAU_DO, null));
+            pnlHangThe.add(new TheThongKe("Xe cần kiểm tra", "5", MAU_CAM,
+                    () -> moManHinhNghiepVu(ChucNang.CHAN_DOAN)));
+            pnlHangThe.add(new TheThongKe("Phiếu chờ lập", "3", MAU_XANH_LA,
+                    () -> moManHinhNghiepVu(ChucNang.PHIEU_SUA_CHUA)));
+            pnlHangThe.add(new TheThongKe("Xe đang sửa chữa", "8", MAU_TIM,
+                    () -> moManHinhNghiepVu(ChucNang.THUC_HIEN_SUA_CHUA)));
+            pnlHangThe.add(new TheThongKe("Xe chờ KCS", "2", MAU_XANH_LA,
+                    () -> moManHinhNghiepVu(ChucNang.KIEM_TRA_CHAT_LUONG)));
+            pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", "6", MAU_DO,
+                    () -> moManHinhNghiepVu(ChucNang.DANH_MUC_PHU_TUNG)));
+            if (xemDoanhThu) {
+                pnlHangThe.add(new TheThongKe("Doanh thu hôm nay", "18,5 tr", MAU_TIM,
+                        () -> moManHinhNghiepVu(ChucNang.HOA_DON)));
+            }
+
             JPanel pnlHangBieuDo = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangBieuDo.setOpaque(false);
-            if (xemDoanhThu) pnlHangBieuDo.add(new BieuDoCot("Doanh thu 7 ngày gần nhất (triệu đ)", new String[]{"T2", "T3", "T4", "T5", "T6", "T7", "CN"}, new double[]{12.5, 9.8, 15.2, 11.0, 18.7, 21.3, 7.4}));
-            pnlHangBieuDo.add(new BieuDoTron("Tình trạng xe trong gara", new String[]{"Đang sửa", "Chờ báo giá", "Chờ phụ tùng", "Hoàn thành"}, new int[]{8, 5, 3, 12}, new Color[]{MAU_XANH, MAU_CAM, MAU_DO, MAU_XANH_LA}));
+            if (xemDoanhThu) {
+                pnlHangBieuDo.add(new BieuDoCot("Doanh thu 7 ngày gần nhất (triệu đ)",
+                        new String[]{"T2", "T3", "T4", "T5", "T6", "T7", "CN"},
+                        new double[]{12.5, 9.8, 15.2, 11.0, 18.7, 21.3, 7.4}));
+            }
+            pnlHangBieuDo.add(new BieuDoTron("Tình trạng xe trong gara",
+                    new String[]{"Đang sửa", "Chờ báo giá", "Chờ phụ tùng", "Hoàn thành"},
+                    new int[]{8, 5, 3, 12},
+                    new Color[]{MAU_XANH, MAU_CAM, MAU_DO, MAU_XANH_LA}));
+
             JPanel pnlGiua = new JPanel(new BorderLayout(0, 18));
             pnlGiua.setOpaque(false);
             pnlGiua.add(pnlHangThe, BorderLayout.NORTH);
@@ -642,6 +715,6 @@ public class TrangChuHeThong extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.KY_THUAT).setVisible(true));
+        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.LE_TAN).setVisible(true));
     }
 }

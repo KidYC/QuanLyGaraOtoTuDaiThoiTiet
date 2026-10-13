@@ -48,7 +48,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
     public ManHinhChiTietHDVaThanhToan(){
         super("CHI TIẾT HOÁ ĐƠN VÀ THANH TOÁN");
         setSize(700,700);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(5,20));
 
