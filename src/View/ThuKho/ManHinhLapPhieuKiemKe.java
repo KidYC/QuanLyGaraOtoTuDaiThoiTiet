@@ -1,167 +1,274 @@
 package View.ThuKho;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-public class ManHinhLapPhieuKiemKe extends JFrame {
+public class ManHinhLapPhieuKiemKe extends JFrame implements ActionListener {
 
-    public ManHinhLapPhieuKiemKe(){
-        super("LẬP PHIẾU KIỂM KÊ");
-        setSize(1100,750);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+    private JLabel lbltieude;
 
-        //pnorth
-        JPanel pNorth = new JPanel();
-        pNorth.setLayout(new FlowLayout());
-        JLabel lbltieude = new JLabel("TRANG CHỦ THỦ KHO - HỆ THỐNG QUẢN LÝ");
-        lbltieude.setFont(new Font("Arial",Font.BOLD,24));
-        lbltieude.setForeground(Color.BLUE);
-        pNorth.add(lbltieude);
-        add(pNorth, BorderLayout.NORTH);
+    private JTextField txtmaphieu;
+    private JTextField txtngaykiemke;
+    private JTextField txtnguoikiemke;
+    private JTextField txtghichu;
 
-        //pwest
-        JPanel pWest = new JPanel();
-        pWest.setLayout(new BoxLayout(pWest, BoxLayout.Y_AXIS));
-        pWest.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        pWest.setBackground(new Color(0, 70, 70));
-        pWest.setPreferredSize(new Dimension(180,0));
+    private JComboBox<String> cbphutung;
+    private JTextField txtslhethong;
+    private JTextField txtslthucte;
+    private JTextField txtchenhlech;
+    private JTextField txtlydo;
 
-        JLabel lblmenu = new JLabel("MENU");
-        lblmenu.setForeground(Color.WHITE);
-        lblmenu.setFont(new Font("Arial",Font.BOLD,20));
-        lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
+    private JButton btnluu;
+    private JButton btnquaylai;
+    private JButton btnlammoi;
 
-        JButton btntrangchu = new JButton("Trang Chủ");
-        btntrangchu.setMaximumSize(new Dimension(150, 35));
-        btntrangchu.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnquanlyphutung = new JButton("Quản Lý Phụ Tùng");
-        btnquanlyphutung.setMaximumSize(new Dimension(150,35));
-        btnquanlyphutung.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnnhapkho = new JButton("Nhập Kho");
-        btnnhapkho.setMaximumSize(new Dimension(150,35));
-        btnnhapkho.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnxuatkho = new JButton("Xuất Kho");
-        btnxuatkho.setMaximumSize(new Dimension(150,35));
-        btnxuatkho.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnkiemke = new JButton("Kiểm Kê Kho");
-        btnkiemke.setMaximumSize(new Dimension(150, 35));
-        btnkiemke.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btncanhbao = new JButton("Cảnh Báo Tồn Kho");
-        btncanhbao.setMaximumSize(new Dimension(150,35));
-        btncanhbao.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btndangxuat = new JButton("Đăng Xuất");
-        btndangxuat.setMaximumSize(new Dimension(150,35));
-        btndangxuat.setAlignmentX(Component.CENTER_ALIGNMENT);
+    private final String[] dsphutung = {"PT001 - Dầu nhớt Castrol", "PT002 - Lọc gió", "PT003 - Bugi"};
+    private final int[] dssoluong = {20, 15, 5};
 
-        pWest.add(Box.createVerticalStrut(10));
-        pWest.add(lblmenu);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btntrangchu);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnnhapkho);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnxuatkho);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnquanlyphutung);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnkiemke);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btncanhbao);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btndangxuat);
-
-        add(pWest, BorderLayout.WEST);
-
-        //pCenter
-        JPanel pCenter = new JPanel(new BorderLayout(10,10));
-        pCenter.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.BLACK, 1),
-                BorderFactory.createEmptyBorder(10, 15, 10, 15)));
-
-        JPanel pCenterNorth = new JPanel();
-        pCenterNorth.setLayout(new BoxLayout(pCenterNorth, BoxLayout.Y_AXIS));
-
-        JLabel lbltieudeman = new JLabel("LẬP PHIẾU KIỂM KÊ");
-        lbltieudeman.setFont(new Font("Arial",Font.BOLD,20));
-        lbltieudeman.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JPanel pThongTin = new JPanel(new GridLayout(2,4,10,10));
-        pThongTin.setBorder(BorderFactory.createTitledBorder("Thông tin phiếu kiểm kê"));
-        JTextField txtmaphieu = new JTextField("KK004");
-        JTextField txtngaykiemke = new JTextField("04/10/2026");
-        JTextField txtnguoikiemke = new JTextField("Nguyễn Văn A");
-        JTextField txtghichu = new JTextField();
-
-        pThongTin.add(new JLabel("Mã phiếu:"));
-        pThongTin.add(txtmaphieu);
-        pThongTin.add(new JLabel("Ngày kiểm kê:"));
-        pThongTin.add(txtngaykiemke);
-        pThongTin.add(new JLabel("Người kiểm kê:"));
-        pThongTin.add(txtnguoikiemke);
-        pThongTin.add(new JLabel("Ghi chú:"));
-        pThongTin.add(txtghichu);
-
-        JPanel pChonPT = new JPanel(new FlowLayout(FlowLayout.LEFT,10,5));
-        pChonPT.setBorder(BorderFactory.createTitledBorder("Thêm phụ tùng cần kiểm kê"));
-        JComboBox<String> cbphutung = new JComboBox<>(new String[]{
-                "PT001 - Dầu nhớt Castrol","PT002 - Lọc gió","PT003 - Bugi"});
-        JTextField txtsoluongthucte = new JTextField(6);
-        JTextField txtlydo = new JTextField(15);
-        JButton btnthemphutung = new JButton("Thêm vào phiếu");
-        pChonPT.add(new JLabel("Phụ tùng:"));
-        pChonPT.add(cbphutung);
-        pChonPT.add(new JLabel("SL thực tế:"));
-        pChonPT.add(txtsoluongthucte);
-        pChonPT.add(new JLabel("Lý do chênh lệch:"));
-        pChonPT.add(txtlydo);
-        pChonPT.add(btnthemphutung);
-
-        pCenterNorth.add(lbltieudeman);
-        pCenterNorth.add(Box.createVerticalStrut(10));
-        pCenterNorth.add(pThongTin);
-        pCenterNorth.add(Box.createVerticalStrut(10));
-        pCenterNorth.add(pChonPT);
-        pCenter.add(pCenterNorth, BorderLayout.NORTH);
-
-        String[] column = {"Mã Phụ Tùng","Tên Phụ Tùng","Đơn Vị","SL Hệ Thống","SL Thực Tế","Chênh Lệch","Lý Do"};
-        Object[][] data = {
-                {"PT001","Dầu nhớt Castrol","Chai",20,20,0,""},
-                {"PT002","Lọc gió","Cái",15,14,-1,"Hư hỏng"},
-                {"PT003","Bugi","Cái",5,6,1,"Nhập thiếu ghi chép"}
-        };
-        JTable table = new JTable(data, column);
-        table.setRowHeight(25);
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createTitledBorder("Chi tiết phiếu kiểm kê"));
-        pCenter.add(scroll, BorderLayout.CENTER);
-
-        JPanel pSouth = new JPanel(new BorderLayout());
-
-        JLabel lbltonghop = new JLabel("Số mặt hàng chênh lệch: 2 / 3");
-        lbltonghop.setFont(new Font("Arial", Font.BOLD, 16));
-        lbltonghop.setForeground(Color.RED);
-        pSouth.add(lbltonghop, BorderLayout.WEST);
-
-        JPanel pCRUD = new JPanel(new FlowLayout(FlowLayout.RIGHT,10,5));
-        JButton btnxoadong = new JButton("Xóa dòng");
-        JButton btnluu = new JButton("Lưu phiếu");
-        JButton btnhuy = new JButton("Hủy");
-        JButton btnquaylai = new JButton("Quay lại");
-        pCRUD.add(btnxoadong);
-        pCRUD.add(btnluu);
-        pCRUD.add(btnhuy);
-        pCRUD.add(btnquaylai);
-        pSouth.add(pCRUD, BorderLayout.EAST);
-
-        pCenter.add(pSouth, BorderLayout.SOUTH);
-
-        add(pCenter, BorderLayout.CENTER);
+    public ManHinhLapPhieuKiemKe() {
+        this("KK004", "Nguyễn Văn A");
     }
 
-    public static void main(String[] args){
-        View.ThuKho.ManHinhLapPhieuKiemKe UI = new View.ThuKho.ManHinhLapPhieuKiemKe();
+    public ManHinhLapPhieuKiemKe(String maphieu, String nguoikiemke) {
+        setTitle("LẬP PHIẾU KIỂM KÊ");
+        setSize(850, 450);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        buildUI();
+
+        if (maphieu != null) txtmaphieu.setText(maphieu);
+        if (nguoikiemke != null) txtnguoikiemke.setText(nguoikiemke);
+    }
+
+    private void buildUI() {
+        setLayout(new BorderLayout(10, 10));
+        getContentPane().setBackground(new Color(245, 245, 245));
+
+        //pNorth
+        lbltieude = new JLabel("LẬP PHIẾU KIỂM KÊ");
+        lbltieude.setFont(new Font("Arial", Font.BOLD, 22));
+        lbltieude.setHorizontalAlignment(SwingConstants.CENTER);
+        lbltieude.setForeground(new Color(44, 62, 80));
+        lbltieude.setBorder(new EmptyBorder(15, 0, 10, 0));
+        add(lbltieude, BorderLayout.NORTH);
+
+        //pCenter
+        JPanel pCenter = new JPanel(new BorderLayout(0, 10));
+        pCenter.setBackground(new Color(245, 245, 245));
+        pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
+
+        JPanel pThongTin = new JPanel(new GridLayout(2, 4, 10, 10));
+        pThongTin.setBackground(Color.WHITE);
+        pThongTin.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(189, 195, 199)),
+                "Thông tin phiếu kiểm kê",
+                TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 13), new Color(44, 62, 80)),
+                new EmptyBorder(10, 15, 10, 15)
+        ));
+
+        txtmaphieu = new JTextField("KK004");
+        txtmaphieu.setEditable(false);
+        txtmaphieu.setBackground(new Color(236, 240, 241));
+
+        String homnay = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        txtngaykiemke = new JTextField(homnay);
+        txtngaykiemke.setEditable(false);
+        txtngaykiemke.setBackground(new Color(236, 240, 241));
+
+        txtnguoikiemke = new JTextField();
+        txtghichu = new JTextField();
+
+        pThongTin.add(new JLabel("Mã Phiếu:"));
+        pThongTin.add(txtmaphieu);
+        pThongTin.add(new JLabel("Ngày Kiểm Kê:"));
+        pThongTin.add(txtngaykiemke);
+        pThongTin.add(new JLabel("Người Kiểm Kê:"));
+        pThongTin.add(txtnguoikiemke);
+        pThongTin.add(new JLabel("Ghi Chú:"));
+        pThongTin.add(txtghichu);
+
+        JPanel pChiTiet = new JPanel(new GridLayout(3, 4, 10, 10));
+        pChiTiet.setBackground(Color.WHITE);
+        pChiTiet.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(189, 195, 199)),
+                "Phụ tùng kiểm kê",
+                TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 13), new Color(44, 62, 80)),
+                new EmptyBorder(10, 15, 10, 15)
+        ));
+
+        cbphutung = new JComboBox<>(dsphutung);
+
+        txtslhethong = new JTextField(String.valueOf(dssoluong[0]));
+        txtslhethong.setEditable(false);
+        txtslhethong.setBackground(new Color(236, 240, 241));
+
+        txtslthucte = new JTextField();
+
+        txtchenhlech = new JTextField();
+        txtchenhlech.setEditable(false);
+        txtchenhlech.setBackground(new Color(236, 240, 241));
+
+        txtlydo = new JTextField();
+
+        pChiTiet.add(new JLabel("Phụ Tùng:"));
+        pChiTiet.add(cbphutung);
+        pChiTiet.add(new JLabel("SL Hệ Thống:"));
+        pChiTiet.add(txtslhethong);
+        pChiTiet.add(new JLabel("SL Thực Tế:"));
+        pChiTiet.add(txtslthucte);
+        pChiTiet.add(new JLabel("Chênh Lệch:"));
+        pChiTiet.add(txtchenhlech);
+        pChiTiet.add(new JLabel("Lý Do Chênh Lệch:"));
+        pChiTiet.add(txtlydo);
+
+        pCenter.add(pThongTin, BorderLayout.NORTH);
+        pCenter.add(pChiTiet, BorderLayout.CENTER);
+
+        JPanel pCenter2 = new JPanel(new BorderLayout());
+        pCenter2.setBackground(new Color(245, 245, 245));
+        pCenter2.add(pCenter, BorderLayout.NORTH);
+        add(pCenter2, BorderLayout.CENTER);
+
+        //pSouth
+        JPanel pSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 12));
+        pSouth.setBackground(new Color(245, 245, 245));
+
+        btnquaylai = new JButton("Quay Lại");
+        btnquaylai.setPreferredSize(new Dimension(110, 35));
+        btnquaylai.setBackground(new Color(149, 165, 166));
+        btnquaylai.setForeground(Color.WHITE);
+        btnquaylai.setFocusPainted(false);
+
+        btnlammoi = new JButton("Làm Mới");
+        btnlammoi.setPreferredSize(new Dimension(110, 35));
+        btnlammoi.setBackground(new Color(52, 152, 219));
+        btnlammoi.setForeground(Color.WHITE);
+        btnlammoi.setFocusPainted(false);
+
+        btnluu = new JButton("Lưu Phiếu");
+        btnluu.setPreferredSize(new Dimension(120, 35));
+        btnluu.setBackground(new Color(46, 204, 113));
+        btnluu.setForeground(Color.WHITE);
+        btnluu.setFont(new Font("Arial", Font.BOLD, 12));
+        btnluu.setFocusPainted(false);
+
+        pSouth.add(btnquaylai);
+        pSouth.add(btnlammoi);
+        pSouth.add(btnluu);
+        add(pSouth, BorderLayout.SOUTH);
+
+        initListener();
+    }
+
+    private void initListener() {
+        btnluu.addActionListener(this);
+        btnquaylai.addActionListener(this);
+        btnlammoi.addActionListener(this);
+        cbphutung.addActionListener(this);
+        txtslthucte.addActionListener(this); // nhấn Enter để tính chênh lệch
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if (o == btnluu) {
+            xuLyLuuPhieu();
+        } else if (o == btnquaylai) {
+            xuLyQuayLai();
+        } else if (o == btnlammoi) {
+            xuLyLamMoi();
+        } else if (o == cbphutung) {
+            xuLyDoiPhuTung();
+        } else if (o == txtslthucte) {
+            tinhChenhLech();
+        }
+    }
+
+    private void xuLyDoiPhuTung() {
+        txtslhethong.setText(String.valueOf(dssoluong[cbphutung.getSelectedIndex()]));
+        txtslthucte.setText("");
+        txtchenhlech.setText("");
+    }
+
+    // Trả về false nếu SL thực tế không hợp lệ
+    private boolean tinhChenhLech() {
+        try {
+            int thucte = Integer.parseInt(txtslthucte.getText().trim());
+            if (thucte < 0) throw new NumberFormatException();
+            int hethong = Integer.parseInt(txtslhethong.getText().trim());
+            txtchenhlech.setText(String.valueOf(thucte - hethong));
+            return true;
+        } catch (NumberFormatException ex) {
+            txtchenhlech.setText("");
+            return false;
+        }
+    }
+
+    private void xuLyLuuPhieu() {
+        if (txtnguoikiemke.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng nhập Người kiểm kê!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            txtnguoikiemke.requestFocus();
+            return;
+        }
+
+        if (!tinhChenhLech()) {
+            JOptionPane.showMessageDialog(this,
+                    "Số lượng thực tế phải là số nguyên không âm!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            txtslthucte.requestFocus();
+            return;
+        }
+
+        if (!txtchenhlech.getText().equals("0") && txtlydo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Số lượng có chênh lệch, vui lòng nhập lý do!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            txtlydo.requestFocus();
+            return;
+        }
+
+        int chon = JOptionPane.showConfirmDialog(this,
+                "Lập phiếu kiểm kê " + txtmaphieu.getText() + " thành công!\n"
+                        + "Bạn có muốn mở 'Màn hình Danh sách phiếu kiểm kê' ngay không?",
+                "Thông báo", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+
+        if (chon == JOptionPane.YES_OPTION) {
+            ManHinhDanhSachPhieuKiemKe UI = new ManHinhDanhSachPhieuKiemKe();
+            UI.setVisible(true);
+        }
+        this.dispose();
+    }
+
+    private void xuLyQuayLai() {
+        ManHinhDanhSachPhieuKiemKe UI = new ManHinhDanhSachPhieuKiemKe();
         UI.setVisible(true);
+        this.dispose();
+    }
+
+    private void xuLyLamMoi() {
+        txtghichu.setText("");
+        cbphutung.setSelectedIndex(0);
+        txtslhethong.setText(String.valueOf(dssoluong[0]));
+        txtslthucte.setText("");
+        txtchenhlech.setText("");
+        txtlydo.setText("");
+    }
+
+    public static void main(String[] args) {
+        ManHinhLapPhieuKiemKe form = new ManHinhLapPhieuKiemKe();
+        form.setVisible(true);
     }
 }

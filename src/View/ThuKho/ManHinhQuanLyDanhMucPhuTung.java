@@ -1,139 +1,199 @@
 package View.ThuKho;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URL;
 
-public class ManHinhQuanLyDanhMucPhuTung extends JFrame {
+public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListener {
 
-    public ManHinhQuanLyDanhMucPhuTung(){
+    private JLabel lbltieude;
 
-        super("QUẢN LÝ DANH MỤC PHỤ TÙNG");
-        setSize(1000,600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private JTable tblphutung;
+    private DefaultTableModel modelphutung;
+
+    private JButton btnthem;
+    private JButton btnsua;
+    private JButton btnxoa;
+    private JButton btnquaylai;
+
+    public ManHinhQuanLyDanhMucPhuTung() {
+        setTitle("QUẢN LÝ DANH MỤC PHỤ TÙNG");
+        setSize(950, 480);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setResizable(false);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        //north
-        JPanel pNorth = new JPanel();
-        pNorth.setLayout(new FlowLayout());
-        JLabel lbltieude = new JLabel("TRANG CHỦ THỦ KHO - HỆ THỐNG QUẢN LÝ");
-        lbltieude.setFont(new Font("Arial",Font.BOLD,24));
-        lbltieude.setForeground(Color.BLUE);
-        pNorth.add(lbltieude);
-        add(pNorth, BorderLayout.NORTH);
+        buildUI();
+    }
 
-        //pwest
-        JPanel pWest = new JPanel();
-        pWest.setLayout(new BoxLayout(pWest, BoxLayout.Y_AXIS));
-        pWest.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        pWest.setBackground(new Color(0, 70, 70));
-        pWest.setPreferredSize(new Dimension(180,0));
+    private void buildUI() {
+        setLayout(new BorderLayout(10, 10));
+        getContentPane().setBackground(new Color(245, 245, 245));
 
-        JLabel lblmenu = new JLabel("MENU");
-        lblmenu.setForeground(Color.WHITE);
-        lblmenu.setFont(new Font("Arial",Font.BOLD,20));
-        lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //pNorth
+        lbltieude = new JLabel("DANH MỤC PHỤ TÙNG");
+        lbltieude.setFont(new Font("Arial", Font.BOLD, 22));
+        lbltieude.setHorizontalAlignment(SwingConstants.CENTER);
+        lbltieude.setForeground(new Color(44, 62, 80));
+        lbltieude.setBorder(new EmptyBorder(15, 0, 10, 0));
+        add(lbltieude, BorderLayout.NORTH);
 
-        JButton btntrangchu = new JButton("Trang Chủ");
-        btntrangchu.setMaximumSize(new Dimension(150, 35));
-        btntrangchu.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnquanlyphutung = new JButton("Quản Lý Phụ Tùng");
-        btnquanlyphutung.setMaximumSize(new Dimension(150,35));
-        btnquanlyphutung.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnnhapkho = new JButton("Nhập Kho");
-        btnnhapkho.setMaximumSize(new Dimension(150,35));
-        btnnhapkho.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnxuatkho = new JButton("Xuất Kho");
-        btnxuatkho.setMaximumSize(new Dimension(150,35));
-        btnxuatkho.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnkiemke = new JButton("Kiểm Kê Kho");
-        btnkiemke.setMaximumSize(new Dimension(150, 35));
-        btnkiemke.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btncanhbao = new JButton("Cảnh Báo Tồn Kho");
-        btncanhbao.setMaximumSize(new Dimension(150,35));
-        btncanhbao.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JButton btnquaylai = new JButton("Quay Lại");
-        btnquaylai.setMaximumSize(new Dimension(150,35));
-        btnquaylai.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //pCenter
+        JPanel pCenter = new JPanel(new BorderLayout(15, 0));
+        pCenter.setBackground(new Color(245, 245, 245));
+        pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
 
-        pWest.add(Box.createVerticalStrut(10));
-        pWest.add(lblmenu);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btntrangchu);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnnhapkho);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnxuatkho);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnquanlyphutung);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnkiemke);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btncanhbao);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(btnquaylai);
-
-        add(pWest, BorderLayout.WEST);
-
-        //center
-        JPanel pCenter = new JPanel(new BorderLayout(15,15));
-        pCenter.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.BLACK, 1),
-                BorderFactory.createEmptyBorder(10, 15, 10, 15)));
-
-        JLabel lbltieudeman = new JLabel("DANH MỤC PHỤ TÙNG", SwingConstants.CENTER);
-        lbltieudeman.setFont(new Font("Arial", Font.BOLD, 20));
-        pCenter.add(lbltieudeman, BorderLayout.NORTH);
-
-        String[] column = {"Mã Phụ Tùng","Tên Phụ Tùng","Đơn Vị","Số Lượng"};
+        String[] column = {"Mã Phụ Tùng", "Tên Phụ Tùng", "Đơn Vị", "Số Lượng"};
         Object[][] data = {
                 {"PT001", "Dầu nhớt Castrol", "Chai", 20},
                 {"PT002", "Lọc gió", "Cái", 15},
                 {"PT003", "Bugi", "Cái", 5}
         };
-        JTable table = new JTable(data, column);
-        table.setRowHeight(25);
-        JScrollPane scroll = new JScrollPane(table);
+        modelphutung = new DefaultTableModel(data, column) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
+        tblphutung = new JTable(modelphutung);
+        tblphutung.setRowHeight(25);
+        JScrollPane scroll = new JScrollPane(tblphutung);
+        scroll.setBorder(BorderFactory.createTitledBorder("Danh sách phụ tùng"));
         pCenter.add(scroll, BorderLayout.CENTER);
 
-        //pright
-        JPanel pRight = new JPanel();
-        pRight.setLayout(new BoxLayout(pRight, BoxLayout.Y_AXIS));
-        pRight.setPreferredSize(new Dimension(230, 0));
 
-        JLabel lblanh = new JLabel();
-        ImageIcon icon = new ImageIcon("C:\\PTUD\\QuanLyGaraOtoTuDaiThoiTiet\\src\\IMG\\daunhot.png");
-        Image img = icon.getImage().getScaledInstance(200,200, Image.SCALE_SMOOTH);
-        lblanh.setPreferredSize(new Dimension(200, 200));
-        lblanh.setMaximumSize(new Dimension(200, 200));
-        lblanh.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        lblanh.setHorizontalAlignment(SwingConstants.CENTER);
-        lblanh.setAlignmentX(Component.CENTER_ALIGNMENT);
-        lblanh.setIcon(new ImageIcon(img));
-
-        pRight.add(lblanh);
-        pRight.add(Box.createVerticalStrut(15));
-
-        JPanel pCRUD = new JPanel(new GridLayout(2,2,10,10));
-        JButton btnThem = new JButton("Thêm");
-        JButton btnXoa = new JButton("Xóa");
-        JButton btnSua = new JButton("Sửa");
-        JButton btnLuu = new JButton("Lưu");
-        pCRUD.add(btnThem);
-        pCRUD.add(btnXoa);
-        pCRUD.add(btnSua);
-        pCRUD.add(btnLuu);
-        pCRUD.setMaximumSize(new Dimension(200, 80));
-        pCRUD.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        pRight.add(pCRUD);
-
-        pCenter.add(pRight, BorderLayout.EAST);
         add(pCenter, BorderLayout.CENTER);
+
+        //pSouth
+        JPanel pSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 12));
+        pSouth.setBackground(new Color(245, 245, 245));
+
+        btnquaylai = new JButton("Quay Lại");
+        btnquaylai.setPreferredSize(new Dimension(110, 35));
+        btnquaylai.setBackground(new Color(149, 165, 166));
+        btnquaylai.setForeground(Color.WHITE);
+        btnquaylai.setFocusPainted(false);
+
+        btnxoa = new JButton("Xóa");
+        btnxoa.setPreferredSize(new Dimension(110, 35));
+        btnxoa.setBackground(new Color(231, 76, 60));
+        btnxoa.setForeground(Color.WHITE);
+        btnxoa.setFocusPainted(false);
+
+        btnsua = new JButton("Sửa");
+        btnsua.setPreferredSize(new Dimension(110, 35));
+        btnsua.setBackground(new Color(52, 152, 219));
+        btnsua.setForeground(Color.WHITE);
+        btnsua.setFocusPainted(false);
+
+        btnthem = new JButton("Thêm Phụ Tùng");
+        btnthem.setPreferredSize(new Dimension(150, 35));
+        btnthem.setBackground(new Color(46, 204, 113));
+        btnthem.setForeground(Color.WHITE);
+        btnthem.setFont(new Font("Arial", Font.BOLD, 12));
+        btnthem.setFocusPainted(false);
+
+        pSouth.add(btnquaylai);
+        pSouth.add(btnxoa);
+        pSouth.add(btnsua);
+        pSouth.add(btnthem);
+        add(pSouth, BorderLayout.SOUTH);
+
+        initListener();
     }
-    public static void main(String[] args){
-        ManHinhQuanLyDanhMucPhuTung UI = new ManHinhQuanLyDanhMucPhuTung();
+
+    private void initListener() {
+        btnthem.addActionListener(this);
+        btnsua.addActionListener(this);
+        btnxoa.addActionListener(this);
+        btnquaylai.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if (o == btnthem) {
+            xuLyThem();
+        } else if (o == btnsua) {
+            xuLySua();
+        } else if (o == btnxoa) {
+            xuLyXoa();
+        } else if (o == btnquaylai) {
+            xuLyQuayLai();
+        }
+    }
+
+    public boolean tonTaiMa(String ma) {
+        for (int i = 0; i < modelphutung.getRowCount(); i++) {
+            if (modelphutung.getValueAt(i, 0).toString().equalsIgnoreCase(ma)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void themPhuTung(String ma, String ten, String donvi, int soluong) {
+        modelphutung.addRow(new Object[]{ma, ten, donvi, soluong});
+    }
+
+    public void capNhatPhuTung(String ma, String ten, String donvi, int soluong) {
+        for (int i = 0; i < modelphutung.getRowCount(); i++) {
+            if (modelphutung.getValueAt(i, 0).toString().equals(ma)) {
+                modelphutung.setValueAt(ten, i, 1);
+                modelphutung.setValueAt(donvi, i, 2);
+                modelphutung.setValueAt(soluong, i, 3);
+                return;
+            }
+        }
+    }
+
+    private void xuLyThem() {
+        FormThongTinPhuTung UI = new FormThongTinPhuTung(this);
         UI.setVisible(true);
     }
 
+    private void xuLySua() {
+        int dong = tblphutung.getSelectedRow();
+        if (dong == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn phụ tùng cần sửa!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        FormThongTinPhuTung UI = new  FormThongTinPhuTung(this,
+                modelphutung.getValueAt(dong, 0).toString(),
+                modelphutung.getValueAt(dong, 1).toString(),
+                modelphutung.getValueAt(dong, 2).toString(),
+                modelphutung.getValueAt(dong, 3).toString());
+        UI.setVisible(true);
+    }
+
+    private void xuLyXoa() {
+        int dong = tblphutung.getSelectedRow();
+        if (dong == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn phụ tùng cần xóa!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int chon = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn xóa phụ tùng " + modelphutung.getValueAt(dong, 0) + " không?",
+                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (chon == JOptionPane.YES_OPTION) {
+            modelphutung.removeRow(dong);
+        }
+    }
+
+    private void xuLyQuayLai() {
+        this.dispose();
+    }
+
+    public static void main(String[] args) {
+        ManHinhQuanLyDanhMucPhuTung form = new ManHinhQuanLyDanhMucPhuTung();
+        form.setVisible(true);
+    }
 }
