@@ -31,7 +31,6 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
     private JButton btnlammoi;
     private JButton btnluu;
 
-    // Dữ liệu demo
     private final String[] dsphutung = {
             "PT001 - Dầu nhớt Castrol", "PT002 - Lọc gió", "PT003 - Bugi"};
     private final String[] dsdonvi = {"Chai", "Cái", "Cái"};

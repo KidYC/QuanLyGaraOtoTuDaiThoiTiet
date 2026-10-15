@@ -219,7 +219,6 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
         btnin.addActionListener(this);
         btnquaylai.addActionListener(this);
 
-        // bấm vào một phiếu thì hiện chi tiết bên dưới
         tblphieu.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

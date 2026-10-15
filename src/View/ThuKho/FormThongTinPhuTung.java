@@ -14,7 +14,6 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
     private ManHinhQuanLyDanhMucPhuTung cha;
     private boolean chedosua;
 
-    // giá trị ban đầu khi sửa, dùng cho nút Làm Mới
     private String magoc = "";
     private String tengoc = "";
     private String donvigoc = "";

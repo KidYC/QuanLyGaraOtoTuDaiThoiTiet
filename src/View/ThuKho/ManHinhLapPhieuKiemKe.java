@@ -201,7 +201,6 @@ public class ManHinhLapPhieuKiemKe extends JFrame implements ActionListener {
         txtchenhlech.setText("");
     }
 
-    // Trả về false nếu SL thực tế không hợp lệ
     private boolean tinhChenhLech() {
         try {
             int thucte = Integer.parseInt(txtslthucte.getText().trim());

@@ -29,7 +29,6 @@ public class ManHinhLapPhieuXuatKho extends JFrame implements ActionListener {
     private JButton btnlammoi;
     private JButton btnluu;
 
-    // Dữ liệu demo
     private final String[] dsphutung = {
             "PT001 - Dầu nhớt Castrol", "PT002 - Lọc gió", "PT003 - Bugi"};
     private final String[] dsdonvi = {"Chai", "Cái", "Cái"};
@@ -69,7 +68,6 @@ public class ManHinhLapPhieuXuatKho extends JFrame implements ActionListener {
         pCenter.setBackground(new Color(245, 245, 245));
         pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
 
-        // ===== Khối 1: Thông tin phiếu xuất =====
         JPanel pThongTin = new JPanel(new GridLayout(3, 4, 10, 10));
         pThongTin.setBackground(Color.WHITE);
         pThongTin.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
@@ -106,7 +104,6 @@ public class ManHinhLapPhieuXuatKho extends JFrame implements ActionListener {
         pThongTin.add(new JLabel(""));
         pThongTin.add(new JLabel(""));
 
-        // ===== Khối 2: Phụ tùng xuất =====
         JPanel pChiTiet = new JPanel(new GridLayout(2, 4, 10, 10));
         pChiTiet.setBackground(Color.WHITE);
         pChiTiet.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
@@ -141,7 +138,6 @@ public class ManHinhLapPhieuXuatKho extends JFrame implements ActionListener {
         pCenter.add(pThongTin, BorderLayout.NORTH);
         pCenter.add(pChiTiet, BorderLayout.CENTER);
 
-        // đặt pCenter vào phía trên để các ô text không bị kéo giãn theo chiều cao cửa sổ
         JPanel pGiua = new JPanel(new BorderLayout());
         pGiua.setBackground(new Color(245, 245, 245));
         pGiua.add(pCenter, BorderLayout.NORTH);
