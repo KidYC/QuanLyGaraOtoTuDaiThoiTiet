@@ -1,10 +1,14 @@
 package View.KeToan;
 
+import DAO.DAO_KeToan;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.List;
 
 public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListener {
     private final JPanel pCenter;
@@ -42,6 +46,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
     private final JLabel trangthai;
     private final JTextField txttrangthai;
     private final JPanel pCenter4;
+    private final JButton btntim;
     private JButton thanhtoan;
     private JButton huybo;
     private JButton quaylai;
@@ -101,6 +106,9 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         pCenter1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        btntim = new JButton("Tìm");
+
+
 
         chitietsuachuavaphutung = new JLabel("CHI TIẾT SỬA CHỮA & PHỤ TÙNG");
         chitietsuachuavaphutung.setFont(new Font("Arial",Font.BOLD,20));
@@ -110,12 +118,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter2 = new JPanel();
         pCenter2.setLayout(new BorderLayout());
         String [] columns = {"STT","Mã Phụ tùng","Tên Phụ tùng/Dịch vụ","Số lượng","Đơn giá","Thành tiền"};
-        Object[][] data = {
-                {"1","PT000001","Nhớt Castrol","1","1.000.000 VNĐ","1,000,000 VNĐ"},
-                {"2","PT000002","Công thay nhớt","1","200.000 VNĐ","200.000 VNĐ"},
-                {"3","PT000003","Lọc nhớt","1","300.000 VNĐ","300.000 VNĐ"},
-        };
-        model = new DefaultTableModel(data,columns);
+        model = new DefaultTableModel(columns,0);
         table = new JTable(model);
         table.setRowHeight(30);
         table.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -124,10 +127,6 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter2.setPreferredSize(new Dimension(850,150));
         pCenter2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         pCenter2.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-
-
-
 
         tomtat = new JLabel("TÓM TẮT & THANH TOÁN");
         tomtat.setFont(new Font("Arial",Font.BOLD,20));
@@ -180,12 +179,11 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter4.add(quaylai);
         pCenter4.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-
-
         pCenter.add(ttchung);
         pCenter.add(Box.createVerticalStrut(15));
         pCenter.add(pCenter1);
         pCenter.add(Box.createVerticalStrut(15));
+        pCenter.add(btntim);
         pCenter.add(chitietsuachuavaphutung);
         pCenter.add(Box.createVerticalStrut(15));
         pCenter2.add(srcoll,BorderLayout.CENTER);
@@ -201,6 +199,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         huybo.addActionListener(this);
         quaylai.addActionListener(this);
         chinhmau();
+        laydulieu();
 
     }
     private void chinhmau (){
@@ -232,13 +231,31 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         huybo.setBackground(btnchinh);
         quaylai.setBackground(btnchinh);
     }
+    public void laydulieu(){
+        DAO_KeToan dao = new DAO_KeToan();
+        try{
+            List<Object []> danhsach = dao.laydulieuchitiethoadonvathanhtoan();
+            model.setRowCount(0);
+            int i = 1;
+            for (Object[] dong : danhsach){
+                model.addRow(new Object[]{
+                        i++,
+                        dong[0],
+                        dong[1],
+                        dong[2],
+                        dong[3],
+                        dong[4],
+                });
+            }
+        }catch (SQLException e){
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
+        }
+    }
     public static void main(String[] args) {
         ManHinhChiTietHDVaThanhToan UI = new ManHinhChiTietHDVaThanhToan();
         UI.setVisible(true);
     }
-
-
-
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
         if (o == quaylai){
