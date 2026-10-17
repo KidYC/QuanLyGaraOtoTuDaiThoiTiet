@@ -51,14 +51,23 @@ public class DAO_KeToan {
 
          List<Object[]> danhsach = new ArrayList<>();
          String sql = """
-                 select PT.maPhuTung,
+                 select HD.maHoaDon,
+                 PSC.maPhieuSuaChua,
+                 BS.bienSo,
+                 PT.maPhuTung,
                  PT.tenPhuTung,
                  CTPSC.soLuong,
                  PT.donGiaBan,
                  PT.donGiaBan as thanhtien
-                 from PHU_TUNG PT
+                 from HOA_DON HD
+                 join PHIEU_SUA_CHUA PSC
+                 on HD.maPhieuSuaChua=PSC.maPhieuSuaChua
+                 join XE BS
+                 on PSC.bienSo = BS.bienSo
                  join CHI_TIET_PHIEU_SUA_CHUA CTPSC
-                 on PT.maPhuTung=CTPSC.maPhuTung
+                 on CTPSC.maPhieuSuaChua=PSC.maPhieuSuaChua
+                 join PHU_TUNG PT
+                 on CTPSC.maPhuTung=PT.maPhuTung
                  """;
          try(
                  Connection conn = connectSQL.getConnection();
@@ -67,6 +76,9 @@ public class DAO_KeToan {
          ){
              while (rs.next()){
                  Object[] dong = {
+                         rs.getString("maHoaDon"),
+                         rs.getString("maPhieuSuaChua"),
+                         rs.getString("bienSo"),
                          rs.getString("maPhuTung"),
                          rs.getString("tenPhuTung"),
                          rs.getString("soLuong"),
@@ -78,13 +90,5 @@ public class DAO_KeToan {
          }
          return danhsach;
      }
-
-
-
-
-
-
-
-
 
 }
