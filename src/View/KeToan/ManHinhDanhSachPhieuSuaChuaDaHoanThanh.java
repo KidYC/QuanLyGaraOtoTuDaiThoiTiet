@@ -23,6 +23,8 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
     private final DefaultTableModel model;
     private final JTable table;
     private final JScrollPane scroll;
+    private final JButton btnTim;
+    private final JLabel khoangtrong;
     private JButton trangchu;
     private JButton qlca;
     private JButton dsphieusuachua;
@@ -101,7 +103,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         pCenter.setLayout(new BorderLayout());
 
         card = new JPanel();
-        card.setLayout(new GridLayout(2,2,5,20));
+        card.setLayout(new GridLayout(3,2,5,20));
 
 
         card.setMaximumSize(new Dimension(700, 120));
@@ -111,19 +113,24 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY),
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
-        timkiem = new JLabel("Ô nhập tìm kiếm (Mã Phiếu,Tên KH): ");
+        timkiem = new JLabel("Ô nhập tìm kiếm (Mã Phiếu): ");
         timkiem.setFont(new Font("Arial",Font.BOLD,15));
         txttimkiem = new JTextField();
         trangthai = new JLabel("Trạng thái: ");
         trangthai.setFont(new Font("Arial",Font.BOLD,15));
         txttrangthai = new JComboBox<>(new String []{"Tất cả","Đang xử lý","Hoàn thành"});
+        btnTim = new JButton("Tìm");
+        khoangtrong = new JLabel("");
 
 
         card.add(timkiem);
         card.add(txttimkiem);
         card.add(trangthai);
         card.add(txttrangthai);
+        card.add(khoangtrong);
+        card.add(btnTim);
         pCenter.add(card,BorderLayout.NORTH);
+
 
         String[] columns = {"STT","Mã Phiếu","Biển Số Xe","Tên Khách Hàng","Số Điện Thoại","Kỹ Thuật Viên","Tổng Tiền","Trạng Thái"};
         model = new DefaultTableModel(columns,0);
@@ -137,6 +144,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         quanlycongno.addActionListener(this);
         baocaodoanhthu.addActionListener(this);
         quaylai.addActionListener(this);
+        btnTim.addActionListener(this);
         chinhmau();
         laydulieu();
     }
@@ -157,6 +165,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         quaylai.setBackground(btnchinh);
         timkiem.setForeground(chuchinh);
         trangthai.setForeground(chuchinh);
+        btnTim.setBackground(btnchinh);
         pNorth.setBackground(maunen);
         pWest.setBackground(maumenu);
         pCenter.setBackground(maunen);
@@ -186,6 +195,24 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
                     "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
         }
     }
+    public void TimKiem(){
+        String maphieu = txttimkiem.getText().trim();
+        if (maphieu.isEmpty()){
+            JOptionPane.showMessageDialog(this,"Vui lòng nhập thông tin tìm kiếm");
+            return;
+        }
+        for (int i = 0; i < table.getRowCount();i++){
+            String ma = table.getValueAt(i,1).toString();
+            if (ma.equalsIgnoreCase(maphieu)){
+                table.setRowSelectionInterval(i,i);
+                return;
+            }
+            else {
+              table.clearSelection();
+              JOptionPane.showMessageDialog(this,"Không tìm thấy mã phiếu!");
+            }
+        }
+    }
     public static void main(String[] args) {
         ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
         UI.setVisible(true);
@@ -212,6 +239,8 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
             ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
             UI.setVisible(true);
             dispose();
+        } else if(o == btnTim){
+            TimKiem();
         }
     }
 }
