@@ -5,6 +5,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import DAO.DAO_KeToan;
+import java.sql.SQLException;
+import java.util.List;
 
 public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements ActionListener {
     private final JPanel pCenter;
@@ -122,12 +125,8 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         card.add(txttrangthai);
         pCenter.add(card,BorderLayout.NORTH);
 
-        String[] columns = {"STT","Mã Phiếu","Biển Số Xe","Tên Khách Hàng","Số Điện Thoại","Ngày Hoàn Thành","Kỹ Thuật Viên","Tổng Tiền","Trạng Thái"};
-        Object[][] data = {{"1","PSC20231026001","29-12345","Trần Thanh Liêm","0123456789","26/10/2023","Hùng Nguyễn","1,500,000 VNĐ","Chờ thanh toán"},
-                {"2","PSC20231026002","29-44444","Phan Xuân Phụng","0123456789","26/10/2023","Hùng Nguyễn","5,500,000 VNĐ","Đã lập hoá đơn"},
-                {"3","PSC20231026003","29-99999","Nguyễn Quan Huy","0123456789","26/10/2023","Hùng Nguyễn","10,000,000 VNĐ","Chờ thanh toán"},
-                {"4","PSC20231026004","29-03979","Lê Duy Minh","0123456789","26/10/2023","Hùng Nguyễn","15,500,000 VNĐ","Đã lập hoá đơn"}};
-        model = new DefaultTableModel(data, columns);
+        String[] columns = {"STT","Mã Phiếu","Biển Số Xe","Tên Khách Hàng","Số Điện Thoại","Kỹ Thuật Viên","Tổng Tiền","Trạng Thái"};
+        model = new DefaultTableModel(columns,0);
         table = new JTable(model);
         scroll = new JScrollPane(table);
         pCenter.add(scroll,BorderLayout.CENTER);
@@ -139,6 +138,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         baocaodoanhthu.addActionListener(this);
         quaylai.addActionListener(this);
         chinhmau();
+        laydulieu();
     }
     private void chinhmau (){
         Color maunen = new Color(244, 246, 248);
@@ -161,6 +161,30 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         pWest.setBackground(maumenu);
         pCenter.setBackground(maunen);
         table.getTableHeader().setBackground(new Color(186,230,253));
+    }
+
+    public void laydulieu(){
+        DAO_KeToan dao = new DAO_KeToan();
+        try {
+            List<Object[]> danhSach = dao.layDanhSachPhieuSuaChuaDaHoanThanh();
+            model.setRowCount(0);
+            int i = 1;
+            for (Object[] dong : danhSach){
+                model.addRow(new Object[]{
+                        i++,
+                        dong[0],
+                        dong[1],
+                        dong[2],
+                        dong[3],
+                        dong[4],
+                        dong[5],
+                        dong[6]
+                });
+            }
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
+        }
     }
     public static void main(String[] args) {
         ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
