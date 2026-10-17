@@ -78,17 +78,17 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter1.setLayout(new GridLayout(3,4,5,15));
         //Hang1
         mahd = new JLabel("Mã Hóa đơn: ");
-        txtmahd = new JTextField("HD-20231026-001");
+        txtmahd = new JTextField("");
         ngaylap = new JLabel("Ngày lập: ");
         txtngaylap = new JTextField("26/10/2023");
         //Hang2
         maphieusc = new JLabel("Mã Phiếu sửa chữa: ");
-        txtmaphieu = new JTextField("PSC-20231026-001");
+        txtmaphieu = new JTextField("");
         khachhang = new JLabel("Khách hàng: ");
         txtkhachhang = new JTextField("Trần Thanh Liêm");
         //Hang3
         bienso = new JLabel("Biển số xe: ");
-        txtbienso = new JTextField("29A-12345");
+        txtbienso = new JTextField("");
         sdt =  new JLabel("Số điện thoại: ");
         txtsdt = new JTextField("0123456789");
         pCenter1.add(mahd);
@@ -117,7 +117,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         //pCenter2
         pCenter2 = new JPanel();
         pCenter2.setLayout(new BorderLayout());
-        String [] columns = {"STT","Mã Phụ tùng","Tên Phụ tùng/Dịch vụ","Số lượng","Đơn giá","Thành tiền"};
+        String [] columns = {"STT","Mã Hóa đơn","Mã Phiếu sửa chữa","Biển số xe","Mã Phụ tùng","Tên Phụ tùng","Số lượng","Đơn giá","Thành tiền"};
         model = new DefaultTableModel(columns,0);
         table = new JTable(model);
         table.setRowHeight(30);
@@ -198,6 +198,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         thanhtoan.addActionListener(this);
         huybo.addActionListener(this);
         quaylai.addActionListener(this);
+        btntim.addActionListener(this);
         chinhmau();
         laydulieu();
 
@@ -245,11 +246,35 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
                         dong[2],
                         dong[3],
                         dong[4],
+                        dong[5],
+                        dong[6],
+                        dong[7]
                 });
             }
         }catch (SQLException e){
             JOptionPane.showMessageDialog(this,
                     "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
+        }
+    }
+    public void timkiem(){
+        String maHD = txtmahd.getText().trim();
+        String maPSC = txtmaphieu.getText().trim();
+        String bienso= txtbienso.getText().trim();
+
+        for (int i = 0;i< table.getRowCount();i++){
+            String mahd = table.getValueAt(i,1).toString();
+            String mapsc = table.getValueAt(i,2).toString();
+            String bienSo = table.getValueAt(i,3).toString();
+            if (mahd.isEmpty() || mapsc.isEmpty() || bienSo.isEmpty()){
+                JOptionPane.showMessageDialog(this,"Vui lòng nhập đầy đủ thông tin !");
+                return;
+            } else if (mahd.equalsIgnoreCase(maHD) && mapsc.equalsIgnoreCase(maPSC) && bienSo.equalsIgnoreCase(bienso)){
+                table.setRowSelectionInterval(i,i);
+                return;
+            }else {
+                table.clearSelection();
+                JOptionPane.showMessageDialog(this,"Không tồn tại !");
+            }
         }
     }
     public static void main(String[] args) {
@@ -262,7 +287,8 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
             ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
             UI.setVisible(true);
             dispose();
-
+        }else if(o == btntim){
+            timkiem();
         }
     }
 }
