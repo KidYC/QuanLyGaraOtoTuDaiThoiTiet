@@ -47,4 +47,44 @@ public class DAO_KeToan {
         }
         return danhSach;
      }
+     public List<Object[]> laydulieuchitiethoadonvathanhtoan() throws SQLException{
+
+         List<Object[]> danhsach = new ArrayList<>();
+         String sql = """
+                 select PT.maPhuTung,
+                 PT.tenPhuTung,
+                 CTPSC.soLuong,
+                 PT.donGiaBan,
+                 PT.donGiaBan as thanhtien
+                 from PHU_TUNG PT
+                 join CHI_TIET_PHIEU_SUA_CHUA CTPSC
+                 on PT.maPhuTung=CTPSC.maPhuTung
+                 """;
+         try(
+                 Connection conn = connectSQL.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery();
+         ){
+             while (rs.next()){
+                 Object[] dong = {
+                         rs.getString("maPhuTung"),
+                         rs.getString("tenPhuTung"),
+                         rs.getString("soLuong"),
+                         rs.getBigDecimal("donGiaBan"),
+                         rs.getBigDecimal("thanhtien")
+                 };
+                 danhsach.add(dong);
+             }
+         }
+         return danhsach;
+     }
+
+
+
+
+
+
+
+
+
 }
