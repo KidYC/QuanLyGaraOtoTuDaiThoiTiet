@@ -1,4 +1,50 @@
 package DAO;
 
+import DB.connectSQL;
+
+import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class DAO_KeToan {
+     public List<Object[]> layDanhSachPhieuSuaChuaDaHoanThanh() throws SQLException{
+         List<Object[]> danhSach = new ArrayList<>();
+        String sql = """
+                select PSC.maPhieuSuaChua,
+                PSC.bienSo,
+                KH.hoTen AS tenKhachHang,
+                KH.soDienThoai,
+                KTV.hoTen AS tenKyThuatVien,
+                CTPSC.donGia,
+                PSC.trangThai 
+                from PHIEU_SUA_CHUA PSC
+                join KHACH_HANG KH
+                on PSC.bienSo = KH.bienSo
+                join KY_THUAT_VIEN KTV
+                on KTV.maKTV=PSC.maKTV
+                join CHI_TIET_PHIEU_SUA_CHUA CTPSC 
+                on CTPSC.maPhieuSuaChua = PSC.maPhieuSuaChua""" ;
+        try (
+                Connection conn = connectSQL.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()
+        ){
+            while (rs.next()){
+                Object[] dong = {
+                        rs.getString("maPhieuSuaChua"),
+                        rs.getString("bienSo"),
+                        rs.getString("tenKhachHang"),
+                        rs.getString("soDienThoai"),
+                        rs.getString("tenKyThuatVien"),
+                        rs.getBigDecimal("donGia"),
+                        rs.getString("trangThai")
+                };
+                danhSach.add(dong);
+            }
+        }
+        return danhSach;
+     }
 }
