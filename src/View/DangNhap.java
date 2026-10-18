@@ -10,6 +10,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.net.URL;
+import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -18,26 +20,33 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import DAO.TaiKhoan_DAO;
+import View.HeThong.TrangChuHeThong;
+import Entity.TaiKhoan;
+
 public class DangNhap extends JFrame {
-    private JPanel pNo;
-    private JLabel logo;
-    private JPanel pCen;
-    private JPanel card;
-    private JLabel title;
-    private JTextField tenTxt;
-    private JPasswordField mkTxt;
-    private JLabel userIcon;
-    private JLabel lockIcon;
-    private JPanel userPanel;
-    private JPanel passPanel;
-    private JLabel tenLb;
-    private JLabel mkLb;
-    private JButton dnBtn;
-    private JCheckBox ghiNhoCb;
-    private JLabel quenMkLb;
+    private JPanel pnlNo;
+    private JLabel lblLogo;
+    private JPanel pnlCen;
+    private JPanel pnlCard;
+    private JLabel lblTitle;
+    private JTextField txtTen;
+    private JPasswordField txtMk;
+    private JLabel lblUserIcon;
+    private JLabel lblLockIcon;
+    private JPanel pnlUserPanel;
+    private JPanel pnlPassPanel;
+    private JLabel lblTen;
+    private JLabel lblMk;
+    private JButton btnDn;
+    private JCheckBox chkGhiNho;
+    private JLabel lblQuenMk;
+    private final TaiKhoan_DAO dangNhapDAO = new TaiKhoan_DAO();
+
     public DangNhap() {
         setTitle("Đăng nhập");
         Color backgroundColor = new Color(241, 245, 249);
@@ -47,155 +56,111 @@ public class DangNhap extends JFrame {
         Color borderColor = new Color(203, 213, 225);
         Color buttonColor = new Color(37, 99, 235);
         getContentPane().setBackground(backgroundColor);
+        setLayout(new BorderLayout());
 
-        pNo = new JPanel(new BorderLayout());
-        pNo.setBackground(backgroundColor);
+        pnlNo = new JPanel(new BorderLayout());
+        pnlNo.setBackground(backgroundColor);
+        lblLogo = new JLabel(loadIcon("/resources/icons/logo.png", 230, 210));
+        lblLogo.setHorizontalAlignment(JLabel.CENTER);
+        pnlNo.add(lblLogo, BorderLayout.CENTER);
+        add(pnlNo, BorderLayout.NORTH);
 
-        logo = new JLabel(loadIcon("/resources/icons/logo.png", 230, 210));
-        logo.setHorizontalAlignment(JLabel.CENTER);
+        pnlCen = new JPanel(new GridBagLayout());
+        pnlCen.setBackground(backgroundColor);
+        pnlCard = new JPanel();
+        pnlCard.setLayout(new BoxLayout(pnlCard, BoxLayout.Y_AXIS));
+        pnlCard.setBackground(cardColor);
+        pnlCard.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(226, 232, 240), 1), BorderFactory.createEmptyBorder(25, 15, 25, 15)));
+        pnlCard.setPreferredSize(new Dimension(570, 350));
+        pnlCard.setMaximumSize(new Dimension(570, 350));
 
-        pNo.add(logo, BorderLayout.CENTER);
-        add(pNo, BorderLayout.NORTH);
+        lblTitle = new JLabel("Đăng nhập");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 34));
+        lblTitle.setForeground(textColor);
+        lblTitle.setAlignmentX(CENTER_ALIGNMENT);
+        pnlCard.add(lblTitle);
+        pnlCard.add(Box.createVerticalStrut(30));
 
-        pCen = new JPanel(new GridBagLayout());
-        pCen.setBackground(backgroundColor);
+        JPanel pnlForm = new JPanel(new GridLayout(2, 1, 0, 20));
+        pnlForm.setBackground(cardColor);
+        pnlForm.setAlignmentX(CENTER_ALIGNMENT);
+        pnlForm.setMaximumSize(new Dimension(540, 100));
 
-        card = new JPanel();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(cardColor);
+        JPanel pnlUsernameBox = new JPanel(new BorderLayout(15, 0));
+        pnlUsernameBox.setBackground(cardColor);
+        lblTen = new JLabel("Tài khoản");
+        lblTen.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lblTen.setForeground(secondaryColor);
+        lblTen.setPreferredSize(new Dimension(110, 42));
+        pnlUserPanel = taoONhap(borderColor, 415, 42);
+        lblUserIcon = new JLabel(loadIcon("/resources/icons/user.png", 22, 22));
+        lblUserIcon.setBorder(BorderFactory.createEmptyBorder(0, 7, 0, 10));
+        txtTen = new JTextField();
+        txtTen.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtTen.setBorder(null);
+        txtTen.setBackground(Color.WHITE);
+        pnlUserPanel.add(lblUserIcon, BorderLayout.WEST);
+        pnlUserPanel.add(txtTen, BorderLayout.CENTER);
+        pnlUsernameBox.add(lblTen, BorderLayout.WEST);
+        pnlUsernameBox.add(pnlUserPanel, BorderLayout.CENTER);
 
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(226, 232, 240), 1),
-                BorderFactory.createEmptyBorder(25, 15, 25, 15)
-        ));
+        JPanel pnlPasswordBox = new JPanel(new BorderLayout(15, 0));
+        pnlPasswordBox.setBackground(cardColor);
+        lblMk = new JLabel("Mật khẩu");
+        lblMk.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lblMk.setForeground(secondaryColor);
+        lblMk.setPreferredSize(new Dimension(110, 42));
+        pnlPassPanel = taoONhap(borderColor, 415, 42);
+        lblLockIcon = new JLabel(loadIcon("/resources/icons/lock.png", 22, 22));
+        lblLockIcon.setBorder(BorderFactory.createEmptyBorder(0, 7, 0, 10));
+        txtMk = new JPasswordField();
+        txtMk.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtMk.setBorder(null);
+        txtMk.setBackground(Color.WHITE);
+        pnlPassPanel.add(lblLockIcon, BorderLayout.WEST);
+        pnlPassPanel.add(txtMk, BorderLayout.CENTER);
+        pnlPasswordBox.add(lblMk, BorderLayout.WEST);
+        pnlPasswordBox.add(pnlPassPanel, BorderLayout.CENTER);
+        pnlForm.add(pnlUsernameBox);
+        pnlForm.add(pnlPasswordBox);
+        pnlCard.add(pnlForm);
+        pnlCard.add(Box.createVerticalStrut(15));
 
-        card.setPreferredSize(new Dimension(570, 350));
-        card.setMaximumSize(new Dimension(570, 350));
+        JPanel pnlOptions = new JPanel(new BorderLayout());
+        pnlOptions.setBackground(cardColor);
+        pnlOptions.setAlignmentX(CENTER_ALIGNMENT);
+        pnlOptions.setMaximumSize(new Dimension(540, 30));
+        JPanel pnlOptionsInput = new JPanel(new BorderLayout());
+        pnlOptionsInput.setBackground(cardColor);
+        chkGhiNho = new JCheckBox("Ghi nhớ tài khoản");
+        chkGhiNho.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        chkGhiNho.setForeground(secondaryColor);
+        chkGhiNho.setBackground(cardColor);
+        chkGhiNho.setFocusPainted(false);
+        chkGhiNho.setBorder(null);
+        lblQuenMk = new JLabel("Quên mật khẩu?");
+        lblQuenMk.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblQuenMk.setForeground(buttonColor);
+        lblQuenMk.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        pnlOptionsInput.add(chkGhiNho, BorderLayout.WEST);
+        pnlOptionsInput.add(lblQuenMk, BorderLayout.EAST);
+        pnlOptions.add(Box.createHorizontalStrut(125), BorderLayout.WEST);
+        pnlOptions.add(pnlOptionsInput, BorderLayout.CENTER);
+        pnlCard.add(pnlOptions);
+        pnlCard.add(Box.createVerticalStrut(22));
 
-        title = new JLabel("Đăng nhập");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 34));
-        title.setForeground(textColor);
-        title.setAlignmentX(CENTER_ALIGNMENT);
-
-        card.add(title);
-        card.add(Box.createVerticalStrut(30));
-
-        JPanel form = new JPanel(new GridLayout(2, 1, 0, 20));
-        form.setBackground(cardColor);
-        form.setAlignmentX(CENTER_ALIGNMENT);
-        form.setMaximumSize(new Dimension(540, 100));
-
-        JPanel usernameBox = new JPanel(new BorderLayout(15, 0));
-        usernameBox.setBackground(cardColor);
-
-        tenLb = new JLabel("Mã nhân viên");
-        tenLb.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        tenLb.setForeground(secondaryColor);
-        tenLb.setPreferredSize(new Dimension(110, 42));
-
-        userPanel = new JPanel(new BorderLayout());
-        userPanel.setBackground(Color.WHITE);
-
-        userPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor, 1),
-                BorderFactory.createEmptyBorder(0, 5, 0, 5)
-        ));
-
-        userPanel.setPreferredSize(new Dimension(415, 42));
-        userPanel.setMaximumSize(new Dimension(415, 42));
-
-        userIcon = new JLabel(loadIcon("/resources/icons/user.png", 22, 22));
-        userIcon.setBorder(BorderFactory.createEmptyBorder(0, 7, 0, 10));
-
-        tenTxt = new JTextField();
-        tenTxt.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        tenTxt.setBorder(null);
-        tenTxt.setBackground(Color.WHITE);
-
-        userPanel.add(userIcon, BorderLayout.WEST);
-        userPanel.add(tenTxt, BorderLayout.CENTER);
-
-        usernameBox.add(tenLb, BorderLayout.WEST);
-        usernameBox.add(userPanel, BorderLayout.CENTER);
-
-        JPanel passwordBox = new JPanel(new BorderLayout(15, 0));
-        passwordBox.setBackground(cardColor);
-
-        mkLb = new JLabel("Mật khẩu");
-        mkLb.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        mkLb.setForeground(secondaryColor);
-        mkLb.setPreferredSize(new Dimension(110, 42));
-
-        passPanel = new JPanel(new BorderLayout());
-        passPanel.setBackground(Color.WHITE);
-
-        passPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor, 1),
-                BorderFactory.createEmptyBorder(0, 5, 0, 5)
-        ));
-
-        passPanel.setPreferredSize(new Dimension(415, 42));
-        passPanel.setMaximumSize(new Dimension(415, 42));
-
-        lockIcon = new JLabel(loadIcon("/resources/icons/lock.png", 22, 22));
-        lockIcon.setBorder(BorderFactory.createEmptyBorder(0, 7, 0, 10));
-
-        mkTxt = new JPasswordField();
-        mkTxt.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        mkTxt.setBorder(null);
-        mkTxt.setBackground(Color.WHITE);
-
-        passPanel.add(lockIcon, BorderLayout.WEST);
-        passPanel.add(mkTxt, BorderLayout.CENTER);
-
-        passwordBox.add(mkLb, BorderLayout.WEST);
-        passwordBox.add(passPanel, BorderLayout.CENTER);
-
-        form.add(usernameBox);
-        form.add(passwordBox);
-
-        card.add(form);
-        card.add(Box.createVerticalStrut(15));
-
-        JPanel options = new JPanel(new BorderLayout());
-        options.setBackground(cardColor);
-        options.setAlignmentX(CENTER_ALIGNMENT);
-        options.setMaximumSize(new Dimension(540, 30));
-
-        JPanel optionsInput = new JPanel(new BorderLayout());
-        optionsInput.setBackground(cardColor);
-
-        ghiNhoCb = new JCheckBox("Ghi nhớ tài khoản");
-        ghiNhoCb.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        ghiNhoCb.setForeground(secondaryColor);
-        ghiNhoCb.setBackground(cardColor);
-        ghiNhoCb.setFocusPainted(false);
-        ghiNhoCb.setBorder(null);
-
-        quenMkLb = new JLabel("Quên mật khẩu?");
-        quenMkLb.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        quenMkLb.setForeground(buttonColor);
-        quenMkLb.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        optionsInput.add(ghiNhoCb, BorderLayout.WEST);
-        optionsInput.add(quenMkLb, BorderLayout.EAST);
-        options.add(Box.createHorizontalStrut(125), BorderLayout.WEST);
-        options.add(optionsInput, BorderLayout.CENTER);
-        card.add(options);
-        card.add(Box.createVerticalStrut(22));
-
-        dnBtn = new JButton("Đăng nhập");
-        dnBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        dnBtn.setForeground(Color.WHITE);
-        dnBtn.setBackground(buttonColor);
-        dnBtn.setFocusPainted(false);
-        dnBtn.setBorderPainted(false);
-        dnBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        dnBtn.setAlignmentX(CENTER_ALIGNMENT);
-
-        dnBtn.setPreferredSize(new Dimension(540, 45));
-        dnBtn.setMaximumSize(new Dimension(540, 45));
-
-        card.add(dnBtn);
+        btnDn = new JButton("Đăng nhập");
+        btnDn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnDn.setForeground(Color.WHITE);
+        btnDn.setBackground(buttonColor);
+        btnDn.setFocusPainted(false);
+        btnDn.setBorderPainted(false);
+        btnDn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnDn.setAlignmentX(CENTER_ALIGNMENT);
+        btnDn.setPreferredSize(new Dimension(540, 45));
+        btnDn.setMaximumSize(new Dimension(540, 45));
+        btnDn.addActionListener(e -> xuLyDangNhap());
+        pnlCard.add(btnDn);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -204,23 +169,72 @@ public class DangNhap extends JFrame {
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.SOUTH;
         gbc.insets = new Insets(0, 0, 20, 0);
-        pCen.add(card, gbc);
-        add(pCen, BorderLayout.CENTER);
-        tenTxt.addActionListener(e -> mkTxt.requestFocus());
-        mkTxt.addActionListener(e -> dnBtn.doClick());
-
+        pnlCen.add(pnlCard, gbc);
+        add(pnlCen, BorderLayout.CENTER);
+        txtTen.addActionListener(e -> txtMk.requestFocus());
+        txtMk.addActionListener(e -> xuLyDangNhap());
+        lblQuenMk.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+                JOptionPane.showMessageDialog(DangNhap.this, "Vui lòng liên hệ quản trị viên để được hỗ trợ cấp lại mật khẩu.", "Quên mật khẩu", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
         setSize(650, 620);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
     }
 
+    private JPanel taoONhap(Color borderColor, int width, int height) {
+        JPanel pnlPanel = new JPanel(new BorderLayout());
+        pnlPanel.setBackground(Color.WHITE);
+        pnlPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(borderColor, 1), BorderFactory.createEmptyBorder(0, 5, 0, 5)));
+        pnlPanel.setPreferredSize(new Dimension(width, height));
+        pnlPanel.setMaximumSize(new Dimension(width, height));
+        return pnlPanel;
+    }
+
+    private void xuLyDangNhap() {
+        String tenDangNhap = txtTen.getText().trim();
+        String matKhau = new String(txtMk.getPassword());
+        if (tenDangNhap.isEmpty() || matKhau.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ tài khoản và mật khẩu.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        btnDn.setEnabled(false);
+        try {
+            // SỬA LỖI: Đổi DangNhap thành TaiKhoan
+            TaiKhoan taiKhoan = dangNhapDAO.dangNhap(tenDangNhap, matKhau);
+
+            if (taiKhoan == null) {
+                JOptionPane.showMessageDialog(this, "Tài khoản hoặc mật khẩu không chính xác.", "Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
+                txtMk.setText("");
+                txtMk.requestFocus();
+                return;
+            }
+            TrangChuHeThong.VaiTro vaiTro = TrangChuHeThong.chuyenVaiTro(taiKhoan.getLoaiTaiKhoan());
+            if (vaiTro == null) {
+                JOptionPane.showMessageDialog(this, "Loại tài khoản chưa được hỗ trợ: " + taiKhoan.getLoaiTaiKhoan(), "Không thể đăng nhập", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            String maNV = taiKhoan.getMaNhanVien();
+            if (maNV == null || maNV.trim().isEmpty() || "NULL".equalsIgnoreCase(maNV)) maNV = taiKhoan.getMaTaiKhoan();
+            dispose();
+            new TrangChuHeThong(maNV, taiKhoan.getHoTen(), vaiTro).setVisible(true);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Không thể kết nối hoặc truy vấn cơ sở dữ liệu.\n" + ex.getMessage(), "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            btnDn.setEnabled(true);
+        }
+    }
+
     private ImageIcon loadIcon(String path, int w, int h) {
-        ImageIcon icon = new ImageIcon(getClass().getResource(path));
+        URL url = getClass().getResource(path);
+        if (url == null) return null;
+        ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
         return new ImageIcon(img);
     }
 
     public static void main(String[] args) {
-        new DangNhap().setVisible(true);
+        java.awt.EventQueue.invokeLater(() -> new DangNhap().setVisible(true));
     }
 }

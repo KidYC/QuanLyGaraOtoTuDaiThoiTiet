@@ -77,6 +77,31 @@ public class TrangChuHeThong extends JFrame {
         public String getTen() { return ten; }
     }
 
+    public static VaiTro chuyenVaiTro(String loaiTaiKhoan) {
+        if (loaiTaiKhoan == null) return null;
+        String role = loaiTaiKhoan.trim().toLowerCase(java.util.Locale.ROOT);
+        switch (role) {
+            case "admin":
+            case "quản lý":
+            case "chủ gara":
+            case "chủ gara (admin)":
+                return VaiTro.ADMIN;
+            case "lễ tân":
+                return VaiTro.LE_TAN;
+            case "kỹ thuật viên":
+            case "ky thuat vien":
+                return VaiTro.KY_THUAT;
+            case "thủ kho":
+            case "thu kho":
+                return VaiTro.THU_KHO;
+            case "kế toán":
+            case "ke toan":
+                return VaiTro.KE_TOAN;
+            default:
+                return null;
+        }
+    }
+
     public enum NhomChucNang {
         CHUNG("TỔNG QUAN"), TIEP_NHAN("TIẾP NHẬN & KHÁCH HÀNG"), SUA_CHUA("SỬA CHỮA & BẢO HÀNH"), KHO("KHO PHỤ TÙNG"), KE_TOAN("KẾ TOÁN"), THONG_KE("THỐNG KÊ BÁO CÁO"), HE_THONG("HỆ THỐNG");
         private final String ten;
@@ -286,9 +311,9 @@ public class TrangChuHeThong extends JFrame {
         pnlProfile.setLayout(new BoxLayout(pnlProfile, BoxLayout.Y_AXIS));
         pnlProfile.setBackground(MAU_SIDEBAR);
         pnlProfile.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        JSeparator sepProfile = new JSeparator();
-        sepProfile.setForeground(new Color(203, 213, 225));
-        sepProfile.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        JSeparator sprProfile = new JSeparator();
+        sprProfile.setForeground(new Color(203, 213, 225));
+        sprProfile.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
         JLabel lblTen = new JLabel(hoTen);
         lblTen.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblTen.setForeground(MAU_TEXT);
@@ -317,7 +342,7 @@ public class TrangChuHeThong extends JFrame {
             @Override
             public void mouseExited(MouseEvent e) { lblLogout.setForeground(MAU_DO); }
         });
-        pnlProfile.add(sepProfile);
+        pnlProfile.add(sprProfile);
         pnlProfile.add(Box.createVerticalStrut(12));
         pnlProfile.add(lblTen);
         pnlProfile.add(Box.createVerticalStrut(2));
@@ -385,7 +410,6 @@ public class TrangChuHeThong extends JFrame {
             case XAC_NHAN_PHUONG_AN:    hienThi(new ManHinhXacNhanPhuongAn()); return true;
             case BAN_GIAO_XE:           hienThi(new ManHinhChiTietBanGiao()); return true;
             case BAO_HANH:              hienThi(new FormQuanLyBaoHanh()); return true;
-//            case LICH_SU_SUA_CHUA:      hienThi(new DanhSachXeDaHoanThanhSuaChua()); return true;
 
             // Kỹ thuật viên
             case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
@@ -419,20 +443,20 @@ public class TrangChuHeThong extends JFrame {
     private static void hienThi(Component manHinh) {
         if (manHinh instanceof Window) {
             // Màn hình là JFrame/JDialog sẵn có
-            Window cua = (Window) manHinh;
-            cua.setLocationRelativeTo(null);
-            cua.setVisible(true);
+            Window winCua = (Window) manHinh;
+            winCua.setLocationRelativeTo(null);
+            winCua.setVisible(true);
             return;
         }
 
         // Màn hình là JPanel: bọc vào một JFrame riêng để mở
-        JFrame khung = new JFrame(manHinh.getClass().getSimpleName());
-        khung.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // đóng cửa sổ này, không thoát cả app
-        khung.add(manHinh);
-        khung.pack();
-        khung.setSize(Math.max(khung.getWidth(), 1100), Math.max(khung.getHeight(), 680));
-        khung.setLocationRelativeTo(null);
-        khung.setVisible(true);
+        JFrame winKhung = new JFrame(manHinh.getClass().getSimpleName());
+        winKhung.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // đóng cửa sổ này, không thoát cả app
+        winKhung.add(manHinh);
+        winKhung.pack();
+        winKhung.setSize(Math.max(winKhung.getWidth(), 1100), Math.max(winKhung.getHeight(), 680));
+        winKhung.setLocationRelativeTo(null);
+        winKhung.setVisible(true);
     }
 
     private JComponent taoTrang(ChucNang cn) {
