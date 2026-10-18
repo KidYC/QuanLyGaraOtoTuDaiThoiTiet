@@ -1,10 +1,14 @@
 package View.KeToan;
 
+import DAO.DAO_KeToan;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.List;
 
 public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListener {
     private final JPanel pCenter;
@@ -42,6 +46,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
     private final JLabel trangthai;
     private final JTextField txttrangthai;
     private final JPanel pCenter4;
+    private final JButton btntim;
     private JButton thanhtoan;
     private JButton huybo;
     private JButton quaylai;
@@ -73,17 +78,17 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter1.setLayout(new GridLayout(3,4,5,15));
         //Hang1
         mahd = new JLabel("Mã Hóa đơn: ");
-        txtmahd = new JTextField("HD-20231026-001");
+        txtmahd = new JTextField("");
         ngaylap = new JLabel("Ngày lập: ");
         txtngaylap = new JTextField("26/10/2023");
         //Hang2
         maphieusc = new JLabel("Mã Phiếu sửa chữa: ");
-        txtmaphieu = new JTextField("PSC-20231026-001");
+        txtmaphieu = new JTextField("");
         khachhang = new JLabel("Khách hàng: ");
         txtkhachhang = new JTextField("Trần Thanh Liêm");
         //Hang3
         bienso = new JLabel("Biển số xe: ");
-        txtbienso = new JTextField("29A-12345");
+        txtbienso = new JTextField("");
         sdt =  new JLabel("Số điện thoại: ");
         txtsdt = new JTextField("0123456789");
         pCenter1.add(mahd);
@@ -101,6 +106,9 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         pCenter1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        btntim = new JButton("Tìm");
+
+
 
         chitietsuachuavaphutung = new JLabel("CHI TIẾT SỬA CHỮA & PHỤ TÙNG");
         chitietsuachuavaphutung.setFont(new Font("Arial",Font.BOLD,20));
@@ -109,13 +117,8 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         //pCenter2
         pCenter2 = new JPanel();
         pCenter2.setLayout(new BorderLayout());
-        String [] columns = {"STT","Mã Phụ tùng","Tên Phụ tùng/Dịch vụ","Số lượng","Đơn giá","Thành tiền"};
-        Object[][] data = {
-                {"1","PT000001","Nhớt Castrol","1","1.000.000 VNĐ","1,000,000 VNĐ"},
-                {"2","PT000002","Công thay nhớt","1","200.000 VNĐ","200.000 VNĐ"},
-                {"3","PT000003","Lọc nhớt","1","300.000 VNĐ","300.000 VNĐ"},
-        };
-        model = new DefaultTableModel(data,columns);
+        String [] columns = {"STT","Mã Hóa đơn","Mã Phiếu sửa chữa","Biển số xe","Mã Phụ tùng","Tên Phụ tùng","Số lượng","Đơn giá","Thành tiền"};
+        model = new DefaultTableModel(columns,0);
         table = new JTable(model);
         table.setRowHeight(30);
         table.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -124,10 +127,6 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter2.setPreferredSize(new Dimension(850,150));
         pCenter2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         pCenter2.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-
-
-
 
         tomtat = new JLabel("TÓM TẮT & THANH TOÁN");
         tomtat.setFont(new Font("Arial",Font.BOLD,20));
@@ -180,12 +179,11 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter4.add(quaylai);
         pCenter4.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-
-
         pCenter.add(ttchung);
         pCenter.add(Box.createVerticalStrut(15));
         pCenter.add(pCenter1);
         pCenter.add(Box.createVerticalStrut(15));
+        pCenter.add(btntim);
         pCenter.add(chitietsuachuavaphutung);
         pCenter.add(Box.createVerticalStrut(15));
         pCenter2.add(srcoll,BorderLayout.CENTER);
@@ -200,7 +198,9 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         thanhtoan.addActionListener(this);
         huybo.addActionListener(this);
         quaylai.addActionListener(this);
+        btntim.addActionListener(this);
         chinhmau();
+        laydulieu();
 
     }
     private void chinhmau (){
@@ -232,20 +232,63 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         huybo.setBackground(btnchinh);
         quaylai.setBackground(btnchinh);
     }
+    public void laydulieu(){
+        DAO_KeToan dao = new DAO_KeToan();
+        try{
+            List<Object []> danhsach = dao.laydulieuchitiethoadonvathanhtoan();
+            model.setRowCount(0);
+            int i = 1;
+            for (Object[] dong : danhsach){
+                model.addRow(new Object[]{
+                        i++,
+                        dong[0],
+                        dong[1],
+                        dong[2],
+                        dong[3],
+                        dong[4],
+                        dong[5],
+                        dong[6],
+                        dong[7]
+                });
+            }
+        }catch (SQLException e){
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
+        }
+    }
+    public void timkiem(){
+        String maHD = txtmahd.getText().trim();
+        String maPSC = txtmaphieu.getText().trim();
+        String bienso= txtbienso.getText().trim();
+
+        for (int i = 0;i< table.getRowCount();i++){
+            String mahd = table.getValueAt(i,1).toString();
+            String mapsc = table.getValueAt(i,2).toString();
+            String bienSo = table.getValueAt(i,3).toString();
+            if (mahd.isEmpty() || mapsc.isEmpty() || bienSo.isEmpty()){
+                JOptionPane.showMessageDialog(this,"Vui lòng nhập đầy đủ thông tin !");
+                return;
+            } else if (mahd.equalsIgnoreCase(maHD) && mapsc.equalsIgnoreCase(maPSC) && bienSo.equalsIgnoreCase(bienso)){
+                table.setRowSelectionInterval(i,i);
+                return;
+            }else {
+                table.clearSelection();
+                JOptionPane.showMessageDialog(this,"Không tồn tại !");
+            }
+        }
+    }
     public static void main(String[] args) {
         ManHinhChiTietHDVaThanhToan UI = new ManHinhChiTietHDVaThanhToan();
         UI.setVisible(true);
     }
-
-
-
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
         if (o == quaylai){
             ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
             UI.setVisible(true);
             dispose();
-
+        }else if(o == btntim){
+            timkiem();
         }
     }
 }
