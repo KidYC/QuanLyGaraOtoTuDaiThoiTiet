@@ -128,7 +128,6 @@ public class TrangChuHeThong extends JFrame {
         XUAT_KHO("Danh sách yêu cầu xuất kho", NhomChucNang.KHO, "Tra cứu yêu cầu xuất phụ tùng", VaiTro.THU_KHO),
         LAP_PHIEU_XUAT_KHO("Lập phiếu xuất kho", NhomChucNang.KHO, "Tạo phiếu xuất phụ tùng", VaiTro.THU_KHO),
         KIEM_KE("Danh sách phiếu kiểm kê", NhomChucNang.KHO, "Tra cứu phiếu kiểm kê kho", VaiTro.THU_KHO),
-        LAP_PHIEU_KIEM_KE("Lập phiếu kiểm kê", NhomChucNang.KHO, "Tạo phiếu kiểm kê kho", VaiTro.THU_KHO),
         CANH_BAO_TON("Cảnh báo tồn kho", NhomChucNang.KHO, "Ngưỡng tồn tối thiểu và tối đa", VaiTro.THU_KHO),
         HOA_DON("Hóa đơn", NhomChucNang.KE_TOAN, "Lập hóa đơn từ các phiếu sửa chữa", VaiTro.KE_TOAN),
         THANH_TOAN("Thanh toán", NhomChucNang.KE_TOAN, "Ghi nhận thu tiền nhiều đợt", VaiTro.KE_TOAN),
@@ -424,7 +423,7 @@ public class TrangChuHeThong extends JFrame {
             case XUAT_KHO:              hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
             case LAP_PHIEU_XUAT_KHO:    hienThi(new ManHinhLapPhieuXuatKho()); return true;
             case KIEM_KE:               hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
-            case LAP_PHIEU_KIEM_KE:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
+//            case minh0806:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
             case CANH_BAO_TON:          hienThi(new ManHinhCanhBaoTonKho()); return true;
 
             // Kế toán
@@ -811,7 +810,7 @@ public class TrangChuHeThong extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.THU_KHO).setVisible(true));
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.THU_KHO).setVisible(true));
+//    }
 }
