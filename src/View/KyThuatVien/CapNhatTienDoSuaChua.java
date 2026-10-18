@@ -1,3 +1,4 @@
+
 package View.KyThuatVien;
 
 import java.awt.BorderLayout;
@@ -7,6 +8,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -23,6 +27,13 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
+import DAO.KhachHang_DAO;
+import DAO.PhieuSuaChua_DAO;
+import DAO.Xe_DAO;
+import Entity.KhachHang;
+import Entity.PhieuSuaChua;
+import Entity.Xe;
+
 public class CapNhatTienDoSuaChua extends JFrame {
     private JPanel pnlHeaderPanel;
     private JSplitPane splitPane;
@@ -35,25 +46,25 @@ public class CapNhatTienDoSuaChua extends JFrame {
     private JTextField txtMaLenh;
     private JTextField txtBienSo;
     private JTextField txtKhachHang;
-    private JTable tblChiTietCV;
-    private DefaultTableModel tableModelChiTietCV;
-    private JComboBox cmbTrangThai;
-    private JComboBox cmbTienDo;
+    private JComboBox<String> cmbTrangThai;
+    private JComboBox<String> cmbTienDo;
     private JProgressBar prgBar;
     private JTextArea txaGhiChu;
     private JButton btnLuuTienDo;
     private JButton btnLamMoi;
     private JButton btnQuayLai;
 
-    private Color maunen = new Color(244, 246, 248);
-    private Color maumenu = new Color(226, 232, 240);
-    private Color btnchinh = new Color(186, 230, 253);
-    private Color btnphu = new Color(219, 234, 254);
-    private Color chuchinh = new Color(17, 24, 39);
-    private Color maucotbang = new Color(186, 230, 253);
-    private Color mauphu = new Color(107, 114, 128);
-    private Color maudo = new Color(220, 38, 38);
-    private Color mauxanh = new Color(34, 197, 94);
+    private final Color maunen = new Color(244, 246, 248);
+    private final Color maumenu = new Color(226, 232, 240);
+    private final Color btnchinh = new Color(186, 230, 253);
+    private final Color btnphu = new Color(219, 234, 254);
+    private final Color chuchinh = new Color(17, 24, 39);
+    private final Color maucotbang = new Color(186, 230, 253);
+
+    private final PhieuSuaChua_DAO phieuSuaChuaDAO = new PhieuSuaChua_DAO();
+    private final Xe_DAO xeDAO = new Xe_DAO();
+    private final KhachHang_DAO khachHangDAO = new KhachHang_DAO();
+    private List<PhieuSuaChua> dsPhieuSuaChua = new ArrayList<>();
 
     public CapNhatTienDoSuaChua() {
         setTitle("Công việc được phân công & Tiến độ - Garage Management");
@@ -62,8 +73,10 @@ public class CapNhatTienDoSuaChua extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setBackground(maunen);
         setLayout(new BorderLayout(0, 10));
+
         taoHeader();
         taoContent();
+        loadDanhSachLenh();
         setVisible(true);
     }
 
@@ -79,11 +92,10 @@ public class CapNhatTienDoSuaChua extends JFrame {
 
         btnQuayLai = taoButton("Quay lại", btnphu);
         btnQuayLai.setPreferredSize(new Dimension(110, 40));
-        btnQuayLai.addActionListener(e -> quayLaiTrangChu());
+        btnQuayLai.addActionListener(e -> dispose());
 
         pnlHeaderPanel.add(lblTitle, BorderLayout.WEST);
         pnlHeaderPanel.add(btnQuayLai, BorderLayout.EAST);
-
         add(pnlHeaderPanel, BorderLayout.NORTH);
     }
 
@@ -95,7 +107,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
         splitPane.setDividerLocation(460);
         splitPane.setDividerSize(6);
         splitPane.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 20));
-        splitPane.setBackground(maunen);
 
         add(splitPane, BorderLayout.CENTER);
     }
@@ -109,40 +120,21 @@ public class CapNhatTienDoSuaChua extends JFrame {
 
         txtSearch = new JTextField();
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtSearch.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
-                BorderFactory.createEmptyBorder(0, 10, 0, 10)
-        ));
-        txtSearch.setPreferredSize(new Dimension(250, 40));
-
         btnTim = taoButton("Tìm lệnh", btnchinh);
+        btnTim.addActionListener(e -> loadDanhSachLenh());
 
         pnlSearchPanel.add(txtSearch, BorderLayout.CENTER);
         pnlSearchPanel.add(btnTim, BorderLayout.EAST);
 
-        String[] columns = {"Mã lệnh", "Biển số", "Trạng thái", "Tiến độ"};
-        Object[][] data = {
-                {"SC001", "51A-123.45", "Đang sửa chữa", "60%"},
-                {"SC002", "59A-456.78", "Chờ phụ tùng", "30%"},
-                {"SC003", "60A-111.11", "Đang sửa chữa", "90%"},
-                {"SC004", "61B-999.88", "Mới phân công", "0%"}
-        };
-
-        tableModelLenhSC = new DefaultTableModel(data, columns) {
+        String[] columns = {"Mã lệnh", "Biển số", "Trạng thái"};
+        tableModelLenhSC = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         tblLenhSC = taoTable(tableModelLenhSC);
-
-        JScrollPane scrScrollPane = new JScrollPane(tblLenhSC);
-        scrScrollPane.setBorder(BorderFactory.createLineBorder(maucotbang));
-        scrScrollPane.getViewport().setBackground(Color.WHITE);
-
         pnlLeftPanel.add(pnlSearchPanel, BorderLayout.NORTH);
-        pnlLeftPanel.add(scrScrollPane, BorderLayout.CENTER);
+        pnlLeftPanel.add(new JScrollPane(tblLenhSC), BorderLayout.CENTER);
 
         tblLenhSC.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -154,20 +146,11 @@ public class CapNhatTienDoSuaChua extends JFrame {
     private void taoChiTietTienDoPanel() {
         pnlRightPanel = new JPanel(new BorderLayout(0, 12));
         pnlRightPanel.setBackground(Color.WHITE);
-        pnlRightPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
-                BorderFactory.createEmptyBorder(15, 18, 15, 18)
-        ));
+        pnlRightPanel.setBorder(BorderFactory.createEmptyBorder(15, 18, 15, 18));
 
         JPanel pnlInfoPanel = new JPanel(new GridLayout(2, 3, 10, 10));
         pnlInfoPanel.setBackground(Color.WHITE);
-        pnlInfoPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(maucotbang),
-                "Thông tin lệnh sửa chữa",
-                0, 0,
-                new Font("Segoe UI", Font.BOLD, 13),
-                chuchinh
-        ));
+        pnlInfoPanel.setBorder(BorderFactory.createTitledBorder("Thông tin lệnh sửa chữa"));
 
         txtMaLenh = taoTextFieldReadOnly();
         txtBienSo = taoTextFieldReadOnly();
@@ -180,66 +163,16 @@ public class CapNhatTienDoSuaChua extends JFrame {
         pnlInfoPanel.add(txtBienSo);
         pnlInfoPanel.add(txtKhachHang);
 
-        JPanel pnlTaskTablePanel = new JPanel(new BorderLayout(0, 8));
-        pnlTaskTablePanel.setBackground(Color.WHITE);
-
-        JLabel lblTaskTitle = taoLabel("Danh sách hạng mục công việc & phụ tùng đi kèm:");
-
-        String[] colCV = {"STT", "Hạng mục công việc / Phụ tùng", "Loại", "Trạng thái CV"};
-        Object[][] dataCV = {
-                {"1", "Thay nhớt động cơ Castrol Magnatec", "Công việc + PT", "Hoàn thành"},
-                {"2", "Thay lọc dầu Toyota chính hãng", "Phụ tùng", "Hoàn thành"},
-                {"3", "Vệ sinh & cân chỉnh phanh 4 bánh", "Công việc", "Đang thi công"}
-        };
-
-        tableModelChiTietCV = new DefaultTableModel(dataCV, colCV) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
-        tblChiTietCV = taoTable(tableModelChiTietCV);
-
-        JScrollPane scrCV = new JScrollPane(tblChiTietCV);
-        scrCV.setBorder(BorderFactory.createLineBorder(maucotbang));
-        scrCV.setPreferredSize(new Dimension(0, 140));
-
-        pnlTaskTablePanel.add(lblTaskTitle, BorderLayout.NORTH);
-        pnlTaskTablePanel.add(scrCV, BorderLayout.CENTER);
-
         JPanel pnlUpdateFormPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         pnlUpdateFormPanel.setBackground(Color.WHITE);
-        pnlUpdateFormPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(maucotbang),
-                "Cập nhật tiến độ & Kết quả thực hiện",
-                0, 0,
-                new Font("Segoe UI", Font.BOLD, 13),
-                chuchinh
-        ));
+        pnlUpdateFormPanel.setBorder(BorderFactory.createTitledBorder("Cập nhật tiến độ"));
 
-        cmbTrangThai = new JComboBox<>(new String[]{
-                "Đang sửa chữa",
-                "Chờ phụ tùng",
-                "Tạm dừng sửa chữa",
-                "Hoàn thành"
-        });
-        cmbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cmbTrangThai.setBackground(Color.WHITE);
-
-        cmbTienDo = new JComboBox<>(new String[]{
-                "0%", "20%", "40%", "60%", "80%", "100%"
-        });
-        cmbTienDo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cmbTienDo.setBackground(Color.WHITE);
-        cmbTienDo.setSelectedItem("60%");
+        cmbTrangThai = new JComboBox<>(new String[]{"Đang sửa chữa", "Chờ phụ tùng", "Tạm dừng sửa chữa", "Hoàn thành"});
+        cmbTienDo = new JComboBox<>(new String[]{"0%", "20%", "40%", "60%", "80%", "100%"});
 
         prgBar = new JProgressBar(0, 100);
-        prgBar.setValue(60);
+        prgBar.setValue(0);
         prgBar.setStringPainted(true);
-        prgBar.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        prgBar.setForeground(btnchinh);
-        prgBar.setBackground(maumenu);
 
         pnlUpdateFormPanel.add(taoLabel("Trạng thái chung:"));
         pnlUpdateFormPanel.add(cmbTrangThai);
@@ -248,41 +181,24 @@ public class CapNhatTienDoSuaChua extends JFrame {
         pnlUpdateFormPanel.add(taoLabel("Thanh tiến độ:"));
         pnlUpdateFormPanel.add(prgBar);
 
-        JPanel pnlNotePanel = new JPanel(new BorderLayout(0, 5));
-        pnlNotePanel.setBackground(Color.WHITE);
-
-        txaGhiChu = taoTextArea();
-
-        JScrollPane scrNote = new JScrollPane(txaGhiChu);
-        scrNote.setBorder(BorderFactory.createLineBorder(maucotbang));
-        scrNote.setPreferredSize(new Dimension(0, 75));
-
-        pnlNotePanel.add(taoLabel("Ghi chú kết quả / Báo cáo sự cố phát sinh:"), BorderLayout.NORTH);
-        pnlNotePanel.add(scrNote, BorderLayout.CENTER);
+        txaGhiChu = new JTextArea(4, 20);
 
         JPanel pnlBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlBtnPanel.setBackground(Color.WHITE);
 
         btnLamMoi = taoButton("Làm mới", maumenu);
-        btnLuuTienDo = taoButton("Lưu tiến độ & Kết quả", btnchinh);
-        btnLuuTienDo.setPreferredSize(new Dimension(210, 40));
-
+        btnLuuTienDo = taoButton("Lưu tiến độ", btnchinh);
         pnlBtnPanel.add(btnLamMoi);
         pnlBtnPanel.add(btnLuuTienDo);
-
-        JPanel pnlCenterContainer = new JPanel(new BorderLayout(0, 10));
-        pnlCenterContainer.setBackground(Color.WHITE);
-        pnlCenterContainer.add(pnlInfoPanel, BorderLayout.NORTH);
-        pnlCenterContainer.add(pnlTaskTablePanel, BorderLayout.CENTER);
 
         JPanel pnlBottomContainer = new JPanel(new BorderLayout(0, 10));
         pnlBottomContainer.setBackground(Color.WHITE);
         pnlBottomContainer.add(pnlUpdateFormPanel, BorderLayout.NORTH);
-        pnlBottomContainer.add(pnlNotePanel, BorderLayout.CENTER);
+        pnlBottomContainer.add(new JScrollPane(txaGhiChu), BorderLayout.CENTER);
         pnlBottomContainer.add(pnlBtnPanel, BorderLayout.SOUTH);
 
-        pnlRightPanel.add(pnlCenterContainer, BorderLayout.CENTER);
-        pnlRightPanel.add(pnlBottomContainer, BorderLayout.SOUTH);
+        pnlRightPanel.add(pnlInfoPanel, BorderLayout.NORTH);
+        pnlRightPanel.add(pnlBottomContainer, BorderLayout.CENTER);
 
         cmbTienDo.addActionListener(e -> {
             String val = cmbTienDo.getSelectedItem().toString().replace("%", "");
@@ -293,57 +209,57 @@ public class CapNhatTienDoSuaChua extends JFrame {
         btnLamMoi.addActionListener(e -> xoaForm());
     }
 
+    private void loadDanhSachLenh() {
+        try {
+            tableModelLenhSC.setRowCount(0);
+            dsPhieuSuaChua = phieuSuaChuaDAO.getAllPhieuSuaChua();
+            for (PhieuSuaChua psc : dsPhieuSuaChua) {
+                tableModelLenhSC.addRow(new Object[]{psc.getMaPhieuSuaChua(), psc.getBienSo(), psc.getTrangThai()});
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải lệnh sửa chữa: " + ex.getMessage());
+        }
+    }
+
     private void hienThiChiTietLenhDuocChon() {
         int row = tblLenhSC.getSelectedRow();
+        if (row != -1 && row < dsPhieuSuaChua.size()) {
+            PhieuSuaChua psc = dsPhieuSuaChua.get(row);
+            txtMaLenh.setText(psc.getMaPhieuSuaChua());
+            txtBienSo.setText(psc.getBienSo());
+            cmbTrangThai.setSelectedItem(psc.getTrangThai());
 
-        if (row != -1) {
-            String maLenh = tableModelLenhSC.getValueAt(row, 0).toString();
-            String bienSo = tableModelLenhSC.getValueAt(row, 1).toString();
-            String trangThai = tableModelLenhSC.getValueAt(row, 2).toString();
-            String tienDo = tableModelLenhSC.getValueAt(row, 3).toString();
-
-            txtMaLenh.setText(maLenh);
-            txtBienSo.setText(bienSo);
-
-            if (bienSo.equals("51A-123.45")) {
-                txtKhachHang.setText("Nguyễn Văn An");
-            } else if (bienSo.equals("59A-456.78")) {
-                txtKhachHang.setText("Trần Thị Bình");
-            } else {
-                txtKhachHang.setText("Lê Hoàng Nam");
+            try {
+                Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
+                if (xe != null) {
+                    KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
+                    txtKhachHang.setText((kh != null) ? kh.getHoTen() : "");
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-
-            cmbTrangThai.setSelectedItem(trangThai);
-            cmbTienDo.setSelectedItem(tienDo);
-            prgBar.setValue(Integer.parseInt(tienDo.replace("%", "")));
         }
     }
 
     private void luuTienDo() {
         int row = tblLenhSC.getSelectedRow();
-
         if (row == -1) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Vui lòng chọn lệnh sửa chữa cần cập nhật tiến độ!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn lệnh sửa chữa cần cập nhật!");
             return;
         }
 
+        String maLenh = txtMaLenh.getText();
         String trangThaiMoi = cmbTrangThai.getSelectedItem().toString();
-        String tienDoMoi = cmbTienDo.getSelectedItem().toString();
 
-        tableModelLenhSC.setValueAt(trangThaiMoi, row, 2);
-        tableModelLenhSC.setValueAt(tienDoMoi, row, 3);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Cập nhật tiến độ & trạng thái lệnh sửa chữa thành công!",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        try {
+            boolean ok = phieuSuaChuaDAO.capNhatTrangThai(maLenh, trangThaiMoi);
+            if (ok) {
+                JOptionPane.showMessageDialog(this, "Cập nhật tiến độ thành công!");
+                loadDanhSachLenh();
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi lưu CSDL: " + ex.getMessage());
+        }
     }
 
     private void xoaForm() {
@@ -351,8 +267,8 @@ public class CapNhatTienDoSuaChua extends JFrame {
         txtBienSo.setText("");
         txtKhachHang.setText("");
         txaGhiChu.setText("");
-        tblLenhSC.clearSelection();
         prgBar.setValue(0);
+        tblLenhSC.clearSelection();
     }
 
     private JTable taoTable(DefaultTableModel model) {
@@ -360,20 +276,12 @@ public class CapNhatTienDoSuaChua extends JFrame {
         tblTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblTable.setRowHeight(36);
         tblTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblTable.setSelectionBackground(btnphu);
-        tblTable.setSelectionForeground(chuchinh);
-        tblTable.setShowVerticalLines(false);
-        tblTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblTable.getTableHeader().setForeground(chuchinh);
-        tblTable.getTableHeader().setBackground(btnchinh);
-        tblTable.getTableHeader().setPreferredSize(new Dimension(0, 38));
         return tblTable;
     }
 
     private JLabel taoLabel(String text) {
         JLabel lblLabel = new JLabel(text);
         lblLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblLabel.setForeground(chuchinh);
         return lblLabel;
     }
 
@@ -381,39 +289,17 @@ public class CapNhatTienDoSuaChua extends JFrame {
         JTextField txtField = new JTextField();
         txtField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtField.setEditable(false);
-        txtField.setBackground(maunen);
-        txtField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
-                BorderFactory.createEmptyBorder(0, 8, 0, 8)
-        ));
         return txtField;
-    }
-
-    private JTextArea taoTextArea() {
-        JTextArea txaArea = new JTextArea();
-        txaArea.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        txaArea.setLineWrap(true);
-        txaArea.setWrapStyleWord(true);
-        txaArea.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
-        return txaArea;
     }
 
     private JButton taoButton(String text, Color color) {
         JButton btnButton = new JButton(text);
         btnButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnButton.setForeground(chuchinh);
         btnButton.setBackground(color);
-        btnButton.setFocusPainted(false);
-        btnButton.setBorderPainted(false);
-        btnButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return btnButton;
     }
 
-    private void quayLaiTrangChu() {
-        dispose();
-    }
-
-    public static void main(String[] args) {
-        new CapNhatTienDoSuaChua();
-    }
+//    public static void main(String[] args) {
+//        new CapNhatTienDoSuaChua();
+//    }
 }

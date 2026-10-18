@@ -1,3 +1,4 @@
+
 package View.KyThuatVien;
 
 import java.awt.BorderLayout;
@@ -7,12 +8,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.io.File;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,9 +23,14 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+
+import DAO.KhachHang_DAO;
+import DAO.PhieuTiepNhan_DAO;
+import DAO.Xe_DAO;
+import Entity.KhachHang;
+import Entity.PhieuTiepNhan;
+import Entity.Xe;
 
 public class ChiTietKiemTraChanDoan extends JFrame {
     private JPanel pnlHeaderPanel;
@@ -43,22 +48,22 @@ public class ChiTietKiemTraChanDoan extends JFrame {
     private JTextArea txaNguyenNhan;
     private JTextArea txaDeXuat;
 
-    // Thành phần quản lý và tải hình ảnh thực tế
-    private JButton btnChonAnh;
-    private JLabel lblPreviewAnh;
-    private String duongDanAnh = "";
-
     private JButton btnXacNhan;
     private JButton btnLamMoi;
     private JButton btnQuayLai;
 
-    private Color maunen = new Color(244, 246, 248);
-    private Color maumenu = new Color(226, 232, 240);
-    private Color btnchinh = new Color(186, 230, 253);
-    private Color btnphu = new Color(219, 234, 254);
-    private Color chuchinh = new Color(17, 24, 39);
-    private Color maucotbang = new Color(186, 230, 253);
-    private Color mauphu = new Color(107, 114, 128);
+    private final Color maunen = new Color(244, 246, 248);
+    private final Color maumenu = new Color(226, 232, 240);
+    private final Color btnchinh = new Color(186, 230, 253);
+    private final Color btnphu = new Color(219, 234, 254);
+    private final Color chuchinh = new Color(17, 24, 39);
+    private final Color maucotbang = new Color(186, 230, 253);
+
+    // Khai báo DAO
+    private final PhieuTiepNhan_DAO phieuTiepNhanDAO = new PhieuTiepNhan_DAO();
+    private final Xe_DAO xeDAO = new Xe_DAO();
+    private final KhachHang_DAO khachHangDAO = new KhachHang_DAO();
+    private List<PhieuTiepNhan> dsPhieuTiepNhan = new ArrayList<>();
 
     public ChiTietKiemTraChanDoan() {
         setTitle("Kiểm tra & Chẩn đoán xe - Kỹ thuật viên");
@@ -67,8 +72,10 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setBackground(maunen);
         setLayout(new BorderLayout(0, 10));
+
         taoHeader();
         taoContent();
+        loadDataToTable();
         setVisible(true);
     }
 
@@ -84,11 +91,10 @@ public class ChiTietKiemTraChanDoan extends JFrame {
 
         btnQuayLai = taoButton("Quay lại", btnphu);
         btnQuayLai.setPreferredSize(new Dimension(110, 40));
-        btnQuayLai.addActionListener(e -> quayLaiTrangChu());
+        btnQuayLai.addActionListener(e -> dispose());
 
         pnlHeaderPanel.add(lblTitle, BorderLayout.WEST);
         pnlHeaderPanel.add(btnQuayLai, BorderLayout.EAST);
-
         add(pnlHeaderPanel, BorderLayout.NORTH);
     }
 
@@ -121,23 +127,15 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         txtSearch.setPreferredSize(new Dimension(260, 40));
 
         btnTim = taoButton("Tìm xe", btnchinh);
+        btnTim.addActionListener(e -> loadDataToTable());
 
         pnlSearchPanel.add(txtSearch, BorderLayout.CENTER);
         pnlSearchPanel.add(btnTim, BorderLayout.EAST);
 
-        String[] columns = {"Biển số", "Tên xe", "Khách hàng", "Trạng thái"};
-        Object[][] data = {
-                {"51A-123.45", "Toyota Camry 2.5Q", "Nguyễn Văn An", "Chờ kiểm tra"},
-                {"59A-456.78", "Honda CR-V 2021", "Trần Thị Bình", "Chờ kiểm tra"},
-                {"60A-111.11", "Mazda 3 Luxury", "Lê Hoàng Nam", "Đang kiểm tra"},
-                {"61B-999.88", "Ford Ranger Wildtrak", "Phạm Quốc Hùng", "Chờ kiểm tra"}
-        };
-
-        tableModelXe = new DefaultTableModel(data, columns) {
+        String[] columns = {"Mã tiếp nhận", "Biển số", "Khách hàng", "Trạng thái"};
+        tableModelXe = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         tblXe = new JTable(tableModelXe);
@@ -174,15 +172,12 @@ public class ChiTietKiemTraChanDoan extends JFrame {
                 BorderFactory.createEmptyBorder(18, 18, 18, 18)
         ));
 
-        // 1. Thông tin xe & Yêu cầu của KH
         JPanel pnlInfoPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         pnlInfoPanel.setBackground(Color.WHITE);
         pnlInfoPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(maucotbang),
                 "Thông tin xe & Yêu cầu của khách hàng",
-                0, 0,
-                new Font("Segoe UI", Font.BOLD, 14),
-                chuchinh
+                0, 0, new Font("Segoe UI", Font.BOLD, 14), chuchinh
         ));
 
         txtBienSo = taoTextFieldReadOnly();
@@ -196,7 +191,6 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         pnlInfoPanel.add(taoLabel("Yêu cầu KH:"));
         pnlInfoPanel.add(txtYeuCau);
 
-        // 2. Các ô nhập liệu nội dung chẩn đoán
         JPanel pnlTextInputContainer = new JPanel(new GridLayout(3, 1, 0, 8));
         pnlTextInputContainer.setBackground(Color.WHITE);
 
@@ -208,34 +202,6 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         pnlTextInputContainer.add(taoBoxTextArea("Nguyên nhân:", txaNguyenNhan));
         pnlTextInputContainer.add(taoBoxTextArea("Đề xuất phương án sửa chữa:", txaDeXuat));
 
-        // 3. Khối tải & hiển thị hình ảnh linh kiện hư hỏng thực tế
-        JPanel pnlImageSectionPanel = new JPanel(new BorderLayout(10, 5));
-        pnlImageSectionPanel.setBackground(Color.WHITE);
-        pnlImageSectionPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(maucotbang),
-                "Hình ảnh thực tế hư hỏng (KTV đính kèm)",
-                0, 0,
-                new Font("Segoe UI", Font.BOLD, 13),
-                chuchinh
-        ));
-
-        JPanel pnlImgBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-        pnlImgBoxPanel.setBackground(Color.WHITE);
-
-        lblPreviewAnh = new JLabel("Chưa có ảnh hư hỏng", SwingConstants.CENTER);
-        lblPreviewAnh.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        lblPreviewAnh.setForeground(mauphu);
-        lblPreviewAnh.setPreferredSize(new Dimension(150, 95));
-        lblPreviewAnh.setBorder(BorderFactory.createLineBorder(maucotbang, 1));
-
-        btnChonAnh = taoButton("Tải/Chọn ảnh lỗi", btnphu);
-        btnChonAnh.setPreferredSize(new Dimension(170, 38));
-
-        pnlImgBoxPanel.add(lblPreviewAnh);
-        pnlImgBoxPanel.add(btnChonAnh);
-        pnlImageSectionPanel.add(pnlImgBoxPanel, BorderLayout.CENTER);
-
-        // 4. Thanh nút bấm xác nhận / làm mới
         JPanel pnlActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlActionPanel.setBackground(Color.WHITE);
 
@@ -246,93 +212,83 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         pnlActionPanel.add(btnLamMoi);
         pnlActionPanel.add(btnXacNhan);
 
-        // Ghép các khối vào container trung tâm
-        JPanel pnlCenterContainer = new JPanel(new BorderLayout(0, 10));
-        pnlCenterContainer.setBackground(Color.WHITE);
-        pnlCenterContainer.add(pnlInfoPanel, BorderLayout.NORTH);
-        pnlCenterContainer.add(pnlTextInputContainer, BorderLayout.CENTER);
-        pnlCenterContainer.add(pnlImageSectionPanel, BorderLayout.SOUTH);
-
-        pnlRightPanel.add(pnlCenterContainer, BorderLayout.CENTER);
+        pnlRightPanel.add(pnlInfoPanel, BorderLayout.NORTH);
+        pnlRightPanel.add(pnlTextInputContainer, BorderLayout.CENTER);
         pnlRightPanel.add(pnlActionPanel, BorderLayout.SOUTH);
 
-        // Bắt sự kiện
-        btnChonAnh.addActionListener(e -> chonAnhHuHong());
         btnXacNhan.addActionListener(e -> xacNhanKiemTra());
         btnLamMoi.addActionListener(e -> xoaRongForm());
     }
 
-    private void chonAnhHuHong() {
-        JFileChooser fchFileChooser = new JFileChooser();
-        fchFileChooser.setDialogTitle("Chọn hình ảnh linh kiện / bộ phận hư hỏng");
-        fchFileChooser.setFileFilter(new FileNameExtensionFilter("Hình ảnh (*.jpg, *.png, *.jpeg)", "jpg", "png", "jpeg"));
+    private void loadDataToTable() {
+        try {
+            tableModelXe.setRowCount(0);
+            dsPhieuTiepNhan = phieuTiepNhanDAO.getAllPhieuTiepNhan();
+            String tuKhoa = txtSearch.getText().trim().toLowerCase();
 
-        int result = fchFileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fchFileChooser.getSelectedFile();
-            duongDanAnh = selectedFile.getAbsolutePath();
+            for (PhieuTiepNhan ptn : dsPhieuTiepNhan) {
+                if (!tuKhoa.isEmpty() && !ptn.getBienSo().toLowerCase().contains(tuKhoa) && !ptn.getMaPhieuTiepNhan().toLowerCase().contains(tuKhoa)) {
+                    continue;
+                }
+                Xe xe = xeDAO.getXeByBienSo(ptn.getBienSo());
+                KhachHang kh = (xe != null) ? khachHangDAO.getKhachHangByMa(xe.getMaKhachHang()) : null;
 
-            // Co giãn hình ảnh vừa chọn để hiển thị vừa vặn trong khung Preview
-            ImageIcon icon = new ImageIcon(new ImageIcon(duongDanAnh).getImage().getScaledInstance(150, 95, Image.SCALE_SMOOTH));
-            lblPreviewAnh.setIcon(icon);
-            lblPreviewAnh.setText(""); // Xóa dòng chữ thông báo tạm
+                tableModelXe.addRow(new Object[]{
+                        ptn.getMaPhieuTiepNhan(),
+                        ptn.getBienSo(),
+                        (kh != null) ? kh.getHoTen() : "N/A",
+                        ptn.getTrangThai()
+                });
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu từ SQL: " + ex.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void hienThiThongTinXeDuocChon() {
         int row = tblXe.getSelectedRow();
+        if (row != -1 && row < dsPhieuTiepNhan.size()) {
+            PhieuTiepNhan ptn = dsPhieuTiepNhan.get(row);
+            txtBienSo.setText(ptn.getBienSo());
+            txtYeuCau.setText(ptn.getYeuCauKH());
 
-        if (row != -1) {
-            txtBienSo.setText(tableModelXe.getValueAt(row, 0).toString());
-            txtKhachHang.setText(tableModelXe.getValueAt(row, 2).toString());
-
-            String bienSo = tableModelXe.getValueAt(row, 0).toString();
-
-            if (bienSo.equals("51A-123.45")) {
-                txtYeuCau.setText("Động cơ bị rung giật khi tăng tốc, có tiếng kêu khoang máy.");
-            } else if (bienSo.equals("59A-456.78")) {
-                txtYeuCau.setText("Phanh không ăn, bàn đạp phanh bị sâu.");
-            } else {
-                txtYeuCau.setText("Bảo dưỡng định kỳ 40.000 km, kiểm tra hệ thống điều hòa.");
+            try {
+                Xe xe = xeDAO.getXeByBienSo(ptn.getBienSo());
+                if (xe != null) {
+                    KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
+                    txtKhachHang.setText((kh != null) ? kh.getHoTen() : "");
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
         }
     }
 
     private void xacNhanKiemTra() {
         int row = tblXe.getSelectedRow();
-
         if (row == -1) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Vui lòng chọn xe cần kiểm tra từ danh sách bên trái!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn xe cần kiểm tra từ danh sách!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (txaLoiPhatHien.getText().trim().isEmpty() || txaDeXuat.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Vui lòng nhập đầy đủ thông tin Lỗi phát hiện và Đề xuất phương án!",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin Lỗi phát hiện và Đề xuất phương án!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        tableModelXe.setValueAt("Đã kiểm tra", row, 3);
+        String maPhieu = tableModelXe.getValueAt(row, 0).toString();
+        String noiDungChanDoan = txaLoiPhatHien.getText().trim() + " | Nguyên nhân: " + txaNguyenNhan.getText().trim() + " | Đề xuất: " + txaDeXuat.getText().trim();
 
-        String thongBaoAnh = duongDanAnh.isEmpty() ? "\n(Chưa đính kèm ảnh lỗi thực tế)" : "\n(Đã đính kèm hình ảnh bằng chứng hỏng hóc)";
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Lưu kết quả kiểm tra & chẩn đoán thành công!" + thongBaoAnh + "\nPhiếu đã sẵn sàng để Lập phiếu sửa chữa.",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-
-        xoaRongForm();
+        try {
+            boolean thanhCong = phieuTiepNhanDAO.capNhatChanDoan(maPhieu, noiDungChanDoan, "Đã chẩn đoán");
+            if (thanhCong) {
+                JOptionPane.showMessageDialog(this, "Lưu kết quả kiểm tra & chẩn đoán thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                loadDataToTable();
+                xoaRongForm();
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi cập nhật CSDL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void xoaRongForm() {
@@ -342,26 +298,14 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         txaLoiPhatHien.setText("");
         txaNguyenNhan.setText("");
         txaDeXuat.setText("");
-
-        duongDanAnh = "";
-        lblPreviewAnh.setIcon(null);
-        lblPreviewAnh.setText("Chưa có ảnh hư hỏng");
-
         tblXe.clearSelection();
     }
 
     private JPanel taoBoxTextArea(String labelText, JTextArea textArea) {
         JPanel pnlPanel = new JPanel(new BorderLayout(0, 4));
         pnlPanel.setBackground(Color.WHITE);
-
-        JLabel lblLabel = taoLabel(labelText);
-
-        JScrollPane scrScrollPane = new JScrollPane(textArea);
-        scrScrollPane.setBorder(BorderFactory.createLineBorder(maucotbang));
-
-        pnlPanel.add(lblLabel, BorderLayout.NORTH);
-        pnlPanel.add(scrScrollPane, BorderLayout.CENTER);
-
+        pnlPanel.add(taoLabel(labelText), BorderLayout.NORTH);
+        pnlPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
         return pnlPanel;
     }
 
@@ -389,7 +333,6 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         txaArea.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txaArea.setLineWrap(true);
         txaArea.setWrapStyleWord(true);
-        txaArea.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
         return txaArea;
     }
 
@@ -401,15 +344,10 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         btnButton.setFocusPainted(false);
         btnButton.setBorderPainted(false);
         btnButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnButton.setPreferredSize(new Dimension(120, 38));
         return btnButton;
     }
 
-    private void quayLaiTrangChu() {
-        dispose();
-    }
-
-    public static void main(String[] args) {
-        new ChiTietKiemTraChanDoan();
-    }
+//    public static void main(String[] args) {
+//        new ChiTietKiemTraChanDoan();
+//    }
 }
