@@ -18,7 +18,8 @@ public class KhachHang_DAO {
                         rs.getString("maKhachHang"),
                         rs.getString("hoTen"),
                         rs.getString("soDienThoai"),
-                        rs.getString("diaChi")
+                        rs.getString("diaChi"),
+                        rs.getString("email")
                 ));
             }
         }
@@ -36,7 +37,8 @@ public class KhachHang_DAO {
                             rs.getString("maKhachHang"),
                             rs.getString("hoTen"),
                             rs.getString("soDienThoai"),
-                            rs.getString("diaChi")
+                            rs.getString("diaChi"),
+                            rs.getString("email")
                     );
                 }
             }

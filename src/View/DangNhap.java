@@ -43,8 +43,6 @@ public class DangNhap extends JFrame {
     private JLabel lblTen;
     private JLabel lblMk;
     private JButton btnDn;
-    private JCheckBox chkGhiNho;
-    private JLabel lblQuenMk;
     private final TaiKhoan_DAO dangNhapDAO = new TaiKhoan_DAO();
 
     public DangNhap() {
@@ -132,18 +130,6 @@ public class DangNhap extends JFrame {
         pnlOptions.setMaximumSize(new Dimension(540, 30));
         JPanel pnlOptionsInput = new JPanel(new BorderLayout());
         pnlOptionsInput.setBackground(cardColor);
-        chkGhiNho = new JCheckBox("Ghi nhớ tài khoản");
-        chkGhiNho.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        chkGhiNho.setForeground(secondaryColor);
-        chkGhiNho.setBackground(cardColor);
-        chkGhiNho.setFocusPainted(false);
-        chkGhiNho.setBorder(null);
-        lblQuenMk = new JLabel("Quên mật khẩu?");
-        lblQuenMk.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblQuenMk.setForeground(buttonColor);
-        lblQuenMk.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        pnlOptionsInput.add(chkGhiNho, BorderLayout.WEST);
-        pnlOptionsInput.add(lblQuenMk, BorderLayout.EAST);
         pnlOptions.add(Box.createHorizontalStrut(125), BorderLayout.WEST);
         pnlOptions.add(pnlOptionsInput, BorderLayout.CENTER);
         pnlCard.add(pnlOptions);
@@ -173,11 +159,6 @@ public class DangNhap extends JFrame {
         add(pnlCen, BorderLayout.CENTER);
         txtTen.addActionListener(e -> txtMk.requestFocus());
         txtMk.addActionListener(e -> xuLyDangNhap());
-        lblQuenMk.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                JOptionPane.showMessageDialog(DangNhap.this, "Vui lòng liên hệ quản trị viên để được hỗ trợ cấp lại mật khẩu.", "Quên mật khẩu", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
         setSize(650, 620);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

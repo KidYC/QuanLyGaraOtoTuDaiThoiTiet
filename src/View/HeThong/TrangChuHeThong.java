@@ -39,7 +39,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import View.DangNhap;
 import View.KyThuatVien.CapNhatTienDoSuaChua;
@@ -128,6 +127,7 @@ public class TrangChuHeThong extends JFrame {
         XUAT_KHO("Danh sách yêu cầu xuất kho", NhomChucNang.KHO, "Tra cứu yêu cầu xuất phụ tùng", VaiTro.THU_KHO),
         LAP_PHIEU_XUAT_KHO("Lập phiếu xuất kho", NhomChucNang.KHO, "Tạo phiếu xuất phụ tùng", VaiTro.THU_KHO),
         KIEM_KE("Danh sách phiếu kiểm kê", NhomChucNang.KHO, "Tra cứu phiếu kiểm kê kho", VaiTro.THU_KHO),
+        LAP_PHIEU_KIEM_KE("Lập phiếu kiểm kê", NhomChucNang.KHO, "Tạo phiếu kiểm kê kho", VaiTro.THU_KHO),
         CANH_BAO_TON("Cảnh báo tồn kho", NhomChucNang.KHO, "Ngưỡng tồn tối thiểu và tối đa", VaiTro.THU_KHO),
         HOA_DON("Hóa đơn", NhomChucNang.KE_TOAN, "Lập hóa đơn từ các phiếu sửa chữa", VaiTro.KE_TOAN),
         THANH_TOAN("Thanh toán", NhomChucNang.KE_TOAN, "Ghi nhận thu tiền nhiều đợt", VaiTro.KE_TOAN),
@@ -172,7 +172,7 @@ public class TrangChuHeThong extends JFrame {
     private JButton btnDangChon;
 
     public TrangChuHeThong() {
-        this("NV001", "Phan Xuân Phụng", VaiTro.KY_THUAT);
+        this("KTV01", "Nguyễn Văn Tài", VaiTro.KY_THUAT);
     }
 
     public TrangChuHeThong(String maNV, String hoTen, VaiTro vaiTro) {
@@ -239,7 +239,7 @@ public class TrangChuHeThong extends JFrame {
             }
             if (!coChucNang) continue;
 
-            JButton btnNhom = new JButton(nhom.getTen() + "  +");
+            JButton btnNhom = new JButton(nhom.getTen());
             btnNhom.setFont(FONT_NHAN_DAM);
             btnNhom.setForeground(MAU_CHU_SIDEBAR);
             btnNhom.setBackground(MAU_SIDEBAR);
@@ -273,13 +273,13 @@ public class TrangChuHeThong extends JFrame {
                 for (Map.Entry<NhomChucNang, JPanel> entry : dsSubmenu.entrySet()) {
                     entry.getValue().setVisible(false);
                     JButton nut = dsNutNhom.get(entry.getKey());
-                    nut.setText(entry.getKey().getTen() + "  +");
+                    nut.setText(entry.getKey().getTen());
                     nut.setBackground(MAU_SIDEBAR);
                     nut.setFont(FONT_NHAN_DAM);
                 }
                 if (mo) {
                     pnlSubmenu.setVisible(true);
-                    btnNhom.setText(nhom.getTen() + "  −");
+                    btnNhom.setText(nhom.getTen());
                     btnNhom.setBackground(MAU_SIDEBAR_CHON);
                     nhomDangMo = nhom;
                 } else {
@@ -393,14 +393,12 @@ public class TrangChuHeThong extends JFrame {
             btnMenu.setFont(FONT_NHAN_DAM);
             btnDangChon = btnMenu;
         }
-        // Chức năng có màn hình riêng thì mở cửa sổ đó, còn lại hiện trang tạm trong khung chính
-        if (!moManHinhNghiepVu(cn) && cardLayout != null) {
+        if (!moManHinhNghiepVu(cn, this.maNV) && cardLayout != null) {
             cardLayout.show(pnlNoiDung, cn.name());
         }
     }
 
-    /** Điểm liên kết duy nhất: mở màn hình nghiệp vụ của actor tương ứng. Trả về false nếu chưa có màn hình riêng. */
-    static boolean moManHinhNghiepVu(ChucNang cn) {
+    static boolean moManHinhNghiepVu(ChucNang cn, String maNV) {
         switch (cn) {
             // Lễ tân
             case QUAN_LY_XE:            hienThi(new DanhSachXeKhachHang("001","Minh Lo", "0123456789")); return true;
@@ -412,7 +410,7 @@ public class TrangChuHeThong extends JFrame {
 
             // Kỹ thuật viên
             case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
-            case PHIEU_SUA_CHUA:        hienThi(new LapPhieuSuaChua()); return true;
+            case PHIEU_SUA_CHUA:        hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
             case THUC_HIEN_SUA_CHUA:    hienThi(new CapNhatTienDoSuaChua()); return true;
             case KIEM_TRA_CHAT_LUONG:   hienThi(new KiemTraChatLuong()); return true;
 
@@ -423,7 +421,7 @@ public class TrangChuHeThong extends JFrame {
             case XUAT_KHO:              hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
             case LAP_PHIEU_XUAT_KHO:    hienThi(new ManHinhLapPhieuXuatKho()); return true;
             case KIEM_KE:               hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
-//            case minh0806:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
+            case LAP_PHIEU_KIEM_KE:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
             case CANH_BAO_TON:          hienThi(new ManHinhCanhBaoTonKho()); return true;
 
             // Kế toán
@@ -441,16 +439,14 @@ public class TrangChuHeThong extends JFrame {
 
     private static void hienThi(Component manHinh) {
         if (manHinh instanceof Window) {
-            // Màn hình là JFrame/JDialog sẵn có
             Window winCua = (Window) manHinh;
             winCua.setLocationRelativeTo(null);
             winCua.setVisible(true);
             return;
         }
 
-        // Màn hình là JPanel: bọc vào một JFrame riêng để mở
         JFrame winKhung = new JFrame(manHinh.getClass().getSimpleName());
-        winKhung.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // đóng cửa sổ này, không thoát cả app
+        winKhung.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         winKhung.add(manHinh);
         winKhung.pack();
         winKhung.setSize(Math.max(winKhung.getWidth(), 1100), Math.max(winKhung.getHeight(), 680));
@@ -716,18 +712,18 @@ public class TrangChuHeThong extends JFrame {
             JPanel pnlHangThe = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangThe.setOpaque(false);
             pnlHangThe.add(new TheThongKe("Xe cần kiểm tra", "5", MAU_CAM,
-                    () -> moManHinhNghiepVu(ChucNang.CHAN_DOAN)));
+                    () -> moManHinhNghiepVu(ChucNang.CHAN_DOAN, null)));
             pnlHangThe.add(new TheThongKe("Phiếu chờ lập", "3", MAU_XANH_LA,
-                    () -> moManHinhNghiepVu(ChucNang.PHIEU_SUA_CHUA)));
+                    () -> moManHinhNghiepVu(ChucNang.PHIEU_SUA_CHUA, null)));
             pnlHangThe.add(new TheThongKe("Xe đang sửa chữa", "8", MAU_TIM,
-                    () -> moManHinhNghiepVu(ChucNang.THUC_HIEN_SUA_CHUA)));
+                    () -> moManHinhNghiepVu(ChucNang.THUC_HIEN_SUA_CHUA, null)));
             pnlHangThe.add(new TheThongKe("Xe chờ KCS", "2", MAU_XANH_LA,
-                    () -> moManHinhNghiepVu(ChucNang.KIEM_TRA_CHAT_LUONG)));
+                    () -> moManHinhNghiepVu(ChucNang.KIEM_TRA_CHAT_LUONG, null)));
             pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", "6", MAU_DO,
-                    () -> moManHinhNghiepVu(ChucNang.DANH_MUC_PHU_TUNG)));
+                    () -> moManHinhNghiepVu(ChucNang.DANH_MUC_PHU_TUNG, null)));
             if (xemDoanhThu) {
                 pnlHangThe.add(new TheThongKe("Doanh thu hôm nay", "18,5 tr", MAU_TIM,
-                        () -> moManHinhNghiepVu(ChucNang.HOA_DON)));
+                        () -> moManHinhNghiepVu(ChucNang.HOA_DON, null)));
             }
 
             JPanel pnlHangBieuDo = new JPanel(new GridLayout(1, 0, 16, 0));
@@ -809,8 +805,4 @@ public class TrangChuHeThong extends JFrame {
             add(pnlKhung, BorderLayout.CENTER);
         }
     }
-
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.THU_KHO).setVisible(true));
-//    }
 }
