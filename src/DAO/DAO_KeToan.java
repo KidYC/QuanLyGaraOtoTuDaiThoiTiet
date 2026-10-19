@@ -48,7 +48,6 @@ public class DAO_KeToan {
         return danhSach;
      }
      public List<Object[]> laydulieuchitiethoadonvathanhtoan() throws SQLException{
-
          List<Object[]> danhsach = new ArrayList<>();
          String sql = """
                  select HD.maHoaDon,
@@ -90,5 +89,46 @@ public class DAO_KeToan {
          }
          return danhsach;
      }
+
+     public List<Object[]> laydulieuKHno() throws SQLException{
+         List<Object[]> danhsach = new ArrayList<>();
+         String sql = """
+                 select
+                 KHN.maKhachHang,
+                 KHN.hoTen,
+                 KHN.soDienThoai,
+                 X.bienSo,
+                 KHN.hanMucNo,
+                 KHN.tongNo,
+                 KHN.trangThai
+                 from danhsachKHno KHN
+                 join XE X
+                 on KHN.maKhachHang=X.maKhachHang
+                 """;
+         try(
+                 Connection conn = connectSQL.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery();
+                 ){
+
+             while (rs.next()){
+                 Object[] dong = {
+                         rs.getString("maKhachHang"),
+                         rs.getString("hoTen"),
+                         rs.getString("soDienThoai"),
+                         rs.getString("bienSo"),
+                         rs.getString("hanMucNo"),
+                         rs.getString("tongNo"),
+                         rs.getString("trangThai")
+                 };
+                 danhsach.add(dong);
+             }
+             return danhsach;
+         }
+     }
+
+
+
+
 
 }

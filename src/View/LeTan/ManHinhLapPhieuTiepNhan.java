@@ -1,5 +1,7 @@
 package View.LeTan;
 
+import View.HeThong.TrangChuHeThong;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -212,7 +214,7 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
             UI.setVisible(true);
             this.dispose();
         } else {
-            TrangChuLeTan Home = new TrangChuLeTan();
+            TrangChuHeThong Home = new TrangChuHeThong();
             Home.setVisible(true);
             this.dispose();
         }

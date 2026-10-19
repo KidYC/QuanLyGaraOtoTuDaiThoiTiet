@@ -1,5 +1,7 @@
 package View.LeTan;
 
+import View.HeThong.TrangChuHeThong;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -220,7 +222,7 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
                 "Đã kích hoạt bảo hành thành công cho xe " + txtBienSo.getText() + "!\nQuy trình dịch vụ đã hoàn tất.",
                 "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
-         TrangChuLeTan Home = new TrangChuLeTan();
+         TrangChuHeThong Home = new TrangChuHeThong();
          Home.setVisible(true);
         this.dispose();
 

@@ -1,10 +1,15 @@
 package View.KeToan;
 
+import DAO.DAO_KeToan;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.List;
 
 public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
     private final JPanel pCenter;
@@ -68,10 +73,10 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         );
 
         tongsokhachno = new JLabel("Tổng số khách hàng nợ: ");
-        txttongsokhachno = new JTextField("45");
+        txttongsokhachno = new JTextField();
         txttongsokhachno.setPreferredSize(new Dimension(120,25));
         tongduno = new JLabel("Tổng dư nợ toàn hệ thống: ");
-        txttongduno = new JTextField("120.500.000 VNĐ");
+        txttongduno = new JTextField("");
         txttongduno.setPreferredSize(new Dimension(120,25));
         pCenter1.add(tongsokhachno);
         pCenter1.add(txttongsokhachno);
@@ -94,15 +99,15 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         );
 
         tenkhachhang = new JLabel("Tên khách hàng: ");
-        txttenkhachhang = new JTextField("Trần Thanh Liêm");
+        txttenkhachhang = new JTextField();
         txttenkhachhang.setPreferredSize(new Dimension(120,25));
         sdt = new JLabel("Số điện thoại: ");
-        txtsdt = new JTextField("0123456789");
+        txtsdt = new JTextField();
         txtsdt.setPreferredSize(new Dimension(120,25));
         mucno = new JLabel("Mức nợ: ");
-        txtmucno = new JComboBox<>(new String[]{"Lớn hơn 10.000.000 VNĐ", "Lớn hơn 30.000.000 VNĐ", "Lớn hơn 50.000.000 VNĐ"});
+        txtmucno = new JComboBox<>(new String[]{"Lớn hơn 10000000 VNĐ", "Lớn hơn 30000000 VNĐ", "Lớn hơn 50000000 VNĐ"});
         txtmucno.setPreferredSize(new Dimension(120,20));
-        btntimkiem = new JButton("Tìm kiếm");
+        btntimkiem = taoNutBoGoc("Tìm kiếm");
         pCenter2.add(tenkhachhang);
         pCenter2.add(txttenkhachhang);
         pCenter2.add(sdt);
@@ -124,19 +129,13 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         pCenter3.setMaximumSize(new Dimension(Integer.MAX_VALUE, 250));
         pCenter3.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        String[] columns ={"STT","Tên Khách Hàng","Số Điện Thoại","Biển Số Xe","Hạn Mức Nợ","Tổng Nợ Hiện Tại","Trạng Thái"};
-        Object[][] data = {
-                {"1","Công ty Vận tải A","0901112222","29H-123.45","50.000.000 VNĐ","25.000.000 VNĐ","Chưa hạn mức"},
-                {"2","Trần Thanh Liêm","0987654321","30A-999.99","10.000.000 VNĐ","5.000.000 VNĐ","Chưa hạn mức"},
-                {"3","Nguyễn Quan Huy","0912345678","51G-888.88","20.000.000 VNĐ","12.000.000 VNĐ","Chưa hạn mức"},
-                {"4","Phan Xuân Phụng","0933334444","60C-555.55","5.000.000 VNĐ","6.000.000 VNĐ","Vượt hạn mức"}
-        };
-        model = new DefaultTableModel(data,columns);
+        String[] columns ={"STT","Mã khách hàng","Tên Khách Hàng","Số Điện Thoại","Biển Số Xe","Hạn Mức Nợ","Tổng Nợ Hiện Tại","Trạng Thái"};
+        model = new DefaultTableModel(columns,0);
         table = new JTable(model);
         srcoll = new JScrollPane(table);
         pCenter3.add(srcoll,BorderLayout.CENTER);
 
-        btnquaylai = new JButton("Quay lại Trang chủ Kế toán");
+        btnquaylai = taoNutBoGoc("Quay lại Trang chủ Kế toán");
         btnquaylai.setPreferredSize(new Dimension(200,50));
         btnquaylai.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -154,6 +153,11 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         add(pCenter,BorderLayout.CENTER);
         btnquaylai.addActionListener(this);
         chinhmau();
+        laydulieu();
+        tongnohethong();
+        int tongKH = table.getRowCount();
+        txttongsokhachno.setText(String.valueOf(tongKH));
+        btntimkiem.addActionListener(this);
     }
     private void chinhmau (){
         Color maunen = new Color(244, 246, 248);
@@ -173,7 +177,91 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         table.getTableHeader().setBackground(maucotbang);
         table.getTableHeader().setForeground(chuchinh);
         btnquaylai.setBackground(btnchinh);
+    }
+    public void laydulieu(){
+        DAO_KeToan dao = new DAO_KeToan();
+        try{
+            List<Object[]> danhsach = dao.laydulieuKHno();
+            model.setRowCount(0);
+            int i = 1;
+            for (Object[] dong : danhsach){
+                model.addRow(new Object[]{
+                        i++,
+                        dong[0],
+                        dong[1],
+                        dong[2],
+                        dong[3],
+                        dong[4],
+                        dong[5],
+                        dong[6]
+                });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
+        }
+    }
+    public void tongnohethong() {
+        int tongnohethong = 0;
+        int tongno = 0;
+        for (int i = 0; i < table.getRowCount(); i++) {
+            tongno = Integer.parseInt(table.getValueAt(i, 6).toString());
+            tongnohethong = tongnohethong + tongno;
+        }
+        txttongduno.setText(String.valueOf(tongnohethong));
+    }
 
+    public void timkiem(){
+        String tenkhach = txttenkhachhang.getText().trim();
+        String sdt = txtsdt.getText().trim();
+        String mucno = txtmucno.getSelectedItem().toString();
+        int mucno1 = 0;
+        int mucno2 = 0;
+        int mucno3 = 0;
+        if (mucno.equals("Lớn hơn 10000000 VNĐ")){
+            mucno1 = Integer.parseInt(mucno.replaceAll("[^0-9]",""));
+        } else if(mucno.equals("Lớn hơn 30000000 VNĐ")){
+            mucno2 = Integer.parseInt(mucno.replaceAll("[^0-9]",""));
+        } else if(mucno.equals("Lớn hơn 50000000 VNĐ")){
+            mucno3 = Integer.parseInt(mucno.replaceAll("[^0-9]",""));
+        }
+        for (int i = 0 ; i< table.getRowCount();i++){
+            String ten = table.getValueAt(i,2).toString();
+            String dt = table.getValueAt(i,3).toString();
+            String tongno = table.getValueAt(i,6).toString();
+            int TongNo = Integer.parseInt(tongno);
+
+            if (ten.equalsIgnoreCase(tenkhach) && dt.equalsIgnoreCase(sdt) && TongNo > mucno1){
+                table.setRowSelectionInterval(i,i);
+                return;
+            } else if (ten.equalsIgnoreCase(tenkhach) && dt.equalsIgnoreCase(sdt) && TongNo > mucno2){
+                table.setRowSelectionInterval(i,i);
+                return;
+            } else if (ten.equalsIgnoreCase(tenkhach) && dt.equalsIgnoreCase(sdt) && TongNo > mucno3){
+                table.setRowSelectionInterval(i,i);
+                return;
+            }
+        }
+    }
+    private JButton taoNutBoGoc(String text) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setContentAreaFilled(false);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(false);
+        btn.setFont(new Font("Arial", Font.BOLD, 14));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
     }
     public static void main(String[] args) {
         ManHinhDanhSachKHNo UI = new ManHinhDanhSachKHNo();
@@ -185,6 +273,9 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
             ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
             UI.setVisible(true);
             dispose();
+        }
+        if (o == btntimkiem){
+            timkiem();
         }
     }
 }
