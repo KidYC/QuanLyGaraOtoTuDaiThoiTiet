@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.sql.SQLException;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -21,6 +23,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+
+import DAO.NhanVien_DAO;
+import Entity.NhanVien;
 
 public class QuanLyNhanVien extends JFrame {
 
@@ -43,6 +48,8 @@ public class QuanLyNhanVien extends JFrame {
     private JScrollPane scrScrollPane;
     private DefaultTableModel tableModel;
 
+    private final NhanVien_DAO nhanVienDAO = new NhanVien_DAO();
+
     private Color backgroundColor = new Color(241, 245, 249);
     private Color primaryColor = new Color(37, 99, 235);
     private Color textColor = new Color(15, 23, 42);
@@ -64,6 +71,8 @@ public class QuanLyNhanVien extends JFrame {
         taoContent();
         taoBang();
         taoButton();
+
+        loadDataToTable();
 
         setVisible(true);
     }
@@ -132,16 +141,7 @@ public class QuanLyNhanVien extends JFrame {
                 "Trạng thái"
         };
 
-        Object[][] data = {
-                {"NV001", "Phan Xuân Phụng", "0901234567", "phung2203", "Chủ gara (Admin)", "Hoạt động"},
-                {"KTV01", "Nguyễn Văn Tài", "0912345678", "ktv_tai", "Kỹ thuật viên", "Hoạt động"},
-                {"KTV02", "Trần Đức Mạnh", "0923456789", "ktv_manh", "Kỹ thuật viên", "Hoạt động"},
-                {"TK01", "Vũ Đình Khoa", "0977888999", "khoa.vd", "Thủ kho", "Hoạt động"},
-                {"TK02", "Bùi Thị Hoa", "0966554433", "hoa.bt", "Thủ kho", "Hoạt động"},
-                {"KT01", "Phạm Thị Dung", "0933111222", "liem1507", "Kế toán", "Hoạt động"}
-        };
-
-        tableModel = new DefaultTableModel(data, columns) {
+        tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -174,6 +174,25 @@ public class QuanLyNhanVien extends JFrame {
         scrScrollPane.getViewport().setBackground(Color.WHITE);
 
         pnlContentPanel.add(scrScrollPane, BorderLayout.CENTER);
+    }
+
+    private void loadDataToTable() {
+        tableModel.setRowCount(0);
+        try {
+            List<NhanVien> ds = nhanVienDAO.getAllNhanVien();
+            for (NhanVien nv : ds) {
+                tableModel.addRow(new Object[]{
+                        nv.getMaNV(),
+                        nv.getHoTen(),
+                        nv.getSoDienThoai(),
+                        nv.getTenDangNhap(),
+                        nv.getChucVu(),
+                        nv.getTrangThai()
+                });
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi nạp dữ liệu nhân viên từ SQL Server:\n" + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void taoButton() {
@@ -214,7 +233,35 @@ public class QuanLyNhanVien extends JFrame {
 
     private void moFormThem() {
         JDialog winDialog = taoDialog("Thêm nhân viên mới");
-        JPanel pnlPanel = taoFormNhanVien();
+
+        JPanel pnlPanel = new JPanel(new GridLayout(6, 2, 15, 12));
+        pnlPanel.setBackground(Color.WHITE);
+        pnlPanel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
+
+        JTextField txtMa = taoTextField();
+        JTextField txtHoTen = taoTextField();
+        JTextField txtSdt = taoTextField();
+        JTextField txtTaiKhoan = taoTextField();
+        JTextField txtMatKhau = taoTextField();
+
+        JComboBox<String> cmbVaiTro = new JComboBox<>(
+                new String[]{"Lễ tân", "Kỹ thuật viên", "Thủ kho", "Kế toán", "Chủ gara (Admin)"}
+        );
+        cmbVaiTro.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cmbVaiTro.setBackground(Color.WHITE);
+
+        pnlPanel.add(taoLabel("Mã nhân viên:"));
+        pnlPanel.add(txtMa);
+        pnlPanel.add(taoLabel("Họ và tên:"));
+        pnlPanel.add(txtHoTen);
+        pnlPanel.add(taoLabel("Số điện thoại / ĐC:"));
+        pnlPanel.add(txtSdt);
+        pnlPanel.add(taoLabel("Tên đăng nhập:"));
+        pnlPanel.add(txtTaiKhoan);
+        pnlPanel.add(taoLabel("Mật khẩu:"));
+        pnlPanel.add(txtMatKhau);
+        pnlPanel.add(taoLabel("Chức vụ / Vai trò:"));
+        pnlPanel.add(cmbVaiTro);
 
         JPanel pnlButtonPanelLocal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlButtonPanelLocal.setBackground(Color.WHITE);
@@ -227,13 +274,28 @@ public class QuanLyNhanVien extends JFrame {
 
         btnHuy.addActionListener(e -> winDialog.dispose());
         btnLuu.addActionListener(e -> {
-            JOptionPane.showMessageDialog(
-                    winDialog,
-                    "Thêm nhân viên thành công!",
-                    "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-            winDialog.dispose();
+            String ma = txtMa.getText().trim();
+            String hoTen = txtHoTen.getText().trim();
+            String sdt = txtSdt.getText().trim();
+            String tenDN = txtTaiKhoan.getText().trim();
+            String mk = txtMatKhau.getText().trim();
+            String vaiTro = cmbVaiTro.getSelectedItem().toString();
+
+            if (ma.isEmpty() || tenDN.isEmpty() || mk.isEmpty()) {
+                JOptionPane.showMessageDialog(winDialog, "Vui lòng nhập đầy đủ Mã NV, Tên đăng nhập và Mật khẩu!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            NhanVien nv = new NhanVien(ma, hoTen, sdt, tenDN, vaiTro, "Hoạt động");
+            try {
+                if (nhanVienDAO.themNhanVien(nv, mk)) {
+                    JOptionPane.showMessageDialog(winDialog, "Thêm nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    loadDataToTable();
+                    winDialog.dispose();
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(winDialog, "Lỗi thêm nhân viên: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         winDialog.add(pnlPanel, BorderLayout.CENTER);
@@ -244,17 +306,52 @@ public class QuanLyNhanVien extends JFrame {
     private void moFormSua() {
         int row = tblTable.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Vui lòng chọn nhân viên cần sửa!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        String maNV = tableModel.getValueAt(row, 0).toString();
+        String hoTen = tableModel.getValueAt(row, 1).toString();
+        String sdt = tableModel.getValueAt(row, 2).toString();
+        String tenDN = tableModel.getValueAt(row, 3).toString();
+        String vaiTro = tableModel.getValueAt(row, 4).toString();
+
         JDialog winDialog = taoDialog("Cập nhật thông tin nhân viên");
-        JPanel pnlPanel = taoFormNhanVien();
+        JPanel pnlPanel = new JPanel(new GridLayout(5, 2, 15, 12));
+        pnlPanel.setBackground(Color.WHITE);
+        pnlPanel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
+
+        JTextField txtMa = taoTextField();
+        txtMa.setText(maNV);
+        txtMa.setEditable(false);
+
+        JTextField txtHoTen = taoTextField();
+        txtHoTen.setText(hoTen);
+
+        JTextField txtSdt = taoTextField();
+        txtSdt.setText(sdt);
+
+        JTextField txtTaiKhoan = taoTextField();
+        txtTaiKhoan.setText(tenDN);
+        txtTaiKhoan.setEditable(false);
+
+        JComboBox<String> cmbVaiTro = new JComboBox<>(
+                new String[]{"Lễ tân", "Kỹ thuật viên", "Thủ kho", "Kế toán", "Chủ gara (Admin)"}
+        );
+        cmbVaiTro.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cmbVaiTro.setBackground(Color.WHITE);
+        cmbVaiTro.setSelectedItem(vaiTro);
+
+        pnlPanel.add(taoLabel("Mã nhân viên:"));
+        pnlPanel.add(txtMa);
+        pnlPanel.add(taoLabel("Họ và tên:"));
+        pnlPanel.add(txtHoTen);
+        pnlPanel.add(taoLabel("Số điện thoại / ĐC:"));
+        pnlPanel.add(txtSdt);
+        pnlPanel.add(taoLabel("Tên đăng nhập:"));
+        pnlPanel.add(txtTaiKhoan);
+        pnlPanel.add(taoLabel("Chức vụ / Vai trò:"));
+        pnlPanel.add(cmbVaiTro);
 
         JPanel pnlButtonPanelLocal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlButtonPanelLocal.setBackground(Color.WHITE);
@@ -267,12 +364,8 @@ public class QuanLyNhanVien extends JFrame {
 
         btnHuy.addActionListener(e -> winDialog.dispose());
         btnLuu.addActionListener(e -> {
-            JOptionPane.showMessageDialog(
-                    winDialog,
-                    "Cập nhật thông tin nhân viên thành công!",
-                    "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            JOptionPane.showMessageDialog(winDialog, "Cập nhật thông tin nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            loadDataToTable();
             winDialog.dispose();
         });
 
@@ -281,64 +374,16 @@ public class QuanLyNhanVien extends JFrame {
         winDialog.setVisible(true);
     }
 
-    private JPanel taoFormNhanVien() {
-        JPanel pnlPanel = new JPanel(new GridLayout(6, 2, 15, 12));
-        pnlPanel.setBackground(Color.WHITE);
-        pnlPanel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
-
-        JTextField txtMa = taoTextField();
-        JTextField txtHoTen = taoTextField();
-        JTextField txtSdt = taoTextField();
-        JTextField txtTaiKhoan = taoTextField();
-
-        JComboBox<String> cmbVaiTro = new JComboBox<>(
-                new String[]{"Lễ tân", "Kỹ thuật viên", "Thủ kho", "Kế toán", "Chủ gara (Admin)"}
-        );
-        cmbVaiTro.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cmbVaiTro.setBackground(Color.WHITE);
-
-        JComboBox<String> cmbTrangThai = new JComboBox<>(
-                new String[]{"Hoạt động", "Tạm khóa"}
-        );
-        cmbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cmbTrangThai.setBackground(Color.WHITE);
-
-        pnlPanel.add(taoLabel("Mã nhân viên"));
-        pnlPanel.add(txtMa);
-
-        pnlPanel.add(taoLabel("Họ và tên"));
-        pnlPanel.add(txtHoTen);
-
-        pnlPanel.add(taoLabel("Số điện thoại"));
-        pnlPanel.add(txtSdt);
-
-        pnlPanel.add(taoLabel("Tài khoản đăng nhập"));
-        pnlPanel.add(txtTaiKhoan);
-
-        pnlPanel.add(taoLabel("Chức vụ / Vai trò"));
-        pnlPanel.add(cmbVaiTro);
-
-        pnlPanel.add(taoLabel("Trạng thái"));
-        pnlPanel.add(cmbTrangThai);
-
-        return pnlPanel;
-    }
-
     private void moFormPhanQuyen() {
         int row = tblTable.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Vui lòng chọn nhân viên cần phân quyền!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần phân quyền!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String maNv = tblTable.getValueAt(row, 0).toString();
-        String hoTen = tblTable.getValueAt(row, 1).toString();
-        String vaiTro = tblTable.getValueAt(row, 4).toString();
+        String maNv = tableModel.getValueAt(row, 0).toString();
+        String hoTen = tableModel.getValueAt(row, 1).toString();
+        String vaiTro = tableModel.getValueAt(row, 4).toString();
 
         JDialog winDialog = taoDialog("Phân quyền nhân viên");
 
@@ -394,12 +439,7 @@ public class QuanLyNhanVien extends JFrame {
 
         btnHuy.addActionListener(e -> winDialog.dispose());
         btnLuu.addActionListener(e -> {
-            JOptionPane.showMessageDialog(
-                    winDialog,
-                    "Cập nhật phân quyền thành công!",
-                    "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            JOptionPane.showMessageDialog(winDialog, "Cập nhật phân quyền thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             winDialog.dispose();
         });
 
@@ -413,38 +453,37 @@ public class QuanLyNhanVien extends JFrame {
     private void xoaNhanVien() {
         int row = tblTable.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Vui lòng chọn nhân viên cần xóa!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        String maNV = tblTable.getValueAt(row, 0).toString();
         String hoTen = tblTable.getValueAt(row, 1).toString();
+
         int result = JOptionPane.showConfirmDialog(
                 this,
-                "Bạn có chắc muốn xóa nhân viên \"" + hoTen + "\"?",
+                "Bạn có chắc muốn xóa tài khoản nhân viên \"" + hoTen + "\" (" + maNV + ")?",
                 "Xác nhận xóa",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE
         );
 
         if (result == JOptionPane.YES_OPTION) {
-            tableModel.removeRow(row);
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Xóa nhân viên thành công!",
-                    "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            try {
+                if (nhanVienDAO.xoaNhanVien(maNV)) {
+                    JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    loadDataToTable();
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi xóa nhân viên: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     private void timKiem() {
         String keyword = txtSearch.getText().trim().toLowerCase();
         if (keyword.isEmpty()) {
+            loadDataToTable();
             return;
         }
 
@@ -461,12 +500,7 @@ public class QuanLyNhanVien extends JFrame {
             }
         }
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Không tìm thấy nhân viên phù hợp!",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên phù hợp!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JDialog taoDialog(String title) {
