@@ -6,13 +6,14 @@ public class KhachHang {
     private String hoTen;
     private String soDienThoai;
     private String diaChi;
-
+    private String email;
     public KhachHang() {}
-    public KhachHang(String maKhachHang, String hoTen, String soDienThoai, String diaChi) {
+    public KhachHang(String maKhachHang, String hoTen, String soDienThoai, String diaChi, String email) {
         this.maKhachHang = maKhachHang;
         this.hoTen = hoTen;
         this.soDienThoai = soDienThoai;
         this.diaChi = diaChi;
+        this.email = email;
     }
 
     public String getMaKhachHang() {
@@ -39,4 +40,11 @@ public class KhachHang {
     public void setDiaChi(String diaChi) {
         this.diaChi = diaChi;
     }
+    public void setEmail(String email){
+        this.email = email;
+    }
+    public String getEmail(){
+        return email;
+    }
+
 }
