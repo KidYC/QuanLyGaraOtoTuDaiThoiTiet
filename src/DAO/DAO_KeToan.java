@@ -126,9 +126,8 @@ public class DAO_KeToan {
              return danhsach;
          }
      }
-
-
-
-
+//     public List<Object[]> laydulieucongno(){
+//
+//     }
 
 }

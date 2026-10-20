@@ -35,7 +35,7 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
     private final DefaultTableModel model;
     private final JTable table;
     private final JScrollPane srcoll;
-    private JButton btnquaylai;
+    private JButton btnchitietcongno;
     public ManHinhDanhSachKHNo(){
         super("DANH SÁCH KHÁCH HÀNG NỢ");
         setSize(900,600);
@@ -135,9 +135,9 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         srcoll = new JScrollPane(table);
         pCenter3.add(srcoll,BorderLayout.CENTER);
 
-        btnquaylai = taoNutBoGoc("Quay lại Trang chủ Kế toán");
-        btnquaylai.setPreferredSize(new Dimension(200,50));
-        btnquaylai.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btnchitietcongno = taoNutBoGoc("Chi tiết công nợ");
+        btnchitietcongno.setPreferredSize(new Dimension(200,50));
+        btnchitietcongno.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         pCenter.add(pCenter1);
         pCenter.add(timkiem);
@@ -149,9 +149,9 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         pCenter.add(pCenter3);
         pCenter.add(Box.createVerticalStrut(20));
         //pCenter4
-        pCenter.add(btnquaylai);
+        pCenter.add(btnchitietcongno);
         add(pCenter,BorderLayout.CENTER);
-        btnquaylai.addActionListener(this);
+        btnchitietcongno.addActionListener(this);
         chinhmau();
         laydulieu();
         tongnohethong();
@@ -176,7 +176,7 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         btntimkiem.setBackground(btnchinh);
         table.getTableHeader().setBackground(maucotbang);
         table.getTableHeader().setForeground(chuchinh);
-        btnquaylai.setBackground(btnchinh);
+        btnchitietcongno.setBackground(btnchinh);
     }
     public void laydulieu(){
         DAO_KeToan dao = new DAO_KeToan();
@@ -269,8 +269,8 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
     }
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if (o == btnquaylai) {
-            ManHinhTrangChuKeToan UI = new ManHinhTrangChuKeToan();
+        if (o == btnchitietcongno) {
+            ManHinhChiTietCongNo UI = new ManHinhChiTietCongNo();
             UI.setVisible(true);
             dispose();
         }

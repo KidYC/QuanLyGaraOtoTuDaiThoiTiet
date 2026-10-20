@@ -172,11 +172,9 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
         table.getTableHeader().setBackground(maucotbang);
         table.getTableHeader().setForeground(chuchinh);
         quaylai.setBackground(btnchinh);
-        
-        
-
-
     }
+
+
     public static void main(String[] args) {
         ManHinhChiTietCongNo UI = new ManHinhChiTietCongNo();
         UI.setVisible(true);

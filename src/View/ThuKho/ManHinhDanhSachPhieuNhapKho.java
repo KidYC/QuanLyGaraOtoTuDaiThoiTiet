@@ -35,7 +35,6 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
     private JButton btnthem;
     private JButton btnsua;
     private JButton btnxoa;
-    private JButton btnin;
     private JButton btnquaylai;
 
     private ArrayList<String[]> dsphieu = new ArrayList<>();
@@ -172,12 +171,6 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         btnquaylai.setForeground(Color.WHITE);
         btnquaylai.setFocusPainted(false);
 
-        btnin = new JButton("In Phiếu");
-        btnin.setPreferredSize(new Dimension(110, 35));
-        btnin.setBackground(new Color(52, 152, 219));
-        btnin.setForeground(Color.WHITE);
-        btnin.setFocusPainted(false);
-
         btnxoa = new JButton("Xóa");
         btnxoa.setPreferredSize(new Dimension(110, 35));
         btnxoa.setBackground(new Color(231, 76, 60));
@@ -198,7 +191,6 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         btnthem.setFocusPainted(false);
 
         pSouth.add(btnquaylai);
-        pSouth.add(btnin);
         pSouth.add(btnxoa);
         pSouth.add(btnsua);
         pSouth.add(btnthem);
@@ -213,7 +205,6 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         btnthem.addActionListener(this);
         btnsua.addActionListener(this);
         btnxoa.addActionListener(this);
-        btnin.addActionListener(this);
         btnquaylai.addActionListener(this);
 
         tblphieu.addMouseListener(new MouseAdapter() {
@@ -237,8 +228,6 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
             xuLySua();
         } else if (o == btnxoa) {
             xuLyXoa();
-        } else if (o == btnin) {
-            xuLyIn();
         } else if (o == btnquaylai) {
             xuLyQuayLai();
         }
@@ -357,19 +346,6 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         modelphieu.removeRow(dong);
         modelchitiet.setRowCount(0);
     }
-
-    private void xuLyIn() {
-        int dong = tblphieu.getSelectedRow();
-        if (dong == -1) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng chọn phiếu nhập cần in!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        JOptionPane.showMessageDialog(this,
-                "Chức năng in phiếu " + modelphieu.getValueAt(dong, 0) + " chưa được cài đặt.");
-    }
-
     private void xuLyQuayLai() {
         this.dispose();
     }
