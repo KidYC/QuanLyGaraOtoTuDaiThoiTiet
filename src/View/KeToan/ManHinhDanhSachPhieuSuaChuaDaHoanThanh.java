@@ -57,27 +57,25 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         lblmenu.setFont(new Font("Arial",Font.BOLD,20));
         lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        trangchu = new JButton("Trang chủ kế toán");
+        trangchu = taoNutBoGoc("Trang chủ kế toán");
         trangchu.setAlignmentX(Component.CENTER_ALIGNMENT);
         trangchu.setMaximumSize(new Dimension(190, 35));
 
-        qlca = new JButton("Quản lý ca");
+        qlca = taoNutBoGoc("Quản lý ca");
         qlca.setAlignmentX(Component.CENTER_ALIGNMENT);
         qlca.setMaximumSize(new Dimension(190, 35));
 
-        dsphieusuachua = new JButton("Danh sách phiếu sửa chữa");
-        dsphieusuachua.setAlignmentX(Component.CENTER_ALIGNMENT);
-        dsphieusuachua.setMaximumSize(new Dimension(190,35));
 
-        quanlycongno = new JButton("Quản lý công nợ");
+
+        quanlycongno = taoNutBoGoc("Quản lý công nợ");
         quanlycongno.setAlignmentX(Component.CENTER_ALIGNMENT);
         quanlycongno.setMaximumSize(new Dimension(190, 35));
 
-        baocaodoanhthu = new JButton("Báo cáo doanh thu");
+        baocaodoanhthu = taoNutBoGoc("Báo cáo doanh thu");
         baocaodoanhthu.setAlignmentX(Component.CENTER_ALIGNMENT);
         baocaodoanhthu.setMaximumSize(new Dimension(190, 35));
 
-        quaylai = new JButton("Quay lại trang chủ");
+        quaylai = taoNutBoGoc("Quay lại trang chủ");
         quaylai.setAlignmentX(Component.CENTER_ALIGNMENT);
         quaylai.setMaximumSize(new Dimension(190,35));
 
@@ -88,8 +86,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         pWest.add(trangchu);
         pWest.add(Box.createVerticalStrut(20));
         pWest.add(qlca);
-        pWest.add(Box.createVerticalStrut(20));
-        pWest.add(dsphieusuachua);
         pWest.add(Box.createVerticalStrut(20));
         pWest.add(quanlycongno);
         pWest.add(Box.createVerticalStrut(20));
@@ -119,7 +115,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         trangthai = new JLabel("Trạng thái: ");
         trangthai.setFont(new Font("Arial",Font.BOLD,15));
         txttrangthai = new JComboBox<>(new String []{"Tất cả","Đang xử lý","Hoàn thành"});
-        btnTim = new JButton("Tìm");
+        btnTim = taoNutBoGoc("Tìm");
         khoangtrong = new JLabel("");
 
 
@@ -140,7 +136,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         add(pCenter,BorderLayout.CENTER);
         trangchu.addActionListener(this);
         qlca.addActionListener(this);
-        dsphieusuachua.addActionListener(this);
         quanlycongno.addActionListener(this);
         baocaodoanhthu.addActionListener(this);
         quaylai.addActionListener(this);
@@ -159,7 +154,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
         lblmenu.setForeground(chuchinh);
         trangchu.setBackground(btnchinh);
         qlca.setBackground(btnchinh);
-        dsphieusuachua.setBackground(btnchinh);
         quanlycongno.setBackground(btnchinh);
         baocaodoanhthu.setBackground(btnchinh);
         quaylai.setBackground(btnchinh);
@@ -195,6 +189,26 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
                     "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
         }
     }
+    private JButton taoNutBoGoc(String text) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setContentAreaFilled(false);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(false);
+        btn.setFont(new Font("Arial", Font.BOLD, 14));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
     public void TimKiem(){
         String maphieu = txttimkiem.getText().trim();
         if (maphieu.isEmpty()){
@@ -225,10 +239,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh extends JFrame implements Ac
             dispose();
         } else if (o == qlca) {
             ManHinhQuanLyCa UI = new ManHinhQuanLyCa();
-            UI.setVisible(true);
-            dispose();
-        } else if (o == dsphieusuachua) {
-            ManHinhDanhSachPhieuSuaChuaDaHoanThanh UI = new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
             UI.setVisible(true);
             dispose();
         }else if (o== quanlycongno){
