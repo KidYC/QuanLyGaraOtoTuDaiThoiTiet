@@ -49,4 +49,24 @@ public class KyThuatVien_DAO {
         }
         return null;
     }
+
+    // ĐÃ SỬA: Hoàn thiện hàm lấy danh sách KTV đang rảnh từ Database
+    public List<KyThuatVien> getDanhSachKTVRanh() throws SQLException {
+        List<KyThuatVien> ds = new ArrayList<>();
+        String sql = "SELECT maKTV, hoTen, diaChi, ngayVaoLam, trangThai FROM KY_THUAT_VIEN WHERE trangThai = N'Đang rảnh'";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ds.add(new KyThuatVien(
+                        rs.getString("maKTV"),
+                        rs.getString("hoTen"),
+                        rs.getString("diaChi"),
+                        rs.getDate("ngayVaoLam"),
+                        rs.getString("trangThai")
+                ));
+            }
+        }
+        return ds;
+    }
 }
