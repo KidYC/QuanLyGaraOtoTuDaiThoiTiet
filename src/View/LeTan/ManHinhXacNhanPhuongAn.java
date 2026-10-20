@@ -230,8 +230,8 @@ public class ManHinhXacNhanPhuongAn extends JFrame implements ActionListener {
                 "Xác nhận thành công!\nXe " + txtBienSo.getText() + " đã được chuyển sang trạng thái Đang sửa chữa.",
                 "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
-         TrangChuHeThong Home = new TrangChuHeThong();
-         Home.setVisible(true);
+//         TrangChuHeThong Home = new TrangChuHeThong();
+//         Home.setVisible(true);
         this.dispose();
 
     }

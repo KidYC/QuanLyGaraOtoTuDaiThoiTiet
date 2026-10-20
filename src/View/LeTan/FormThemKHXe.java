@@ -137,8 +137,13 @@ public class FormThemKHXe extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if(btnLuu == source)
-            XuLyThemKhachHang();
+        if(btnLuu == source) {
+            try {
+                XuLyThemKhachHang();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 
 
@@ -147,7 +152,7 @@ public class FormThemKHXe extends JFrame implements ActionListener {
         UI.setVisible(true);
     }
 
-    public void XuLyThemKhachHang() {
+    public void XuLyThemKhachHang() throws SQLException {
         KhachHang_DAO dao = new KhachHang_DAO();
         KhachHang khMoi = new KhachHang("", txtTen.getText(), txtSDT.getText(), txtDiaChi.getText(), txtEmail.getText());
         dao.themKhachHang(khMoi);

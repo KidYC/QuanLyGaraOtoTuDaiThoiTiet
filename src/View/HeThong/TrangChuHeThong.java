@@ -18,8 +18,11 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.net.URL;
@@ -52,7 +55,7 @@ import View.KeToan.ManHinhQuanLyCa;
 import View.LeTan.*;
 import View.ThuKho.*;
 
-public class TrangChuHeThong extends JFrame {
+public class TrangChuHeThong extends JFrame implements ActionListener, MouseListener {
     private static final Color MAU_NEN = new Color(244, 246, 248);
     private static final Color MAU_SIDEBAR = new Color(226, 232, 240);
     private static final Color MAU_SIDEBAR_CHON = new Color(186, 230, 253);
@@ -141,13 +144,13 @@ public class TrangChuHeThong extends JFrame {
         PHIEU_SUA_CHUA("Phiếu sửa chữa", NhomChucNang.SUA_CHUA, "Lập phiếu, công việc và phụ tùng", VaiTro.KY_THUAT),
         THUC_HIEN_SUA_CHUA("Thực hiện sửa chữa", NhomChucNang.SUA_CHUA, "Cập nhật tiến độ thi công", VaiTro.KY_THUAT),
         KIEM_TRA_CHAT_LUONG("Kiểm tra chất lượng", NhomChucNang.SUA_CHUA, "Kiểm tra xe sau khi sửa chữa", VaiTro.KY_THUAT),
-        QUAN_LY_BAO_HANH("Quản lý bảo hành", NhomChucNang.SUA_CHUA, "Quản lý và tra cứu phiếu bảo hành", VaiTro.LE_TAN),
-        LICH_SU_SUA_CHUA("Lịch sử sửa chữa", NhomChucNang.SUA_CHUA, "Tra cứu lịch sử sửa chữa của xe", VaiTro.LE_TAN),
+//        QUAN_LY_BAO_HANH("Quản lý bảo hành", NhomChucNang.SUA_CHUA, "Quản lý và tra cứu phiếu bảo hành", VaiTro.LE_TAN),
+//        LICH_SU_SUA_CHUA("Lịch sử sửa chữa", NhomChucNang.SUA_CHUA, "Tra cứu lịch sử sửa chữa của xe", VaiTro.LE_TAN),
 
         // Phân hệ Thanh toán & Thu ngân
-        HOA_DON_THANH_TOAN("Hóa đơn & Thanh toán", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
+        HOA_DON_THANH_TOAN("Hóa đơn", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
         CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
-        CA_THU_NGAN("Ca thu ngân", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
+        CA_THU_NGAN("Quản lý ca thu ngân", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
 
         // Phân hệ Thống kê
         THONG_KE_DOANH_THU("Doanh thu", NhomChucNang.THONG_KE, "Thống kê doanh thu theo kỳ"),
@@ -156,8 +159,8 @@ public class TrangChuHeThong extends JFrame {
 
         // Phân hệ Hệ thống
         QUAN_LY_NHAN_VIEN("Quản lý nhân viên", NhomChucNang.HE_THONG, "Quản lý hồ sơ nhân sự", VaiTro.ADMIN),
-        BANG_GIA("Bảng giá & Dịch vụ", NhomChucNang.HE_THONG, "Cấu hình bảng giá và dịch vụ", VaiTro.ADMIN),
-        PHAN_QUYEN("Phân quyền", NhomChucNang.HE_THONG, "Cấp và thu hồi quyền người dùng", VaiTro.ADMIN);
+        BANG_GIA("Bảng giá & Dịch vụ", NhomChucNang.HE_THONG, "Cấu hình bảng giá và dịch vụ", VaiTro.ADMIN);
+//        PHAN_QUYEN("Phân quyền", NhomChucNang.HE_THONG, "Cấp và thu hồi quyền người dùng", VaiTro.ADMIN);
 
         private final String ten;
         private final NhomChucNang nhom;
@@ -189,6 +192,8 @@ public class TrangChuHeThong extends JFrame {
     private NenTrang pnlNoiDung;
     private final Map<ChucNang, JButton> dsNutMenu = new LinkedHashMap<>();
     private JButton btnDangChon;
+    private JLabel lblLogout;
+    private JPanel pnlDsMenu;
 
     public TrangChuHeThong() {
         this("KTV01", "Nguyễn Văn Tài", VaiTro.KY_THUAT);
@@ -236,7 +241,7 @@ public class TrangChuHeThong extends JFrame {
         pnlSidebar.setBackground(MAU_SIDEBAR);
         pnlSidebar.setPreferredSize(new Dimension(260, 0));
 
-        JPanel pnlDsMenu = new JPanel();
+        pnlDsMenu = new JPanel();
         pnlDsMenu.setLayout(new BoxLayout(pnlDsMenu, BoxLayout.Y_AXIS));
         pnlDsMenu.setBackground(MAU_SIDEBAR);
         pnlDsMenu.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
@@ -287,26 +292,7 @@ public class TrangChuHeThong extends JFrame {
                 dsNutMenu.put(cn, btnMenu);
             }
 
-            btnNhom.addActionListener(e -> {
-                boolean mo = !pnlSubmenu.isVisible();
-                for (Map.Entry<NhomChucNang, JPanel> entry : dsSubmenu.entrySet()) {
-                    entry.getValue().setVisible(false);
-                    JButton nut = dsNutNhom.get(entry.getKey());
-                    nut.setText(entry.getKey().getTen());
-                    nut.setBackground(MAU_SIDEBAR);
-                    nut.setFont(FONT_NHAN_DAM);
-                }
-                if (mo) {
-                    pnlSubmenu.setVisible(true);
-                    btnNhom.setText(nhom.getTen());
-                    btnNhom.setBackground(MAU_SIDEBAR_CHON);
-                    nhomDangMo = nhom;
-                } else {
-                    nhomDangMo = null;
-                }
-                pnlDsMenu.revalidate();
-                pnlDsMenu.repaint();
-            });
+            btnNhom.addActionListener(this);
 
             dsNutNhom.put(nhom, btnNhom);
             dsSubmenu.put(nhom, pnlSubmenu);
@@ -344,7 +330,7 @@ public class TrangChuHeThong extends JFrame {
         pnlLogout.setBackground(MAU_SIDEBAR);
         pnlLogout.setAlignmentX(LEFT_ALIGNMENT);
         pnlLogout.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
-        JLabel lblLogout = new JLabel("Đăng xuất");
+        lblLogout = new JLabel("Đăng xuất");
         ImageIcon icoLogout = loadIcon("/resources/icons/logout.png", 18, 18);
         if (icoLogout != null) lblLogout.setIcon(icoLogout);
         lblLogout.setIconTextGap(7);
@@ -352,14 +338,7 @@ public class TrangChuHeThong extends JFrame {
         lblLogout.setForeground(MAU_DO);
         lblLogout.setCursor(new Cursor(Cursor.HAND_CURSOR));
         pnlLogout.add(lblLogout);
-        lblLogout.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) { dangXuat(); }
-            @Override
-            public void mouseEntered(MouseEvent e) { lblLogout.setForeground(new Color(248, 113, 113)); }
-            @Override
-            public void mouseExited(MouseEvent e) { lblLogout.setForeground(MAU_DO); }
-        });
+        lblLogout.addMouseListener(this);
         pnlProfile.add(sprProfile);
         pnlProfile.add(Box.createVerticalStrut(12));
         pnlProfile.add(lblTen);
@@ -383,7 +362,8 @@ public class TrangChuHeThong extends JFrame {
         btnMenu.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 12));
         btnMenu.setAlignmentX(LEFT_ALIGNMENT);
         btnMenu.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        btnMenu.addActionListener(e -> chonChucNang(cn, btnMenu));
+        btnMenu.putClientProperty("ChucNang", cn);
+        btnMenu.addActionListener(this);
         return btnMenu;
     }
 
@@ -394,7 +374,7 @@ public class TrangChuHeThong extends JFrame {
         pnlNoiDung.add(new TongQuanPanel(hoTen, vaiTro), ChucNang.TONG_QUAN.name());
         for (ChucNang cn : ChucNang.values()) {
             if (cn != ChucNang.TONG_QUAN && cn.choPhep(vaiTro)) {
-                pnlNoiDung.add(taoTrang(cn), cn.name());
+//                pnlNoiDung.add(taoTrang(cn), cn.name());
             }
         }
         return pnlNoiDung;
@@ -420,7 +400,7 @@ public class TrangChuHeThong extends JFrame {
     static boolean moManHinhNghiepVu(ChucNang cn, String maNV) {
         switch (cn) {
             // Lễ tân
-            case QUAN_LY_KHACH_HANG:    hienThi(new QuanLyKhachHangPanel()); return true;
+            case QUAN_LY_KHACH_HANG:    hienThi(new ManHinhQuanLyKhachHang()); return true;
             case QUAN_LY_XE:            hienThi(new DanhSachXeKhachHang("001","Minh Lo", "0123456789")); return true;
             case TIEP_NHAN_XE:          hienThi(new ManHinhLapPhieuTiepNhan()); return true;
             case LAP_BAO_GIA:           hienThi(new ManHinhLapBaoGia()); return true;
@@ -441,7 +421,7 @@ public class TrangChuHeThong extends JFrame {
             case PHIEU_SUA_CHUA:        hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
             case THUC_HIEN_SUA_CHUA:    hienThi(new CapNhatTienDoSuaChua()); return true;
             case KIEM_TRA_CHAT_LUONG:   hienThi(new KiemTraChatLuong()); return true;
-            case QUAN_LY_BAO_HANH:      hienThi(new FormQuanLyBaoHanh()); return true;
+//            case QUAN_LY_BAO_HANH:      hienThi(new FormQuanLyBaoHanh()); return true;
 
             // Thu ngân / Kế toán
             case HOA_DON_THANH_TOAN:    hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
@@ -470,11 +450,6 @@ public class TrangChuHeThong extends JFrame {
         winKhung.setSize(Math.max(winKhung.getWidth(), 1100), Math.max(winKhung.getHeight(), 680));
         winKhung.setLocationRelativeTo(null);
         winKhung.setVisible(true);
-    }
-
-    private JComponent taoTrang(ChucNang cn) {
-        if (cn == ChucNang.QUAN_LY_XE) return new QuanLyXePanel(vaiTro == VaiTro.ADMIN);
-        return new TrangDangPhatTrien(cn);
     }
 
     static JButton taoNutChinh(String noiDung, Color mau) {
@@ -532,6 +507,75 @@ public class TrangChuHeThong extends JFrame {
         if (luaChon == JOptionPane.YES_OPTION) {
             dispose();
             new DangNhap().setVisible(true);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object source = e.getSource();
+        if (source instanceof JButton) {
+            JButton btn = (JButton) source;
+            ChucNang cn = (ChucNang) btn.getClientProperty("ChucNang");
+            if (cn != null) {
+                chonChucNang(cn, btn);
+                return;
+            }
+
+            for (Map.Entry<NhomChucNang, JButton> entry : dsNutNhom.entrySet()) {
+                if (entry.getValue() == btn) {
+                    NhomChucNang nhom = entry.getKey();
+                    JPanel pnlSubmenu = dsSubmenu.get(nhom);
+                    if (pnlSubmenu != null) {
+                        boolean mo = !pnlSubmenu.isVisible();
+                        for (Map.Entry<NhomChucNang, JPanel> subEntry : dsSubmenu.entrySet()) {
+                            subEntry.getValue().setVisible(false);
+                            JButton nut = dsNutNhom.get(subEntry.getKey());
+                            if (nut != null) {
+                                nut.setText(subEntry.getKey().getTen());
+                                nut.setBackground(MAU_SIDEBAR);
+                                nut.setFont(FONT_NHAN_DAM);
+                            }
+                        }
+                        if (mo) {
+                            pnlSubmenu.setVisible(true);
+                            btn.setText(nhom.getTen());
+                            btn.setBackground(MAU_SIDEBAR_CHON);
+                            nhomDangMo = nhom;
+                        } else {
+                            nhomDangMo = null;
+                        }
+                        if (pnlDsMenu != null) {
+                            pnlDsMenu.revalidate();
+                            pnlDsMenu.repaint();
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == lblLogout) {
+            dangXuat();
+        }
+    }
+
+    @Override public void mousePressed(MouseEvent e) {}
+    @Override public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        if (e.getSource() == lblLogout) {
+            lblLogout.setForeground(new Color(248, 113, 113));
+        }
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        if (e.getSource() == lblLogout) {
+            lblLogout.setForeground(MAU_DO);
         }
     }
 
@@ -761,106 +805,6 @@ public class TrangChuHeThong extends JFrame {
             pnlGiua.add(pnlHangThe, BorderLayout.NORTH);
             pnlGiua.add(pnlHangBieuDo, BorderLayout.CENTER);
             add(pnlGiua, BorderLayout.CENTER);
-        }
-    }
-
-    static class QuanLyKhachHangPanel extends JPanel {
-        QuanLyKhachHangPanel() {
-            super(new BorderLayout(0, 16));
-            setOpaque(false);
-            add(taoTieuDeTrang("Quản lý khách hàng", "Danh sách và hồ sơ thông tin khách hàng"), BorderLayout.NORTH);
-            String[] cot = {"Mã KH", "Họ và tên", "Số điện thoại", "Địa chỉ", "Email"};
-            Object[][] duLieu = {
-                    {"KH01", "Nguyễn Văn A", "0901234567", "123 Nguyễn Trãi, Q.1", "nguyenvana@gmail.com"},
-                    {"KH02", "Trần Thị B", "0912345678", "456 Lê Văn Việt, Thủ Đức", "tranthib@gmail.com"},
-                    {"KH03", "Lê Văn C", "0987654321", "789 CMT8, Q.3", "levanc@gmail.com"}
-            };
-            DefaultTableModel model = new DefaultTableModel(duLieu, cot) {
-                @Override
-                public boolean isCellEditable(int row, int column) { return false; }
-            };
-            JTable tblKH = new JTable(model);
-            tblKH.setRowHeight(30);
-            tblKH.setFont(FONT_NHAN);
-            tblKH.getTableHeader().setFont(FONT_NHAN_DAM);
-            tblKH.setSelectionBackground(new Color(219, 234, 254));
-            tblKH.setSelectionForeground(MAU_TEXT);
-            tblKH.setFillsViewportHeight(true);
-            JScrollPane scrKH = new JScrollPane(tblKH);
-            scrKH.setBorder(null);
-            JPanel pnlCongCu = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-            pnlCongCu.setOpaque(false);
-            JButton btnThem = taoNutChinh("+ Thêm KH", new Color(37, 99, 235));
-            JButton btnSua = taoNutChinh("Sửa", new Color(124, 58, 237));
-            JButton btnXoa = taoNutChinh("Xóa", MAU_DO);
-            pnlCongCu.add(btnThem);
-            pnlCongCu.add(btnSua);
-            pnlCongCu.add(btnXoa);
-            TheTrang pnlKhung = new TheTrang(new BorderLayout(0, 12));
-            pnlKhung.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-            pnlKhung.add(pnlCongCu, BorderLayout.NORTH);
-            pnlKhung.add(scrKH, BorderLayout.CENTER);
-            add(pnlKhung, BorderLayout.CENTER);
-        }
-    }
-
-    static class QuanLyXePanel extends JPanel {
-        QuanLyXePanel(boolean coQuyenXoa) {
-            super(new BorderLayout(0, 16));
-            setOpaque(false);
-            add(taoTieuDeTrang("Quản lý xe", "Hồ sơ xe và thông tin khách hàng của gara"), BorderLayout.NORTH);
-            String[] cot = {"Biển số", "Hãng", "Dòng xe", "Năm SX", "Chủ xe", "Trạng thái"};
-            Object[][] duLieu = {
-                    {"29A-123.45", "Toyota", "Vios", 2019, "Nguyễn Văn Nam", "Đang sửa"},
-                    {"30E-678.90", "Honda", "City", 2021, "Trần Thị Hoa", "Chờ báo giá"},
-                    {"51F-321.56", "Mazda", "CX-5", 2020, "Lê Hoàng Long", "Hoàn thành"},
-                    {"43A-555.12", "Hyundai", "Accent", 2018, "Phạm Minh Tuấn", "Chờ phụ tùng"}
-            };
-            DefaultTableModel model = new DefaultTableModel(duLieu, cot) {
-                @Override
-                public boolean isCellEditable(int row, int column) { return false; }
-            };
-            JTable tblXe = new JTable(model);
-            tblXe.setRowHeight(30);
-            tblXe.setFont(FONT_NHAN);
-            tblXe.getTableHeader().setFont(FONT_NHAN_DAM);
-            tblXe.setSelectionBackground(new Color(219, 234, 254));
-            tblXe.setSelectionForeground(MAU_TEXT);
-            tblXe.setFillsViewportHeight(true);
-            JScrollPane scrXe = new JScrollPane(tblXe);
-            scrXe.setBorder(null);
-            JPanel pnlCongCu = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-            pnlCongCu.setOpaque(false);
-            JButton btnThem = taoNutChinh("+ Thêm xe", new Color(37, 99, 235));
-            JButton btnSua = taoNutChinh("Sửa", new Color(124, 58, 237));
-            btnThem.addActionListener(e -> JOptionPane.showMessageDialog(this, "Mở form thêm xe"));
-            btnSua.addActionListener(e -> JOptionPane.showMessageDialog(this, "Mở form sửa xe"));
-            pnlCongCu.add(btnThem);
-            pnlCongCu.add(btnSua);
-            if (coQuyenXoa) {
-                JButton btnXoa = taoNutChinh("Xóa", MAU_DO);
-                btnXoa.addActionListener(e -> JOptionPane.showMessageDialog(this, "Xác nhận xóa xe"));
-                pnlCongCu.add(btnXoa);
-            }
-            TheTrang pnlKhung = new TheTrang(new BorderLayout(0, 12));
-            pnlKhung.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-            pnlKhung.add(pnlCongCu, BorderLayout.NORTH);
-            pnlKhung.add(scrXe, BorderLayout.CENTER);
-            add(pnlKhung, BorderLayout.CENTER);
-        }
-    }
-
-    static class TrangDangPhatTrien extends JPanel {
-        TrangDangPhatTrien(ChucNang cn) {
-            super(new BorderLayout(0, 16));
-            setOpaque(false);
-            add(taoTieuDeTrang(cn.getTen(), cn.getMoTa()), BorderLayout.NORTH);
-            TheTrang pnlKhung = new TheTrang(new GridBagLayout());
-            JLabel lblThongBao = new JLabel("Chức năng \"" + cn.getTen() + "\" thuộc phân hệ phát triển của thành viên khác!");
-            lblThongBao.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            lblThongBao.setForeground(MAU_PHU);
-            pnlKhung.add(lblThongBao);
-            add(pnlKhung, BorderLayout.CENTER);
         }
     }
 }
