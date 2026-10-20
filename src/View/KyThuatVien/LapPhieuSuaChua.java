@@ -51,6 +51,7 @@ public class LapPhieuSuaChua extends JFrame {
     private JButton btnTaoPhieu;
     private JButton btnLamMoi;
     private JButton btnQuayLai;
+    private String maKTV = "KTV01";
 
     private final Color maunen = new Color(244, 246, 248);
     private final Color maumenu = new Color(226, 232, 240);
@@ -76,7 +77,10 @@ public class LapPhieuSuaChua extends JFrame {
     private List<PhuTung> dsPhuTung = new ArrayList<>();
     private final DecimalFormat df = new DecimalFormat("#,###");
 
-    public LapPhieuSuaChua() {
+    public LapPhieuSuaChua(String maKTV) {
+        if (maKTV != null && !maKTV.trim().isEmpty()) {
+            this.maKTV = maKTV;
+        }
         setTitle("Lập phiếu sửa chữa - Garage Management");
         setSize(1180, 750);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -88,6 +92,9 @@ public class LapPhieuSuaChua extends JFrame {
         taoContent();
         loadPhieuTiepNhanCombobox();
         setVisible(true);
+    }
+    public LapPhieuSuaChua() {
+        this("KTV01");
     }
 
     private void taoHeader() {
@@ -435,7 +442,8 @@ public class LapPhieuSuaChua extends JFrame {
         String maPhieuSC = "PSC" + System.currentTimeMillis() % 100000;
         Date ngayHienTai = new Date(System.currentTimeMillis());
 
-        PhieuSuaChua psc = new PhieuSuaChua(maPhieuSC, ngayHienTai, ngayHienTai, "Đang sửa chữa", txtBienSo.getText(), "NV001", maPhieuTiepNhan);
+        // ĐÃ SỬA: Thay "NV001" bằng biến maKTV (truyền mã KTV01, KTV02...)
+        PhieuSuaChua psc = new PhieuSuaChua(maPhieuSC, ngayHienTai, ngayHienTai, "Đang sửa chữa", txtBienSo.getText(), this.maKTV, maPhieuTiepNhan);
 
         try {
             boolean taoThanhCong = phieuSuaChuaDAO.themPhieuSuaChua(psc);

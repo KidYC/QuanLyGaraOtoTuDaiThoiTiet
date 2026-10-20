@@ -1,12 +1,20 @@
 package View.LeTan;
 
+import DAO.KhachHang_DAO;
+import Entity.KhachHang;
+import View.HeThong.TrangChuHeThong;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, MouseListener {
@@ -16,10 +24,12 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
     private TableRowSorter<DefaultTableModel> rowSorter;
 
     private JTextField txtTimKH;
-    private JButton btnTimKH;
+
     private JButton btnLamMoi;
     private JButton btnThemKH;
     private JButton btnQuayLai;
+    private TableRowSorter<DefaultTableModel> sorter;
+    private JButton btnXoaKH;
 
     public ManHinhQuanLyKhachHang() {
         setTitle("QUẢN LÝ KHÁCH HÀNG VÀ TIẾP NHẬN XE");
@@ -29,14 +39,14 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         buildUI();
-        loadData();
+        xuLyTimKiem();
     }
 
     private void buildUI() {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(245, 245, 245));
         //pNorth
-        JLabel lblTitle = new JLabel("QUẢN LÝ KHÁCH HÀNG VÀ TIẾP NHẬN XE");
+        JLabel lblTitle = new JLabel("QUẢN LÝ KHÁCH HÀNG");
         lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setForeground(new Color(44, 62, 80));
@@ -48,25 +58,33 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         pCenter.setBackground(new Color(245, 245, 245));
         pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
 
-        String[] columnNames = {"Mã KH", "Họ Tên", "Số Điện Thoại", "Biển Số Xe", "Trạng Thái"};
-        tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+        try{
+            KhachHang_DAO dao = new KhachHang_DAO();
+            List<KhachHang> list = dao.getAllKhachHang();
+
+            DefaultTableModel tableModel = new DefaultTableModel(
+                    new String[]{"Mã Khách Hàng", "Họ Tên", "Số Điện Thoại", "Địa Chỉ", "Email"}, 0);
+
+            for (KhachHang kh: list){
+                tableModel.addRow
+                        (new Object[]{kh.getMaKhachHang(), kh.getHoTen(), kh.getSoDienThoai(), kh.getDiaChi(), kh.getEmail()});
             }
-        };
 
-        table = new JTable(tableModel);
-        table.setRowHeight(30);
-        table.setFont(new Font("Arial", Font.PLAIN, 13));
+            table = new JTable(tableModel);
+            table.setRowHeight(30);
+            table.setFont(new Font("Arial", Font.PLAIN, 13));
 
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 13));
-        header.setBackground(new Color(52, 152, 219));
-        header.setForeground(Color.WHITE);
+            JTableHeader header = table.getTableHeader();
+            header.setFont(new Font("Arial", Font.BOLD, 13));
+            header.setBackground(new Color(52, 152, 219));
+            header.setForeground(Color.WHITE);
 
-        rowSorter = new TableRowSorter<>(tableModel);
-        table.setRowSorter(rowSorter);
+            rowSorter = new TableRowSorter<>(tableModel);
+            table.setRowSorter(rowSorter);
+        } catch(SQLException e)
+        {
+            JOptionPane.showMessageDialog(this, "Bảng không hợp lệ");
+        }
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.getViewport().setBackground(Color.WHITE);
@@ -82,16 +100,10 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         JPanel pTimKiem = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         pTimKiem.setBackground(new Color(245, 245, 245));
 
-        pTimKiem.add(new JLabel("Tìm Kiếm (Mã KH, Tên, SĐT, Biển số):"));
+        pTimKiem.add(new JLabel("Tìm Kiếm (Mã KH, Tên):"));
         txtTimKH = new JTextField(20);
         txtTimKH.setFont(new Font("Arial", Font.PLAIN, 14));
         pTimKiem.add(txtTimKH);
-
-        btnTimKH = new JButton("Tìm");
-        btnTimKH.setBackground(new Color(52, 152, 219));
-        btnTimKH.setForeground(Color.WHITE);
-        btnTimKH.setFocusPainted(false);
-        pTimKiem.add(btnTimKH);
 
         btnLamMoi = new JButton("Làm mới");
         btnLamMoi.setBackground(new Color(149, 165, 166));
@@ -102,12 +114,19 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         JPanel pChucNang = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         pChucNang.setBackground(new Color(245, 245, 245));
 
-        btnThemKH = new JButton("Thêm Khách Hàng / Thêm Xe");
+        btnThemKH = new JButton("Thêm Khách Hàng");
         btnThemKH.setPreferredSize(new Dimension(220, 35));
         btnThemKH.setBackground(new Color(46, 204, 113));
         btnThemKH.setForeground(Color.WHITE);
         btnThemKH.setFont(new Font("Arial", Font.BOLD, 12));
         btnThemKH.setFocusPainted(false);
+
+        btnXoaKH = new JButton("Xoá Khách Hàng");
+        btnXoaKH.setPreferredSize(new Dimension(220, 35));
+        btnXoaKH.setBackground(new Color(46, 204, 113));
+        btnXoaKH.setForeground(Color.WHITE);
+        btnXoaKH.setFont(new Font("Arial", Font.BOLD, 12));
+        btnXoaKH.setFocusPainted(false);
 
         btnQuayLai = new JButton("Quay Lại");
         btnQuayLai.setPreferredSize(new Dimension(120, 35));
@@ -126,14 +145,8 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         initListener();
     }
 
-    private void loadData() {
-        tableModel.addRow(new Object[]{"KH001", "Trần Thanh Liêm", "0901234567", "51H-123.45", "Chờ tiếp nhận"});
-        tableModel.addRow(new Object[]{"KH002", "Lê Duy Minh", "0912345678", "59G1-678.90", "Đang sửa chữa"});
-        tableModel.addRow(new Object[]{"KH003", "Nguyễn Phi Hùng", "0987654321", "60A-111.22", "Đã bàn giao"});
-    }
 
     private void initListener() {
-        btnTimKH.addActionListener(this);
         btnLamMoi.addActionListener(this);
         btnThemKH.addActionListener(this);
         btnQuayLai.addActionListener(this);
@@ -143,37 +156,48 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if (source == btnTimKH) {
-            xuLyTimKiem();
-        } else if (source == btnLamMoi) {
+        if (source == btnLamMoi) {
             xuLyLamMoi();
         } else if (source == btnThemKH) {
              FormThemKHXe UI = new FormThemKHXe();
              UI.setVisible(true);
-            this.dispose();
         } else if (source == btnQuayLai) {
-             TrangChuLeTan Home = new TrangChuLeTan();
+
+            TrangChuHeThong Home = new TrangChuHeThong();
              Home.setVisible(true);
             this.dispose();
         }
     }
 
     private void xuLyTimKiem() {
-        String keyword = txtTimKH.getText().trim();
-        if (keyword.isEmpty()) {
-            rowSorter.setRowFilter(null);
-            return;
-        }
-        try {
-            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(keyword)));
-            if (table.getRowCount() == 0) {
-                JOptionPane.showMessageDialog(this,
-                        "Không tìm thấy khách hàng phù hợp với từ khóa: " + keyword,
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+
+        txtTimKH.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                timKiem();
             }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi tìm kiếm: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                timKiem();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                timKiem();
+            }
+        });
+    }
+
+    public void timKiem(){
+        String keyword = txtTimKH.getText().trim();
+        if(keyword.isEmpty()){
+            sorter.setRowFilter(null);
+        }else{
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(keyword), 0, 1, 2));
         }
     }
 
@@ -182,7 +206,7 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         rowSorter.setRowFilter(null);
     }
 
-    private void moUIDanhSachXeKhachHang(String maKH, String hoTen, String sdt, String bienSo, String trangThai) {
+    private void moUIDanhSachXeKhachHang(String maKH, String hoTen, String sdt) {
         int opt = JOptionPane.showConfirmDialog(this,
                 "Mở danh sách xe của khách hàng:\nMã KH: " + maKH + "\nHọ tên: " + hoTen + "\nSĐT: " + sdt,
                 "Xác nhận",
@@ -209,10 +233,8 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
                 String maKH = tableModel.getValueAt(modelRow, 0).toString();
                 String hoTen = tableModel.getValueAt(modelRow, 1).toString();
                 String sdt = tableModel.getValueAt(modelRow, 2).toString();
-                String bienSo = tableModel.getValueAt(modelRow, 3).toString();
-                String trangThai = tableModel.getValueAt(modelRow, 4).toString();
 
-                moUIDanhSachXeKhachHang(maKH, hoTen, sdt, bienSo, trangThai);
+                moUIDanhSachXeKhachHang(maKH, hoTen, sdt);
             }
         }
     }

@@ -39,14 +39,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import View.DangNhap;
 import View.KyThuatVien.CapNhatTienDoSuaChua;
 import View.KyThuatVien.ChiTietKiemTraChanDoan;
 import View.KyThuatVien.KiemTraChatLuong;
 import View.KyThuatVien.LapPhieuSuaChua;
-import View.KyThuatVien.QuanLyKyThuatVien;
+import View.HeThong.QuanLyNhanVien;
 import View.KeToan.ManHinhChiTietHDVaThanhToan;
 import View.KeToan.ManHinhDanhSachKHNo;
 import View.KeToan.ManHinhQuanLyCa;
@@ -102,8 +101,16 @@ public class TrangChuHeThong extends JFrame {
         }
     }
 
+    // ĐÃ SỬA: Đưa KHO PHỤ TÙNG lên trước SỬA CHỮA & BẢO HÀNH
     public enum NhomChucNang {
-        CHUNG("TỔNG QUAN"), TIEP_NHAN("TIẾP NHẬN & KHÁCH HÀNG"), SUA_CHUA("SỬA CHỮA & BẢO HÀNH"), KHO("KHO PHỤ TÙNG"), KE_TOAN("KẾ TOÁN"), THONG_KE("THỐNG KÊ BÁO CÁO"), HE_THONG("HỆ THỐNG");
+        CHUNG("TỔNG QUAN"),
+        TIEP_NHAN("TIẾP NHẬN & KHÁCH HÀNG"),
+        KHO("KHO PHỤ TÙNG"),
+        SUA_CHUA("SỬA CHỮA & BẢO HÀNH"),
+        THANH_TOAN("THANH TOÁN & THU NGÂN"),
+        THONG_KE("THỐNG KÊ BÁO CÁO"),
+        HE_THONG("HỆ THỐNG");
+
         private final String ten;
         NhomChucNang(String ten) { this.ten = ten; }
         public String getTen() { return ten; }
@@ -111,34 +118,46 @@ public class TrangChuHeThong extends JFrame {
 
     public enum ChucNang {
         TONG_QUAN("Trang chủ", NhomChucNang.CHUNG, "Tổng quan hoạt động của gara", VaiTro.values()),
-        QUAN_LY_XE("Quản lý xe", NhomChucNang.TIEP_NHAN, "Hồ sơ xe và thông tin khách hàng", VaiTro.LE_TAN),
+
+        // Phân hệ Tiếp nhận & Khách hàng (Đã bỏ Xác nhận phương án)
+        QUAN_LY_KHACH_HANG("Quản lý khách hàng", NhomChucNang.TIEP_NHAN, "Danh sách và thông tin khách hàng", VaiTro.LE_TAN),
+        QUAN_LY_XE("Quản lý xe", NhomChucNang.TIEP_NHAN, "Hồ sơ xe của khách hàng", VaiTro.LE_TAN),
         TIEP_NHAN_XE("Tiếp nhận xe", NhomChucNang.TIEP_NHAN, "Lập phiếu tiếp nhận xe vào gara", VaiTro.LE_TAN),
         LAP_BAO_GIA("Lập báo giá", NhomChucNang.TIEP_NHAN, "Báo giá sửa chữa cho khách hàng", VaiTro.LE_TAN),
-        XAC_NHAN_PHUONG_AN("Xác nhận phương án", NhomChucNang.TIEP_NHAN, "Ghi nhận quyết định của khách", VaiTro.LE_TAN),
         BAN_GIAO_XE("Bàn giao xe", NhomChucNang.TIEP_NHAN, "Bàn giao xe và chăm sóc khách hàng", VaiTro.LE_TAN),
-        CHAN_DOAN("Chẩn đoán xe", NhomChucNang.SUA_CHUA, "Kiểm tra và chẩn đoán lỗi xe", VaiTro.KY_THUAT),
-        PHIEU_SUA_CHUA("Phiếu sửa chữa", NhomChucNang.SUA_CHUA, "Lập phiếu, công việc và phụ tùng", VaiTro.KY_THUAT),
-        THUC_HIEN_SUA_CHUA("Thực hiện sửa chữa", NhomChucNang.SUA_CHUA, "Cập nhật tiến độ thi công", VaiTro.KY_THUAT),
-        KIEM_TRA_CHAT_LUONG("Kiểm tra chất lượng", NhomChucNang.SUA_CHUA, "Kiểm tra xe sau khi sửa chữa", VaiTro.KY_THUAT),
-        BAO_HANH("Bảo hành", NhomChucNang.SUA_CHUA, "Tiếp nhận và xử lý bảo hành", VaiTro.LE_TAN),
-        LICH_SU_SUA_CHUA("Lịch sử sửa chữa", NhomChucNang.SUA_CHUA, "Tra cứu lịch sử sửa chữa của xe", VaiTro.LE_TAN),
+
+        // Phân hệ Kho phụ tùng
         DANH_MUC_PHU_TUNG("Danh mục phụ tùng", NhomChucNang.KHO, "Quản lý danh mục phụ tùng", VaiTro.THU_KHO),
         NHAP_KHO("Danh sách phiếu nhập kho", NhomChucNang.KHO, "Tra cứu các phiếu nhập kho", VaiTro.THU_KHO),
         LAP_PHIEU_NHAP_KHO("Lập phiếu nhập kho", NhomChucNang.KHO, "Tạo phiếu nhập phụ tùng", VaiTro.THU_KHO),
         XUAT_KHO("Danh sách yêu cầu xuất kho", NhomChucNang.KHO, "Tra cứu yêu cầu xuất phụ tùng", VaiTro.THU_KHO),
         LAP_PHIEU_XUAT_KHO("Lập phiếu xuất kho", NhomChucNang.KHO, "Tạo phiếu xuất phụ tùng", VaiTro.THU_KHO),
         KIEM_KE("Danh sách phiếu kiểm kê", NhomChucNang.KHO, "Tra cứu phiếu kiểm kê kho", VaiTro.THU_KHO),
+        LAP_PHIEU_KIEM_KE("Lập phiếu kiểm kê", NhomChucNang.KHO, "Tạo phiếu kiểm kê kho", VaiTro.THU_KHO),
         CANH_BAO_TON("Cảnh báo tồn kho", NhomChucNang.KHO, "Ngưỡng tồn tối thiểu và tối đa", VaiTro.THU_KHO),
-        HOA_DON("Hóa đơn", NhomChucNang.KE_TOAN, "Lập hóa đơn từ các phiếu sửa chữa", VaiTro.KE_TOAN),
-        THANH_TOAN("Thanh toán", NhomChucNang.KE_TOAN, "Ghi nhận thu tiền nhiều đợt", VaiTro.KE_TOAN),
-        CONG_NO("Công nợ", NhomChucNang.KE_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
-        CA_THU_NGAN("Ca thu ngân", NhomChucNang.KE_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
+
+        // Phân hệ Sửa chữa & Bảo hành (Đã đổi tên thành Quản lý bảo hành)
+        CHAN_DOAN("Chẩn đoán xe", NhomChucNang.SUA_CHUA, "Kiểm tra và chẩn đoán lỗi xe", VaiTro.KY_THUAT),
+        PHIEU_SUA_CHUA("Phiếu sửa chữa", NhomChucNang.SUA_CHUA, "Lập phiếu, công việc và phụ tùng", VaiTro.KY_THUAT),
+        THUC_HIEN_SUA_CHUA("Thực hiện sửa chữa", NhomChucNang.SUA_CHUA, "Cập nhật tiến độ thi công", VaiTro.KY_THUAT),
+        KIEM_TRA_CHAT_LUONG("Kiểm tra chất lượng", NhomChucNang.SUA_CHUA, "Kiểm tra xe sau khi sửa chữa", VaiTro.KY_THUAT),
+        QUAN_LY_BAO_HANH("Quản lý bảo hành", NhomChucNang.SUA_CHUA, "Quản lý và tra cứu phiếu bảo hành", VaiTro.LE_TAN),
+        LICH_SU_SUA_CHUA("Lịch sử sửa chữa", NhomChucNang.SUA_CHUA, "Tra cứu lịch sử sửa chữa của xe", VaiTro.LE_TAN),
+
+        // Phân hệ Thanh toán & Thu ngân
+        HOA_DON_THANH_TOAN("Hóa đơn & Thanh toán", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
+        CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
+        CA_THU_NGAN("Ca thu ngân", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
+
+        // Phân hệ Thống kê
         THONG_KE_DOANH_THU("Doanh thu", NhomChucNang.THONG_KE, "Thống kê doanh thu theo kỳ"),
         THONG_KE_SUA_CHUA("Sửa chữa", NhomChucNang.THONG_KE, "Thống kê xe và phiếu sửa chữa"),
         THONG_KE_KHO("Kho", NhomChucNang.THONG_KE, "Tồn kho và nhập xuất theo thời gian", VaiTro.THU_KHO),
-        PHAN_QUYEN("Phân quyền", NhomChucNang.HE_THONG, "Cấp và thu hồi quyền người dùng"),
-        QUAN_LY_NHAN_VIEN("Nhân viên", NhomChucNang.HE_THONG, "Quản lý hồ sơ nhân sự"),
-        BANG_GIA("Bảng giá", NhomChucNang.HE_THONG, "Cấu hình bảng giá và chiết khấu");
+
+        // Phân hệ Hệ thống
+        QUAN_LY_NHAN_VIEN("Quản lý nhân viên", NhomChucNang.HE_THONG, "Quản lý hồ sơ nhân sự", VaiTro.ADMIN),
+        BANG_GIA("Bảng giá & Dịch vụ", NhomChucNang.HE_THONG, "Cấu hình bảng giá và dịch vụ", VaiTro.ADMIN),
+        PHAN_QUYEN("Phân quyền", NhomChucNang.HE_THONG, "Cấp và thu hồi quyền người dùng", VaiTro.ADMIN);
 
         private final String ten;
         private final NhomChucNang nhom;
@@ -172,7 +191,7 @@ public class TrangChuHeThong extends JFrame {
     private JButton btnDangChon;
 
     public TrangChuHeThong() {
-        this("NV001", "Phan Xuân Phụng", VaiTro.KY_THUAT);
+        this("KTV01", "Nguyễn Văn Tài", VaiTro.KY_THUAT);
     }
 
     public TrangChuHeThong(String maNV, String hoTen, VaiTro vaiTro) {
@@ -239,7 +258,7 @@ public class TrangChuHeThong extends JFrame {
             }
             if (!coChucNang) continue;
 
-            JButton btnNhom = new JButton(nhom.getTen() + "  +");
+            JButton btnNhom = new JButton(nhom.getTen());
             btnNhom.setFont(FONT_NHAN_DAM);
             btnNhom.setForeground(MAU_CHU_SIDEBAR);
             btnNhom.setBackground(MAU_SIDEBAR);
@@ -273,13 +292,13 @@ public class TrangChuHeThong extends JFrame {
                 for (Map.Entry<NhomChucNang, JPanel> entry : dsSubmenu.entrySet()) {
                     entry.getValue().setVisible(false);
                     JButton nut = dsNutNhom.get(entry.getKey());
-                    nut.setText(entry.getKey().getTen() + "  +");
+                    nut.setText(entry.getKey().getTen());
                     nut.setBackground(MAU_SIDEBAR);
                     nut.setFont(FONT_NHAN_DAM);
                 }
                 if (mo) {
                     pnlSubmenu.setVisible(true);
-                    btnNhom.setText(nhom.getTen() + "  −");
+                    btnNhom.setText(nhom.getTen());
                     btnNhom.setBackground(MAU_SIDEBAR_CHON);
                     nhomDangMo = nhom;
                 } else {
@@ -393,28 +412,19 @@ public class TrangChuHeThong extends JFrame {
             btnMenu.setFont(FONT_NHAN_DAM);
             btnDangChon = btnMenu;
         }
-        // Chức năng có màn hình riêng thì mở cửa sổ đó, còn lại hiện trang tạm trong khung chính
-        if (!moManHinhNghiepVu(cn) && cardLayout != null) {
+        if (!moManHinhNghiepVu(cn, this.maNV) && cardLayout != null) {
             cardLayout.show(pnlNoiDung, cn.name());
         }
     }
 
-    /** Điểm liên kết duy nhất: mở màn hình nghiệp vụ của actor tương ứng. Trả về false nếu chưa có màn hình riêng. */
-    static boolean moManHinhNghiepVu(ChucNang cn) {
+    static boolean moManHinhNghiepVu(ChucNang cn, String maNV) {
         switch (cn) {
             // Lễ tân
+            case QUAN_LY_KHACH_HANG:    hienThi(new QuanLyKhachHangPanel()); return true;
             case QUAN_LY_XE:            hienThi(new DanhSachXeKhachHang("001","Minh Lo", "0123456789")); return true;
             case TIEP_NHAN_XE:          hienThi(new ManHinhLapPhieuTiepNhan()); return true;
             case LAP_BAO_GIA:           hienThi(new ManHinhLapBaoGia()); return true;
-            case XAC_NHAN_PHUONG_AN:    hienThi(new ManHinhXacNhanPhuongAn()); return true;
             case BAN_GIAO_XE:           hienThi(new ManHinhChiTietBanGiao()); return true;
-            case BAO_HANH:              hienThi(new FormQuanLyBaoHanh()); return true;
-
-            // Kỹ thuật viên
-            case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
-            case PHIEU_SUA_CHUA:        hienThi(new LapPhieuSuaChua()); return true;
-            case THUC_HIEN_SUA_CHUA:    hienThi(new CapNhatTienDoSuaChua()); return true;
-            case KIEM_TRA_CHAT_LUONG:   hienThi(new KiemTraChatLuong()); return true;
 
             // Thủ kho
             case DANH_MUC_PHU_TUNG:     hienThi(new ManHinhQuanLyDanhMucPhuTung()); return true;
@@ -423,17 +433,23 @@ public class TrangChuHeThong extends JFrame {
             case XUAT_KHO:              hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
             case LAP_PHIEU_XUAT_KHO:    hienThi(new ManHinhLapPhieuXuatKho()); return true;
             case KIEM_KE:               hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
-//            case minh0806:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
+            case LAP_PHIEU_KIEM_KE:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
             case CANH_BAO_TON:          hienThi(new ManHinhCanhBaoTonKho()); return true;
 
-            // Kế toán
-            case HOA_DON:
-            case THANH_TOAN:            hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
+            // Kỹ thuật viên
+            case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
+            case PHIEU_SUA_CHUA:        hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
+            case THUC_HIEN_SUA_CHUA:    hienThi(new CapNhatTienDoSuaChua()); return true;
+            case KIEM_TRA_CHAT_LUONG:   hienThi(new KiemTraChatLuong()); return true;
+            case QUAN_LY_BAO_HANH:      hienThi(new FormQuanLyBaoHanh()); return true;
+
+            // Thu ngân / Kế toán
+            case HOA_DON_THANH_TOAN:    hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
             case CONG_NO:               hienThi(new ManHinhDanhSachKHNo()); return true;
             case CA_THU_NGAN:           hienThi(new ManHinhQuanLyCa()); return true;
 
             // Admin
-            case QUAN_LY_NHAN_VIEN:     hienThi(new QuanLyKyThuatVien()); return true;
+            case QUAN_LY_NHAN_VIEN:     hienThi(new QuanLyNhanVien()); return true;
 
             default:                    return false;
         }
@@ -441,16 +457,14 @@ public class TrangChuHeThong extends JFrame {
 
     private static void hienThi(Component manHinh) {
         if (manHinh instanceof Window) {
-            // Màn hình là JFrame/JDialog sẵn có
             Window winCua = (Window) manHinh;
             winCua.setLocationRelativeTo(null);
             winCua.setVisible(true);
             return;
         }
 
-        // Màn hình là JPanel: bọc vào một JFrame riêng để mở
         JFrame winKhung = new JFrame(manHinh.getClass().getSimpleName());
-        winKhung.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // đóng cửa sổ này, không thoát cả app
+        winKhung.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         winKhung.add(manHinh);
         winKhung.pack();
         winKhung.setSize(Math.max(winKhung.getWidth(), 1100), Math.max(winKhung.getHeight(), 680));
@@ -716,18 +730,18 @@ public class TrangChuHeThong extends JFrame {
             JPanel pnlHangThe = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangThe.setOpaque(false);
             pnlHangThe.add(new TheThongKe("Xe cần kiểm tra", "5", MAU_CAM,
-                    () -> moManHinhNghiepVu(ChucNang.CHAN_DOAN)));
+                    () -> moManHinhNghiepVu(ChucNang.CHAN_DOAN, null)));
             pnlHangThe.add(new TheThongKe("Phiếu chờ lập", "3", MAU_XANH_LA,
-                    () -> moManHinhNghiepVu(ChucNang.PHIEU_SUA_CHUA)));
+                    () -> moManHinhNghiepVu(ChucNang.PHIEU_SUA_CHUA, null)));
             pnlHangThe.add(new TheThongKe("Xe đang sửa chữa", "8", MAU_TIM,
-                    () -> moManHinhNghiepVu(ChucNang.THUC_HIEN_SUA_CHUA)));
+                    () -> moManHinhNghiepVu(ChucNang.THUC_HIEN_SUA_CHUA, null)));
             pnlHangThe.add(new TheThongKe("Xe chờ KCS", "2", MAU_XANH_LA,
-                    () -> moManHinhNghiepVu(ChucNang.KIEM_TRA_CHAT_LUONG)));
+                    () -> moManHinhNghiepVu(ChucNang.KIEM_TRA_CHAT_LUONG, null)));
             pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", "6", MAU_DO,
-                    () -> moManHinhNghiepVu(ChucNang.DANH_MUC_PHU_TUNG)));
+                    () -> moManHinhNghiepVu(ChucNang.DANH_MUC_PHU_TUNG, null)));
             if (xemDoanhThu) {
                 pnlHangThe.add(new TheThongKe("Doanh thu hôm nay", "18,5 tr", MAU_TIM,
-                        () -> moManHinhNghiepVu(ChucNang.HOA_DON)));
+                        () -> moManHinhNghiepVu(ChucNang.HOA_DON_THANH_TOAN, null)));
             }
 
             JPanel pnlHangBieuDo = new JPanel(new GridLayout(1, 0, 16, 0));
@@ -747,6 +761,46 @@ public class TrangChuHeThong extends JFrame {
             pnlGiua.add(pnlHangThe, BorderLayout.NORTH);
             pnlGiua.add(pnlHangBieuDo, BorderLayout.CENTER);
             add(pnlGiua, BorderLayout.CENTER);
+        }
+    }
+
+    static class QuanLyKhachHangPanel extends JPanel {
+        QuanLyKhachHangPanel() {
+            super(new BorderLayout(0, 16));
+            setOpaque(false);
+            add(taoTieuDeTrang("Quản lý khách hàng", "Danh sách và hồ sơ thông tin khách hàng"), BorderLayout.NORTH);
+            String[] cot = {"Mã KH", "Họ và tên", "Số điện thoại", "Địa chỉ", "Email"};
+            Object[][] duLieu = {
+                    {"KH01", "Nguyễn Văn A", "0901234567", "123 Nguyễn Trãi, Q.1", "nguyenvana@gmail.com"},
+                    {"KH02", "Trần Thị B", "0912345678", "456 Lê Văn Việt, Thủ Đức", "tranthib@gmail.com"},
+                    {"KH03", "Lê Văn C", "0987654321", "789 CMT8, Q.3", "levanc@gmail.com"}
+            };
+            DefaultTableModel model = new DefaultTableModel(duLieu, cot) {
+                @Override
+                public boolean isCellEditable(int row, int column) { return false; }
+            };
+            JTable tblKH = new JTable(model);
+            tblKH.setRowHeight(30);
+            tblKH.setFont(FONT_NHAN);
+            tblKH.getTableHeader().setFont(FONT_NHAN_DAM);
+            tblKH.setSelectionBackground(new Color(219, 234, 254));
+            tblKH.setSelectionForeground(MAU_TEXT);
+            tblKH.setFillsViewportHeight(true);
+            JScrollPane scrKH = new JScrollPane(tblKH);
+            scrKH.setBorder(null);
+            JPanel pnlCongCu = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+            pnlCongCu.setOpaque(false);
+            JButton btnThem = taoNutChinh("+ Thêm KH", new Color(37, 99, 235));
+            JButton btnSua = taoNutChinh("Sửa", new Color(124, 58, 237));
+            JButton btnXoa = taoNutChinh("Xóa", MAU_DO);
+            pnlCongCu.add(btnThem);
+            pnlCongCu.add(btnSua);
+            pnlCongCu.add(btnXoa);
+            TheTrang pnlKhung = new TheTrang(new BorderLayout(0, 12));
+            pnlKhung.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+            pnlKhung.add(pnlCongCu, BorderLayout.NORTH);
+            pnlKhung.add(scrKH, BorderLayout.CENTER);
+            add(pnlKhung, BorderLayout.CENTER);
         }
     }
 
@@ -809,8 +863,4 @@ public class TrangChuHeThong extends JFrame {
             add(pnlKhung, BorderLayout.CENTER);
         }
     }
-
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.THU_KHO).setVisible(true));
-//    }
 }

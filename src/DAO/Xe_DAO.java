@@ -45,4 +45,24 @@ public class Xe_DAO {
         }
         return null;
     }
+
+    public List<Xe> getXeByMaKH(String maKH) throws SQLException{
+        List<Xe> ds = new ArrayList<>();
+        String sql = "SELECT bienSo, hangXe, dongXe, namSanXuat FROM XE WHERE maKhachHang = ?";
+        try(Connection conn = connectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, maKH);
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    ds.add( new Xe(
+                            rs.getString("bienSo"),
+                            rs.getString("hangXe"),
+                            rs.getString("dongXe"),
+                            rs.getInt("namSanXuat"),
+                            maKH
+                    ));
+                }
+            }
+        }
+        return ds;
+    }
 }
