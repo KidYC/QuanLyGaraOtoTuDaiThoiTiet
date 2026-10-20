@@ -440,9 +440,8 @@ public class TrangChuHeThong extends JFrame {
     }
 
     private static void hienThi(Component manHinh) {
-        if (manHinh instanceof Window) {
+        if (manHinh instanceof Window winCua) {
             // Màn hình là JFrame/JDialog sẵn có
-            Window winCua = (Window) manHinh;
             winCua.setLocationRelativeTo(null);
             winCua.setVisible(true);
             return;
@@ -810,7 +809,7 @@ public class TrangChuHeThong extends JFrame {
         }
     }
 
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.THU_KHO).setVisible(true));
-//    }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new TrangChuHeThong("NV001", "Phan Xuân Phụng", VaiTro.THU_KHO).setVisible(true));
+    }
 }

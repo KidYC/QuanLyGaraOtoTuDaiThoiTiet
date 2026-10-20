@@ -1,23 +1,34 @@
 package View.LeTan;
 
+import DAO.Xe_DAO;
+import Entity.Xe;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DanhSachXeKhachHang extends JFrame implements ActionListener {
     private final String maKH;
     private final String hoTen;
     private final String soDienThoai;
 
-    private JTable tableXe;
     private DefaultTableModel tableModelXe;
     private JButton btnTaoPhieuTiepNhan;
     private JButton btnThemXeMoi;
     private JButton btnQuayLai;
+    private JTable table;
+    private TableRowSorter<DefaultTableModel> rowSorter;
+    private DefaultTableModel tableModel;
 
     public DanhSachXeKhachHang(String maKH, String hoTen, String soDienThoai) {
         this.maKH = maKH;
@@ -50,26 +61,56 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
         pNorth.add(lblTitle, BorderLayout.NORTH);
 
         JPanel pInfoKH = new JPanel(new GridLayout(1, 3, 20, 5));
-        pInfoKH.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(189, 195, 199)),
-                "Thông Tin Khách Hàng",
-                TitledBorder.LEFT,
-                TitledBorder.TOP,
-                new Font("Arial", Font.BOLD, 13),
-                new Color(52, 73, 94)
-        ));
 
-        JLabel lblMaKH = new JLabel("Mã KH: " + maKH);
-        JLabel lblHoTen = new JLabel("Họ Tên: " + hoTen);
-        JLabel lblSDT = new JLabel("Số ĐT: " + soDienThoai);
 
-        lblMaKH.setFont(new Font("Arial", Font.PLAIN, 14));
-        lblHoTen.setFont(new Font("Arial", Font.BOLD, 14));
-        lblSDT.setFont(new Font("Arial", Font.PLAIN, 14));
+        try{
+            if(maKH != ""){
+                pInfoKH.setBorder(BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(new Color(189, 195, 199)),
+                        "Thông Tin Khách Hàng",
+                        TitledBorder.LEFT,
+                        TitledBorder.TOP,
+                        new Font("Arial", Font.BOLD, 13),
+                        new Color(52, 73, 94)
+                ));
 
-        pInfoKH.add(lblMaKH);
-        pInfoKH.add(lblHoTen);
-        pInfoKH.add(lblSDT);
+                JLabel lblMaKH = new JLabel("Mã KH: " + maKH);
+                JLabel lblHoTen = new JLabel("Họ Tên: " + hoTen);
+                JLabel lblSDT = new JLabel("Số ĐT: " + soDienThoai);
+
+                lblMaKH.setFont(new Font("Arial", Font.PLAIN, 14));
+                lblHoTen.setFont(new Font("Arial", Font.BOLD, 14));
+                lblSDT.setFont(new Font("Arial", Font.PLAIN, 14));
+
+                pInfoKH.add(lblMaKH);
+                pInfoKH.add(lblHoTen);
+                pInfoKH.add(lblSDT);
+
+                Xe_DAO dao = new Xe_DAO();
+                List<Xe> list = dao.getXeByMaKH(maKH);
+                tableModel = new DefaultTableModel(
+                        new String[]{"Biển Số Xe", "Hãng Xe","Dòng Xe", "Năm Sản Xuất"}, 0);
+                for(Xe xe: list){
+                    tableModel.addRow(
+                            new Object[]{xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getNamSanXuat()}
+                    );
+                }
+            }
+            else{
+                Xe_DAO dao = new Xe_DAO();
+                List<Xe> list = dao.getAllXe();
+                tableModel = new DefaultTableModel(
+                        new String[]{"Biển Số Xe", "Hãng Xe","Dòng Xe", "Năm Sản Xuất", "Mã Khách Hàng"}, 0);
+                for(Xe xe: list){
+                    tableModel.addRow(
+                            new Object[]{xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getNamSanXuat(), xe.getMaKhachHang()}
+                    );
+                }
+            }
+
+        }catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "Lỗi Mã Khách Hàng");
+        }
 
         pNorth.add(pInfoKH, BorderLayout.CENTER);
         add(pNorth, BorderLayout.NORTH);
@@ -77,23 +118,20 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
         JPanel pCenter = new JPanel(new BorderLayout());
         pCenter.setBorder(new EmptyBorder(0, 15, 0, 15));
 
-        String[] columnNames = {"STT", "Biển Số Xe", "Hãng Xe", "Dòng Xe (Model)", "Màu Sắc", "Lần Bảo Dưỡng Gần Nhất"};
-        tableModelXe = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        table = new JTable(tableModel);
+        table.setRowHeight(30);
+        table.setFont(new Font("Arial", Font.BOLD, 13));
 
-        tableXe = new JTable(tableModelXe);
-        tableXe.setRowHeight(30);
-        tableXe.getTableHeader().setFont(new Font("Arial", Font.BOLD, 13));
-        tableXe.setFont(new Font("Arial", Font.PLAIN, 13));
-        tableXe.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Arial", Font.BOLD, 13));
+        header.setBackground(new Color(52, 152, 219));
+        header.setForeground(Color.WHITE);
 
-        loadDataMau();
+        rowSorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(rowSorter);
 
-        JScrollPane scrollPane = new JScrollPane(tableXe);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(Color.WHITE);
         pCenter.add(scrollPane, BorderLayout.CENTER);
         add(pCenter, BorderLayout.CENTER);
 
@@ -117,17 +155,13 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
         btnQuayLai.addActionListener(this);
     }
 
-    private void loadDataMau() {
-        tableModelXe.addRow(new Object[]{"1", "51H-123.45", "Toyota", "Vios 2020", "Trắng", "15/08/2026"});
-        tableModelXe.addRow(new Object[]{"2", "59G1-999.88", "Honda", "City 2022", "Đen", "Chưa có"});
-    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
 
         if (source == btnTaoPhieuTiepNhan) {
-            int selectedRow = tableXe.getSelectedRow();
+            int selectedRow = table.getSelectedRow();
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(this,
                         "Vui lòng chọn một xe trong danh sách để tạo phiếu tiếp nhận!",
@@ -159,6 +193,7 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-            new DanhSachXeKhachHang("KH001", "Nguyễn Văn A", "0901234567").setVisible(true);
+//            new DanhSachXeKhachHang("KH01", "Nguyễn Văn A", "0901234567").setVisible(true);
+        new DanhSachXeKhachHang().setVisible(true);
     }
 }
