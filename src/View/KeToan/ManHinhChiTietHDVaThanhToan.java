@@ -46,13 +46,14 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
     private final JLabel trangthai;
     private final JTextField txttrangthai;
     private final JPanel pCenter4;
-    private final JButton btntim;
+    private JButton btntim;
     private JButton thanhtoan;
     private JButton huybo;
     private JButton quaylai;
+
     public ManHinhChiTietHDVaThanhToan(){
-        super("CHI TIẾT HOÁ ĐƠN VÀ THANH TOÁN");
-        setSize(700,700);
+        super("HOÁ ĐƠN");
+        setSize(1200,700);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(5,20));
@@ -60,7 +61,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         //pNorth
         pNorth = new JPanel();
         pNorth.setLayout(new FlowLayout());
-        lbltieude = new JLabel("CHI TIẾT HÓA ĐƠN VÀ THANH TOÁN");
+        lbltieude = new JLabel("HÓA ĐƠN");
         lbltieude.setFont(new Font("Arial",Font.BOLD,24));
         lbltieude.setForeground(Color.BLUE);
         lbltieude.setAlignmentX(CENTER_ALIGNMENT);
@@ -80,17 +81,17 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         mahd = new JLabel("Mã Hóa đơn: ");
         txtmahd = new JTextField("");
         ngaylap = new JLabel("Ngày lập: ");
-        txtngaylap = new JTextField("26/10/2023");
+        txtngaylap = new JTextField("");
         //Hang2
         maphieusc = new JLabel("Mã Phiếu sửa chữa: ");
         txtmaphieu = new JTextField("");
         khachhang = new JLabel("Khách hàng: ");
-        txtkhachhang = new JTextField("Trần Thanh Liêm");
+        txtkhachhang = new JTextField("");
         //Hang3
         bienso = new JLabel("Biển số xe: ");
         txtbienso = new JTextField("");
         sdt =  new JLabel("Số điện thoại: ");
-        txtsdt = new JTextField("0123456789");
+        txtsdt = new JTextField("");
         pCenter1.add(mahd);
         pCenter1.add(txtmahd);
         pCenter1.add(ngaylap);
@@ -106,7 +107,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         pCenter1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         pCenter1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        btntim = new JButton("Tìm");
+        btntim = taoNutBoGoc("Tìm");
 
 
 
@@ -167,9 +168,9 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         //pCenter4
         pCenter4 = new JPanel();
         pCenter4.setLayout(new FlowLayout());
-        thanhtoan = new JButton("Thanh toán");
-        huybo = new JButton("Huỷ bỏ");
-        quaylai = new JButton("Quay lại danh sách");
+        thanhtoan = taoNutBoGoc("Thanh toán");
+        huybo = taoNutBoGoc("Huỷ bỏ");
+        quaylai = taoNutBoGoc("Quay lại danh sách");
         thanhtoan.setMaximumSize(new Dimension(170,50));
         huybo.setMaximumSize(new Dimension(170,50));
         quaylai.setMaximumSize(new Dimension(170,50));
@@ -219,6 +220,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
         khachhang.setForeground(chuchinh);
         sdt.setForeground(chuchinh);
         chitietsuachuavaphutung.setForeground(chuchinh);
+        btntim.setBackground(btnchinh);
 
         table.getTableHeader().setBackground(maucotbang);
         table.getTableHeader().setForeground(chuchinh);
@@ -255,6 +257,26 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame implements ActionListene
             JOptionPane.showMessageDialog(this,
                     "Lỗi lấy dữ liệu từ SQL: " + e.getMessage());
         }
+    }
+    private JButton taoNutBoGoc(String text) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setContentAreaFilled(false);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(false);
+        btn.setFont(new Font("Arial", Font.BOLD, 14));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
     }
     public void timkiem(){
         String maHD = txtmahd.getText().trim();
