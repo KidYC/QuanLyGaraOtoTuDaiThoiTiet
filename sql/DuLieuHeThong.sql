@@ -1,3 +1,4 @@
+create database QuanLyGaraOToTuDaiThoiTiet
 use QuanLyGaraOToTuDaiThoiTiet
 
 -- 1. Bảng Khách Hàng

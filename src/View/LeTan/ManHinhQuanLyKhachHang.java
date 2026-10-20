@@ -29,6 +29,7 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
     private JButton btnThemKH;
     private JButton btnQuayLai;
     private TableRowSorter<DefaultTableModel> sorter;
+    private JButton btnXoaKH;
 
     public ManHinhQuanLyKhachHang() {
         setTitle("QUẢN LÝ KHÁCH HÀNG VÀ TIẾP NHẬN XE");
@@ -45,7 +46,7 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(245, 245, 245));
         //pNorth
-        JLabel lblTitle = new JLabel("QUẢN LÝ KHÁCH HÀNG VÀ TIẾP NHẬN XE");
+        JLabel lblTitle = new JLabel("QUẢN LÝ KHÁCH HÀNG");
         lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setForeground(new Color(44, 62, 80));
@@ -63,13 +64,10 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
 
             DefaultTableModel tableModel = new DefaultTableModel(
                     new String[]{"Mã Khách Hàng", "Họ Tên", "Số Điện Thoại", "Địa Chỉ", "Email"}, 0);
+
             for (KhachHang kh: list){
-                tableModel.addRow(new Object[]
-                        {kh.getMaKhachHang(),
-                                kh.getHoTen(),
-                                kh.getSoDienThoai(),
-                                kh.getDiaChi(),
-                                kh.getEmail()});
+                tableModel.addRow
+                        (new Object[]{kh.getMaKhachHang(), kh.getHoTen(), kh.getSoDienThoai(), kh.getDiaChi(), kh.getEmail()});
             }
 
             table = new JTable(tableModel);
@@ -85,7 +83,7 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
             table.setRowSorter(rowSorter);
         } catch(SQLException e)
         {
-            JOptionPane.showMessageDialog(this, "Bang không hợp lệ");
+            JOptionPane.showMessageDialog(this, "Bảng không hợp lệ");
         }
 
         JScrollPane scrollPane = new JScrollPane(table);
@@ -116,12 +114,19 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         JPanel pChucNang = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         pChucNang.setBackground(new Color(245, 245, 245));
 
-        btnThemKH = new JButton("Thêm Khách Hàng / Thêm Xe");
+        btnThemKH = new JButton("Thêm Khách Hàng");
         btnThemKH.setPreferredSize(new Dimension(220, 35));
         btnThemKH.setBackground(new Color(46, 204, 113));
         btnThemKH.setForeground(Color.WHITE);
         btnThemKH.setFont(new Font("Arial", Font.BOLD, 12));
         btnThemKH.setFocusPainted(false);
+
+        btnXoaKH = new JButton("Xoá Khách Hàng");
+        btnXoaKH.setPreferredSize(new Dimension(220, 35));
+        btnXoaKH.setBackground(new Color(46, 204, 113));
+        btnXoaKH.setForeground(Color.WHITE);
+        btnXoaKH.setFont(new Font("Arial", Font.BOLD, 12));
+        btnXoaKH.setFocusPainted(false);
 
         btnQuayLai = new JButton("Quay Lại");
         btnQuayLai.setPreferredSize(new Dimension(120, 35));
@@ -156,7 +161,6 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         } else if (source == btnThemKH) {
              FormThemKHXe UI = new FormThemKHXe();
              UI.setVisible(true);
-            this.dispose();
         } else if (source == btnQuayLai) {
 
             TrangChuHeThong Home = new TrangChuHeThong();
@@ -202,7 +206,7 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         rowSorter.setRowFilter(null);
     }
 
-    private void moUIDanhSachXeKhachHang(String maKH, String hoTen, String sdt, String bienSo, String trangThai) {
+    private void moUIDanhSachXeKhachHang(String maKH, String hoTen, String sdt) {
         int opt = JOptionPane.showConfirmDialog(this,
                 "Mở danh sách xe của khách hàng:\nMã KH: " + maKH + "\nHọ tên: " + hoTen + "\nSĐT: " + sdt,
                 "Xác nhận",
@@ -229,10 +233,8 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
                 String maKH = tableModel.getValueAt(modelRow, 0).toString();
                 String hoTen = tableModel.getValueAt(modelRow, 1).toString();
                 String sdt = tableModel.getValueAt(modelRow, 2).toString();
-                String bienSo = tableModel.getValueAt(modelRow, 3).toString();
-                String trangThai = tableModel.getValueAt(modelRow, 4).toString();
 
-                moUIDanhSachXeKhachHang(maKH, hoTen, sdt, bienSo, trangThai);
+                moUIDanhSachXeKhachHang(maKH, hoTen, sdt);
             }
         }
     }
