@@ -28,4 +28,13 @@ public class PhuTung_DAO {
         }
         return ds;
     }
+    public boolean giamSoLuongTon(String maPhuTung, int soLuongXuat, Connection conn) throws SQLException {
+        String sql = "UPDATE PHU_TUNG SET soLuongTon = soLuongTon - ? WHERE maPhuTung = ? AND soLuongTon >= ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, soLuongXuat);
+            ps.setString(2, maPhuTung);
+            ps.setInt(3, soLuongXuat);
+            return ps.executeUpdate() > 0;
+        }
+    }
 }

@@ -442,8 +442,16 @@ public class LapPhieuSuaChua extends JFrame {
         String maPhieuSC = "PSC" + System.currentTimeMillis() % 100000;
         Date ngayHienTai = new Date(System.currentTimeMillis());
 
-        // ĐÃ SỬA: Thay "NV001" bằng biến maKTV (truyền mã KTV01, KTV02...)
-        PhieuSuaChua psc = new PhieuSuaChua(maPhieuSC, ngayHienTai, ngayHienTai, "Đang sửa chữa", txtBienSo.getText(), this.maKTV, maPhieuTiepNhan);
+        // ĐÃ SỬA: Đổi trạng thái ban đầu thành "Chờ xuất kho" thay vì "Đang sửa chữa"
+        PhieuSuaChua psc = new PhieuSuaChua(
+                maPhieuSC,
+                ngayHienTai,
+                ngayHienTai,
+                "Chờ xuất kho",
+                txtBienSo.getText(),
+                this.maKTV,
+                maPhieuTiepNhan
+        );
 
         try {
             boolean taoThanhCong = phieuSuaChuaDAO.themPhieuSuaChua(psc);
@@ -459,7 +467,12 @@ public class LapPhieuSuaChua extends JFrame {
                     double donGia = Double.parseDouble(tableModelPhuTung.getValueAt(i, 4).toString().replace(".", "").replace(",", ""));
                     danhSachPhuTungDAO.themDanhSachPhuTung(new DanhSachPhuTung(maPhieuSC, maPT, sl, donGia));
                 }
-                JOptionPane.showMessageDialog(this, "Tạo phiếu sửa chữa thành công!\nMã phiếu: " + maPhieuSC, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+
+                // Cập nhật thông báo rõ ràng cho KTV
+                JOptionPane.showMessageDialog(this,
+                        "Tạo phiếu sửa chữa thành công!\nMã phiếu: " + maPhieuSC +
+                                "\nĐã gửi yêu cầu vật tư sang bộ phận Thủ kho chờ xuất kho.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 xoaForm();
             }
         } catch (SQLException ex) {
