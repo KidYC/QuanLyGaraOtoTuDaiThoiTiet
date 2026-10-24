@@ -126,8 +126,14 @@ public class DAO_KeToan {
              return danhsach;
          }
      }
-//     public List<Object[]> laydulieucongno(){
-//
-//     }
+     public List<Object[]> laydulieucongno() throws SQLException{
+         List<Object[]> danhsach = new ArrayList<>();
+         String sql = """
+                 
+
+                 """;
+
+
+     }
 
 }

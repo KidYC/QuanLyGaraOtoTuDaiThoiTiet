@@ -6,10 +6,10 @@ CREATE TABLE KHACH_HANG (
     hoTen NVARCHAR(100) NOT NULL,
     soDienThoai VARCHAR(15),
     diaChi NVARCHAR(200),
-    email NVARCHAR(50)
+    email NVARCHAR(50),
+	bienSo VARCHAR(20)
 );
 GO
-
 -- 2. Bảng Xe
 CREATE TABLE XE (
     bienSo VARCHAR(20) PRIMARY KEY,
@@ -75,7 +75,7 @@ CREATE TABLE NHA_CUNG_CAP (
 GO
 
 -- 9. Bảng Thủ Kho
-CREATE TABLE THU_KHO (
+create TABLE THU_KHO (
     maNhanVien VARCHAR(20) PRIMARY KEY,
     hoTen NVARCHAR(100) NOT NULL,
     soDienThoai VARCHAR(15),
@@ -84,8 +84,6 @@ CREATE TABLE THU_KHO (
 );
 GO
 
-ALTER TABLE THU_KHO
-DROP COLUMN matKhau;
 
 -- 10. Bảng Phụ Tùng
 CREATE TABLE PHU_TUNG (
@@ -245,11 +243,30 @@ CREATE TABLE TAI_KHOAN (
 );
 GO
 
+
+--23. Bảng danh sách khách hàng nợ
+create table danhsachKHno(
+    maKhachHang varchar(20) primary key,
+    hoTen nvarchar(50),
+	soDienThoai nvarchar(15),
+	hanMucNo nvarchar(30),
+	tongNo nvarchar(30),
+	trangThai nvarchar(50),
+	foreign key (maKhachHang) references KHACH_HANG(maKhachHang)
+);
+
+
+-- Bang danhsachKHno
+insert into danhsachKHno (maKhachHang,hoTen,soDienThoai,hanMucNo,tongNo,trangThai) values
+('KH01',N'Nguyễn Văn A', '0901234567','100000000','30000000',N'Chưa vượt mức'),
+('KH02',N'Trần Thị B', '0912345678','200000000','10000000',N'Chưa vượt mức'),
+('KH03',N'Lê Văn C', '0987654321','50000000','2000000',N'Chưa vượt mức');
+
 -- Bảng Khách Hàng
-INSERT INTO KHACH_HANG (maKhachHang, hoTen, soDienThoai, diaChi) VALUES
-('KH01', N'Nguyễn Văn A', '0901234567', N'123 Nguyễn Trãi, Quận 1, TP.HCM'),
-('KH02', N'Trần Thị B', '0912345678', N'456 Lê Văn Việt, TP. Thủ Đức'),
-('KH03', N'Lê Văn C', '0987654321', N'789 Cách Mạng Tháng 8, Quận 3, TP.HCM');
+INSERT INTO KHACH_HANG (maKhachHang, hoTen, soDienThoai, diaChi,email,bienSo) VALUES
+('KH01', N'Nguyễn Văn A', '0901234567', N'123 Nguyễn Trãi, Quận 1, TP.HCM','nguyenvanA@gmail.com','51G-123.45'),
+('KH02', N'Trần Thị B', '0912345678', N'456 Lê Văn Việt, TP. Thủ Đức','tranthiB@gmail.com','60B-987.65'),
+('KH03', N'Lê Văn C', '0987654321', N'789 Cách Mạng Tháng 8, Quận 3, TP.HCM','levanC@gmail.com','51K-555.88');
 
 -- Bảng Kỹ Thuật Viên
 INSERT INTO KY_THUAT_VIEN (maKTV, hoTen, diaChi, ngayVaoLam, trangThai) VALUES
@@ -285,9 +302,10 @@ INSERT INTO NHA_CUNG_CAP (maNhaCungCap, tenNhaCungCap, soDienThoai, diaChi, emai
 ('NCC02', N'Toyota Motor Vietnam Distributor', '02839998888', N'KCN Biên Hòa 2, Đồng Nai', 'support@toyotavn.com');
 
 -- Bảng Thủ Kho
-INSERT INTO THU_KHO (maNhanVien, hoTen, soDienThoai, tenDangNhap, matKhau) VALUES
-('TK01', N'Vũ Đình Khoa', '0977888999', 'khoa.vd', '123456'),
-('TK02', N'Bùi Thị Hoa', '0966554433', 'hoa.bt', '123456');
+INSERT INTO THU_KHO (maNhanVien, hoTen, soDienThoai, tenDangNhap) VALUES
+('TK01', N'Vũ Đình Khoa', '0977888999', 'khoa.vd'),
+('TK02', N'Bùi Thị Hoa', '0966554433', 'hoa.bt');
+
 
 
 -- ==========================================================
@@ -373,3 +391,9 @@ INSERT INTO TAI_KHOAN (maTaiKhoan, tenDangNhap, matKhau, loaiTaiKhoan, maNhanVie
 ('TK02', 'phung2203', '123456', N'Thủ kho', 'TK02'),
 ('TK03', 'liem1507', '123456', N'Kế toán', 'KT01'),
 ('TK04', 'huy0804', '123456', N'Admin', 'NULL');
+
+
+
+
+
+

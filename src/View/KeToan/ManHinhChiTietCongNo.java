@@ -110,8 +110,8 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
         denngay = new JLabel("Đến ngày: ");
         txtdenngay  = new JTextField("26/10/2023");
         //Hang3
-        loc = new JButton("Lọc");
-        xuatexcel = new JButton("Xuất Excel");
+        loc = taoNutBoGoc("Lọc");
+        xuatexcel = taoNutBoGoc("Xuất Excel");
         loc.setMaximumSize(new Dimension(170,35));
         xuatexcel.setMaximumSize(new Dimension(170,35));
         pCenter2.add(tungay);
@@ -140,7 +140,7 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
         srcoll = new JScrollPane(table);
         pCenter3.add(srcoll);
         pCenter.add(pCenter3);
-        quaylai = new JButton("Quay lại danh sách khách hàng nợ");
+        quaylai = taoNutBoGoc("Quay lại danh sách khách hàng nợ");
         quaylai.setAlignmentX(Component.LEFT_ALIGNMENT);
         pCenter.add(quaylai);
         add(pCenter,BorderLayout.CENTER);
@@ -172,6 +172,26 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
         table.getTableHeader().setBackground(maucotbang);
         table.getTableHeader().setForeground(chuchinh);
         quaylai.setBackground(btnchinh);
+    }
+    private JButton taoNutBoGoc(String text) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setContentAreaFilled(false);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(false);
+        btn.setFont(new Font("Arial", Font.BOLD, 14));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
     }
 
 
