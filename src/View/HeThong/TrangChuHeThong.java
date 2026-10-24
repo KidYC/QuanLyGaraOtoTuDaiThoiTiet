@@ -13,7 +13,6 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.LayoutManager;
@@ -40,20 +39,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
 import View.DangNhap;
 import View.KyThuatVien.CapNhatTienDoSuaChua;
 import View.KyThuatVien.ChiTietKiemTraChanDoan;
 import View.KyThuatVien.KiemTraChatLuong;
 import View.KyThuatVien.LapPhieuSuaChua;
-import View.HeThong.QuanLyNhanVien;
 import View.KeToan.ManHinhChiTietHDVaThanhToan;
 import View.KeToan.ManHinhDanhSachKHNo;
 import View.KeToan.ManHinhQuanLyCa;
 import View.LeTan.*;
 import View.ThuKho.*;
+import DAO.TrangChu_DAO;
 
 public class TrangChuHeThong extends JFrame implements ActionListener, MouseListener {
     private static final Color MAU_NEN = new Color(244, 246, 248);
@@ -73,7 +70,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
     private static final Font FONT_NHAN_DAM = new Font("Segoe UI", Font.BOLD, 14);
 
     public enum VaiTro {
-        ADMIN("Chủ gara (Admin)"), LE_TAN("Lễ tân"), KY_THUAT("Kỹ thuật viên"), THU_KHO("Thủ kho"), KE_TOAN("Kế toán");
+        ADMIN("Admin"), LE_TAN("Lễ tân"), KY_THUAT("Kỹ thuật viên"), THU_KHO("Thủ kho"), KE_TOAN("Kế toán");
         private final String ten;
         VaiTro(String ten) { this.ten = ten; }
         public String getTen() { return ten; }
@@ -87,6 +84,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case "quản lý":
             case "chủ gara":
             case "chủ gara (admin)":
+            case "quản trị viên":
                 return VaiTro.ADMIN;
             case "lễ tân":
                 return VaiTro.LE_TAN;
@@ -104,7 +102,6 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         }
     }
 
-    // ĐÃ SỬA: Đưa KHO PHỤ TÙNG lên trước SỬA CHỮA & BẢO HÀNH
     public enum NhomChucNang {
         CHUNG("TỔNG QUAN"),
         TIEP_NHAN("TIẾP NHẬN & KHÁCH HÀNG"),
@@ -122,14 +119,12 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
     public enum ChucNang {
         TONG_QUAN("Trang chủ", NhomChucNang.CHUNG, "Tổng quan hoạt động của gara", VaiTro.values()),
 
-        // Phân hệ Tiếp nhận & Khách hàng (Đã bỏ Xác nhận phương án)
         QUAN_LY_KHACH_HANG("Quản lý khách hàng", NhomChucNang.TIEP_NHAN, "Danh sách và thông tin khách hàng", VaiTro.LE_TAN),
         QUAN_LY_XE("Quản lý xe", NhomChucNang.TIEP_NHAN, "Hồ sơ xe của khách hàng", VaiTro.LE_TAN),
         TIEP_NHAN_XE("Tiếp nhận xe", NhomChucNang.TIEP_NHAN, "Lập phiếu tiếp nhận xe vào gara", VaiTro.LE_TAN),
         LAP_BAO_GIA("Lập báo giá", NhomChucNang.TIEP_NHAN, "Báo giá sửa chữa cho khách hàng", VaiTro.LE_TAN),
         BAN_GIAO_XE("Bàn giao xe", NhomChucNang.TIEP_NHAN, "Bàn giao xe và chăm sóc khách hàng", VaiTro.LE_TAN),
 
-        // Phân hệ Kho phụ tùng
         DANH_MUC_PHU_TUNG("Danh mục phụ tùng", NhomChucNang.KHO, "Quản lý danh mục phụ tùng", VaiTro.THU_KHO),
         NHAP_KHO("Danh sách phiếu nhập kho", NhomChucNang.KHO, "Tra cứu các phiếu nhập kho", VaiTro.THU_KHO),
         LAP_PHIEU_NHAP_KHO("Lập phiếu nhập kho", NhomChucNang.KHO, "Tạo phiếu nhập phụ tùng", VaiTro.THU_KHO),
@@ -139,28 +134,22 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         LAP_PHIEU_KIEM_KE("Lập phiếu kiểm kê", NhomChucNang.KHO, "Tạo phiếu kiểm kê kho", VaiTro.THU_KHO),
         CANH_BAO_TON("Cảnh báo tồn kho", NhomChucNang.KHO, "Ngưỡng tồn tối thiểu và tối đa", VaiTro.THU_KHO),
 
-        // Phân hệ Sửa chữa & Bảo hành (Đã đổi tên thành Quản lý bảo hành)
         CHAN_DOAN("Chẩn đoán xe", NhomChucNang.SUA_CHUA, "Kiểm tra và chẩn đoán lỗi xe", VaiTro.KY_THUAT),
         PHIEU_SUA_CHUA("Phiếu sửa chữa", NhomChucNang.SUA_CHUA, "Lập phiếu, công việc và phụ tùng", VaiTro.KY_THUAT),
         THUC_HIEN_SUA_CHUA("Thực hiện sửa chữa", NhomChucNang.SUA_CHUA, "Cập nhật tiến độ thi công", VaiTro.KY_THUAT),
         KIEM_TRA_CHAT_LUONG("Kiểm tra chất lượng", NhomChucNang.SUA_CHUA, "Kiểm tra xe sau khi sửa chữa", VaiTro.KY_THUAT),
-//        QUAN_LY_BAO_HANH("Quản lý bảo hành", NhomChucNang.SUA_CHUA, "Quản lý và tra cứu phiếu bảo hành", VaiTro.LE_TAN),
-//        LICH_SU_SUA_CHUA("Lịch sử sửa chữa", NhomChucNang.SUA_CHUA, "Tra cứu lịch sử sửa chữa của xe", VaiTro.LE_TAN),
 
-        // Phân hệ Thanh toán & Thu ngân
         HOA_DON_THANH_TOAN("Hóa đơn", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
         CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
         CA_THU_NGAN("Quản lý ca thu ngân", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
 
-        // Phân hệ Thống kê
-        THONG_KE_DOANH_THU("Doanh thu", NhomChucNang.THONG_KE, "Thống kê doanh thu theo kỳ"),
-        THONG_KE_SUA_CHUA("Sửa chữa", NhomChucNang.THONG_KE, "Thống kê xe và phiếu sửa chữa"),
+        // Phân quyền chi tiết cho nhóm Thống kê báo cáo
+        THONG_KE_DOANH_THU("Doanh thu", NhomChucNang.THONG_KE, "Thống kê doanh thu theo kỳ", VaiTro.KE_TOAN),
+        THONG_KE_SUA_CHUA("Sửa chữa", NhomChucNang.THONG_KE, "Thống kê xe và phiếu sửa chữa", VaiTro.KY_THUAT),
         THONG_KE_KHO("Kho", NhomChucNang.THONG_KE, "Tồn kho và nhập xuất theo thời gian", VaiTro.THU_KHO),
 
-        // Phân hệ Hệ thống
         QUAN_LY_NHAN_VIEN("Quản lý nhân viên", NhomChucNang.HE_THONG, "Quản lý hồ sơ nhân sự", VaiTro.ADMIN),
         BANG_GIA("Bảng giá & Dịch vụ", NhomChucNang.HE_THONG, "Cấu hình bảng giá và dịch vụ", VaiTro.ADMIN);
-//        PHAN_QUYEN("Phân quyền", NhomChucNang.HE_THONG, "Cấp và thu hồi quyền người dùng", VaiTro.ADMIN);
 
         private final String ten;
         private final NhomChucNang nhom;
@@ -372,11 +361,6 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         pnlNoiDung = new NenTrang(cardLayout, loadImage("/resources/images/background.jpg"));
         pnlNoiDung.setBorder(BorderFactory.createEmptyBorder(24, 28, 24, 28));
         pnlNoiDung.add(new TongQuanPanel(hoTen, vaiTro), ChucNang.TONG_QUAN.name());
-        for (ChucNang cn : ChucNang.values()) {
-            if (cn != ChucNang.TONG_QUAN && cn.choPhep(vaiTro)) {
-//                pnlNoiDung.add(taoTrang(cn), cn.name());
-            }
-        }
         return pnlNoiDung;
     }
 
@@ -399,14 +383,12 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
 
     static boolean moManHinhNghiepVu(ChucNang cn, String maNV) {
         switch (cn) {
-            // Lễ tân
             case QUAN_LY_KHACH_HANG:    hienThi(new ManHinhQuanLyKhachHang()); return true;
             case QUAN_LY_XE:            hienThi(new DanhSachXeKhachHang("001","Minh Lo", "0123456789")); return true;
             case TIEP_NHAN_XE:          hienThi(new ManHinhLapPhieuTiepNhan()); return true;
             case LAP_BAO_GIA:           hienThi(new ManHinhLapBaoGia()); return true;
             case BAN_GIAO_XE:           hienThi(new ManHinhChiTietBanGiao()); return true;
 
-            // Thủ kho
             case DANH_MUC_PHU_TUNG:     hienThi(new ManHinhQuanLyDanhMucPhuTung()); return true;
             case NHAP_KHO:              hienThi(new ManHinhDanhSachPhieuNhapKho()); return true;
             case LAP_PHIEU_NHAP_KHO:    hienThi(new ManHinhLapPhieuNhapKho()); return true;
@@ -416,19 +398,15 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case LAP_PHIEU_KIEM_KE:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
             case CANH_BAO_TON:          hienThi(new ManHinhCanhBaoTonKho()); return true;
 
-            // Kỹ thuật viên
             case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
             case PHIEU_SUA_CHUA:        hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
             case THUC_HIEN_SUA_CHUA:    hienThi(new CapNhatTienDoSuaChua()); return true;
             case KIEM_TRA_CHAT_LUONG:   hienThi(new KiemTraChatLuong()); return true;
-//            case QUAN_LY_BAO_HANH:      hienThi(new FormQuanLyBaoHanh()); return true;
 
-            // Thu ngân / Kế toán
             case HOA_DON_THANH_TOAN:    hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
             case CONG_NO:               hienThi(new ManHinhDanhSachKHNo()); return true;
             case CA_THU_NGAN:           hienThi(new ManHinhQuanLyCa()); return true;
 
-            // Admin
             case QUAN_LY_NHAN_VIEN:     hienThi(new QuanLyNhanVien()); return true;
 
             default:                    return false;
@@ -450,18 +428,6 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         winKhung.setSize(Math.max(winKhung.getWidth(), 1100), Math.max(winKhung.getHeight(), 680));
         winKhung.setLocationRelativeTo(null);
         winKhung.setVisible(true);
-    }
-
-    static JButton taoNutChinh(String noiDung, Color mau) {
-        JButton btnChinh = new JButton(noiDung);
-        btnChinh.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnChinh.setForeground(Color.WHITE);
-        btnChinh.setBackground(mau);
-        btnChinh.setFocusPainted(false);
-        btnChinh.setBorderPainted(false);
-        btnChinh.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnChinh.setPreferredSize(new Dimension(120, 36));
-        return btnChinh;
     }
 
     static JPanel taoTieuDeTrang(String tieuDe, String phuDe) {
@@ -555,29 +521,11 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         }
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getSource() == lblLogout) {
-            dangXuat();
-        }
-    }
-
+    @Override public void mouseClicked(MouseEvent e) { if (e.getSource() == lblLogout) dangXuat(); }
     @Override public void mousePressed(MouseEvent e) {}
     @Override public void mouseReleased(MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        if (e.getSource() == lblLogout) {
-            lblLogout.setForeground(new Color(248, 113, 113));
-        }
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        if (e.getSource() == lblLogout) {
-            lblLogout.setForeground(MAU_DO);
-        }
-    }
+    @Override public void mouseEntered(MouseEvent e) { if (e.getSource() == lblLogout) lblLogout.setForeground(new Color(248, 113, 113)); }
+    @Override public void mouseExited(MouseEvent e) { if (e.getSource() == lblLogout) lblLogout.setForeground(MAU_DO); }
 
     static class NenTrang extends JPanel {
         private final Image anhNen;
@@ -682,25 +630,25 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             g2.drawString(tieuDe, 20, 32);
             double max = 1;
             for (double v : giaTri) max = Math.max(max, v);
-            max *= 1.2;
+            max = max == 0 ? 100 : max * 1.2;
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
             for (int i = 0; i <= 4; i++) {
                 int y = tren + caoBieuDo - i * caoBieuDo / 4;
                 g2.setColor(MAU_VIEN);
                 g2.drawLine(trai, y, rong - phai, y);
                 g2.setColor(MAU_PHU);
-                g2.drawString(String.valueOf(Math.round(max * i / 4)), 14, y + 4);
+                g2.drawString(String.format("%,.0f", max * i / 4), 10, y + 4);
             }
             FontMetrics fm = g2.getFontMetrics();
             int soCot = giaTri.length;
             int oRong = rongBieuDo / soCot;
-            int rongCot = Math.min(36, oRong - 18);
+            int rongCot = Math.min(28, oRong - 10);
             for (int i = 0; i < soCot; i++) {
                 int cot = (int) (giaTri[i] / max * caoBieuDo);
                 int x = trai + i * oRong + (oRong - rongCot) / 2;
                 int y = tren + caoBieuDo - cot;
                 g2.setPaint(new GradientPaint(0, y, MAU_XANH, 0, tren + caoBieuDo, new Color(147, 197, 253)));
-                g2.fillRoundRect(x, y, rongCot, cot, 10, 10);
+                g2.fillRoundRect(x, y, rongCot, cot, 8, 8);
                 g2.setColor(MAU_PHU);
                 g2.drawString(nhan[i], x + (rongCot - fm.stringWidth(nhan[i])) / 2, cao - 14);
             }
@@ -750,26 +698,46 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             g2.setColor(MAU_TEXT);
             FontMetrics fmTong = g2.getFontMetrics();
             g2.drawString(chuTong, x + d / 2 - fmTong.stringWidth(chuTong) / 2, y + d / 2 + fmTong.getAscent() / 3);
-            int xChuGiai = x + d + 40, yChuGiai = y + 40;
+            int xChuGiai = x + d + 30, yChuGiai = y + 30;
             for (int i = 0; i < nhan.length; i++) {
                 g2.setColor(mau[i]);
                 g2.fillRoundRect(xChuGiai, yChuGiai - 12, 14, 14, 4, 4);
                 g2.setColor(MAU_TEXT);
                 g2.setFont(FONT_NHAN);
                 g2.drawString(nhan[i] + ": " + soLieu[i] + " xe", xChuGiai + 22, yChuGiai);
-                yChuGiai += 34;
+                yChuGiai += 30;
             }
             g2.dispose();
         }
     }
 
     static class TongQuanPanel extends JPanel {
+        private final TrangChu_DAO trangChuDAO = new TrangChu_DAO();
+
         TongQuanPanel(String hoTen, VaiTro vt) {
             super(new BorderLayout(0, 18));
             setOpaque(false);
             boolean xemDoanhThu = vt == VaiTro.ADMIN || vt == VaiTro.KE_TOAN;
 
-            add(taoTieuDeTrang("Xin chào, " + hoTen, null), BorderLayout.NORTH);
+            add(taoTieuDeTrang("Xin chào, " + hoTen, "Tổng quan hoạt động hệ thống Gara Ô Tô"), BorderLayout.NORTH);
+
+            String sXeDangXuLy = "0";
+            String sPhuTungSapHet = "0";
+            String sDoanhThuThangNay = "0 đ";
+            double[] doanhThu12T = new double[12];
+
+            try {
+                Map<String, Object> kpi = trangChuDAO.laySoLieuKPI();
+                if (kpi != null) {
+                    sXeDangXuLy = String.valueOf(kpi.get("SoXeDangXuLy"));
+                    sPhuTungSapHet = String.valueOf(kpi.get("SoPhuTungSapHet"));
+                    double dt = (double) kpi.get("DoanhThuThangNay");
+                    sDoanhThuThangNay = String.format("%,.0f đ", dt);
+                }
+                doanhThu12T = trangChuDAO.layDoanhThu12Thang(2026);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 
             JPanel pnlHangThe = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangThe.setOpaque(false);
@@ -777,28 +745,28 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
                     () -> moManHinhNghiepVu(ChucNang.CHAN_DOAN, null)));
             pnlHangThe.add(new TheThongKe("Phiếu chờ lập", "3", MAU_XANH_LA,
                     () -> moManHinhNghiepVu(ChucNang.PHIEU_SUA_CHUA, null)));
-            pnlHangThe.add(new TheThongKe("Xe đang sửa chữa", "8", MAU_TIM,
+            pnlHangThe.add(new TheThongKe("Xe đang xử lý", sXeDangXuLy, MAU_TIM,
                     () -> moManHinhNghiepVu(ChucNang.THUC_HIEN_SUA_CHUA, null)));
-            pnlHangThe.add(new TheThongKe("Xe chờ KCS", "2", MAU_XANH_LA,
-                    () -> moManHinhNghiepVu(ChucNang.KIEM_TRA_CHAT_LUONG, null)));
-            pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", "6", MAU_DO,
+            pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", sPhuTungSapHet, MAU_DO,
                     () -> moManHinhNghiepVu(ChucNang.DANH_MUC_PHU_TUNG, null)));
+
             if (xemDoanhThu) {
-                pnlHangThe.add(new TheThongKe("Doanh thu hôm nay", "18,5 tr", MAU_TIM,
+                pnlHangThe.add(new TheThongKe("Doanh thu tháng này", sDoanhThuThangNay, MAU_XANH_LA,
                         () -> moManHinhNghiepVu(ChucNang.HOA_DON_THANH_TOAN, null)));
             }
 
             JPanel pnlHangBieuDo = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangBieuDo.setOpaque(false);
             if (xemDoanhThu) {
-                pnlHangBieuDo.add(new BieuDoCot("Doanh thu 7 ngày gần nhất (triệu đ)",
-                        new String[]{"T2", "T3", "T4", "T5", "T6", "T7", "CN"},
-                        new double[]{12.5, 9.8, 15.2, 11.0, 18.7, 21.3, 7.4}));
+                pnlHangBieuDo.add(new BieuDoCot("Biểu đồ doanh thu 12 tháng (VNĐ)",
+                        new String[]{"T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"},
+                        doanhThu12T));
             }
+
             pnlHangBieuDo.add(new BieuDoTron("Tình trạng xe trong gara",
-                    new String[]{"Đang sửa", "Chờ báo giá", "Chờ phụ tùng", "Hoàn thành"},
-                    new int[]{8, 5, 3, 12},
-                    new Color[]{MAU_XANH, MAU_CAM, MAU_DO, MAU_XANH_LA}));
+                    new String[]{"Đang xử lý", "Hoàn thành"},
+                    new int[]{Integer.parseInt(sXeDangXuLy), 5},
+                    new Color[]{MAU_XANH, MAU_XANH_LA}));
 
             JPanel pnlGiua = new JPanel(new BorderLayout(0, 18));
             pnlGiua.setOpaque(false);
