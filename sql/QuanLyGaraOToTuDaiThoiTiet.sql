@@ -1,658 +1,467 @@
-﻿
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'QuanLyGaraOToTuDaiThoiTiet')
+-- ==========================================================
+-- HỆ THỐNG QUẢN LÝ GARA Ô TÔ TỨ ĐẠI THỜI TIẾT
+-- SCRIPT TẠO DATABASE HOÀN CHỈNH 100% (KHỚP DAO JAVA)
+-- ==========================================================
+
+USE master;
+GO
+
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'QuanLyGaraOToTuDaiThoiTiet')
 BEGIN
-    CREATE DATABASE QuanLyGaraOToTuDaiThoiTiet;
+    ALTER DATABASE QuanLyGaraOToTuDaiThoiTiet SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE QuanLyGaraOToTuDaiThoiTiet;
 END
+GO
+
+CREATE DATABASE QuanLyGaraOToTuDaiThoiTiet;
 GO
 
 USE QuanLyGaraOToTuDaiThoiTiet;
 GO
 
--- Xoa cac bang theo thu tu phu thuoc (bang con truoc, bang cha sau)
-IF OBJECT_ID('CHI_TIET_HOA_DON', 'U') IS NOT NULL DROP TABLE CHI_TIET_HOA_DON;
-IF OBJECT_ID('CANH_BAO_TON_KHO', 'U') IS NOT NULL DROP TABLE CANH_BAO_TON_KHO;
-IF OBJECT_ID('CHI_TIET_KIEM_KE', 'U') IS NOT NULL DROP TABLE CHI_TIET_KIEM_KE;
-IF OBJECT_ID('CHI_TIET_PHIEU_NHAP', 'U') IS NOT NULL DROP TABLE CHI_TIET_PHIEU_NHAP;
-IF OBJECT_ID('CHI_TIET_PHIEU_SUA_CHUA', 'U') IS NOT NULL DROP TABLE CHI_TIET_PHIEU_SUA_CHUA;
-IF OBJECT_ID('CHI_TIET_DICH_VU', 'U') IS NOT NULL DROP TABLE CHI_TIET_DICH_VU;
-IF OBJECT_ID('PHIEU_KIEM_KE', 'U') IS NOT NULL DROP TABLE PHIEU_KIEM_KE;
-IF OBJECT_ID('PHIEU_NHAP_KHO', 'U') IS NOT NULL DROP TABLE PHIEU_NHAP_KHO;
-IF OBJECT_ID('HOA_DON', 'U') IS NOT NULL DROP TABLE HOA_DON;
-IF OBJECT_ID('PHIEU_SUA_CHUA', 'U') IS NOT NULL DROP TABLE PHIEU_SUA_CHUA;
-IF OBJECT_ID('PHIEU_TIEP_NHAN', 'U') IS NOT NULL DROP TABLE PHIEU_TIEP_NHAN;
-IF OBJECT_ID('PHU_TUNG', 'U') IS NOT NULL DROP TABLE PHU_TUNG;
-IF OBJECT_ID('XE', 'U') IS NOT NULL DROP TABLE XE;
-IF OBJECT_ID('DICH_VU', 'U') IS NOT NULL DROP TABLE DICH_VU;
-IF OBJECT_ID('KHO', 'U') IS NOT NULL DROP TABLE KHO;
-IF OBJECT_ID('NHA_CUNG_CAP', 'U') IS NOT NULL DROP TABLE NHA_CUNG_CAP;
-IF OBJECT_ID('KHACH_HANG', 'U') IS NOT NULL DROP TABLE KHACH_HANG;
-IF OBJECT_ID('PHUONG_THUC_THANH_TOAN', 'U') IS NOT NULL DROP TABLE PHUONG_THUC_THANH_TOAN;
-IF OBJECT_ID('THU_KHO', 'U') IS NOT NULL DROP TABLE THU_KHO;
-IF OBJECT_ID('KE_TOAN', 'U') IS NOT NULL DROP TABLE KE_TOAN;
-IF OBJECT_ID('KY_THUAT_VIEN', 'U') IS NOT NULL DROP TABLE KY_THUAT_VIEN;
-IF OBJECT_ID('TAI_KHOAN', 'U') IS NOT NULL DROP TABLE TAI_KHOAN;
-IF OBJECT_ID('NhanVien', 'U') IS NOT NULL DROP TABLE NhanVien;
+-- ==========================================================
+-- PHẦN 1: TẠO CÁC BẢNG (DDL)
+-- ==========================================================
+
+-- 1. Bảng Khách Hàng
+CREATE TABLE KHACH_HANG (
+    maKhachHang VARCHAR(20) PRIMARY KEY,
+    hoTen NVARCHAR(100) NOT NULL,
+    soDienThoai VARCHAR(15),
+    diaChi NVARCHAR(200),
+    email NVARCHAR(50),
+    bienSo VARCHAR(20)
+);
 GO
 
--- PHẦN 1: TẠO CƠ SỞ DỮ LIỆU & BẢNG (DDL)
-
-
--- 1. Bảng Nhân Viên
-IF OBJECT_ID('NhanVien', 'U') IS NOT NULL DROP TABLE NhanVien;
-CREATE TABLE NhanVien (
-                          MaNV VARCHAR(10) PRIMARY KEY,
-                          HoTen NVARCHAR(100) NOT NULL,
-                          ChucVu NVARCHAR(50) NOT NULL, -- Admin, Thủ kho, Kế toán, Lễ tân, Kỹ thuật viên
-                          SoDienThoai VARCHAR(15),
-                          Email VARCHAR(100),
-                          DiaChi NVARCHAR(200),
-                          TrangThai NVARCHAR(20) DEFAULT N'Đang làm việc'
-);
-
--- 2. Bang TAI_KHOAN (dung ten cot theo TaiKhoan_DAO)
-IF OBJECT_ID('TAI_KHOAN', 'U') IS NOT NULL DROP TABLE TAI_KHOAN;
-CREATE TABLE TAI_KHOAN (
-                          MaTaiKhoan VARCHAR(10) PRIMARY KEY,
-                          TenDangNhap VARCHAR(50) NOT NULL UNIQUE,
-                          MatKhau VARCHAR(255) NOT NULL,
-                          LoaiTaiKhoan NVARCHAR(30) NOT NULL,
-                          MaNhanVien VARCHAR(10) NOT NULL,
-                          TrangThai NVARCHAR(20) DEFAULT N'Hoạt động',
-                          FOREIGN KEY (MaNhanVien) REFERENCES NhanVien(MaNV) ON DELETE CASCADE
-);
-
--- 3. Bảng Khách Hàng
-IF OBJECT_ID('KHACH_HANG', 'U') IS NOT NULL DROP TABLE KHACH_HANG;
-CREATE TABLE KHACH_HANG (
-                           MaKH VARCHAR(10) PRIMARY KEY,
-                           HoTen NVARCHAR(100) NOT NULL,
-                           SoDienThoai VARCHAR(15) NOT NULL,
-                           DiaChi NVARCHAR(200),
-                           Email VARCHAR(100),
-                           NgayTao DATETIME DEFAULT GETDATE()
-);
-
--- 4. Bảng XE
-IF OBJECT_ID('XE', 'U') IS NOT NULL DROP TABLE XE;
+-- 2. Bảng Xe
 CREATE TABLE XE (
-                    BienSo VARCHAR(20) PRIMARY KEY,
-                    MaKH VARCHAR(10) NOT NULL,
-                    HieuXe NVARCHAR(50) NOT NULL,
-                    LoaiXe NVARCHAR(50),
-                    NamSanXuat INT,
-                    SoKhung VARCHAR(50),
-                    SoMay VARCHAR(50),
-                    FOREIGN KEY (MaKH) REFERENCES KHACH_HANG(MaKH) ON DELETE CASCADE
+    bienSo VARCHAR(20) PRIMARY KEY,
+    hangXe NVARCHAR(50),
+    dongXe NVARCHAR(50),
+    namSanXuat INT,
+    maKhachHang VARCHAR(20),
+    FOREIGN KEY (maKhachHang) REFERENCES KHACH_HANG(maKhachHang) ON DELETE CASCADE
 );
+GO
 
--- 5. Bảng Nhà Cung Cấp
-IF OBJECT_ID('NHA_CUNG_CAP', 'U') IS NOT NULL DROP TABLE NHA_CUNG_CAP;
-CREATE TABLE NHA_CUNG_CAP (
-                            MaNCC VARCHAR(10) PRIMARY KEY,
-                            TenNCC NVARCHAR(100) NOT NULL,
-                            SoDienThoai VARCHAR(15),
-                            Email VARCHAR(100),
-                            DiaChi NVARCHAR(200)
+-- 3. Bảng Kỹ Thuật Viên
+CREATE TABLE KY_THUAT_VIEN (
+    maKTV VARCHAR(20) PRIMARY KEY,
+    hoTen NVARCHAR(100) NOT NULL,
+    diaChi NVARCHAR(200),
+    ngayVaoLam DATETIME,
+    trangThai NVARCHAR(50)
 );
+GO 
 
--- 6. Bảng KHO
-IF OBJECT_ID('KHO', 'U') IS NOT NULL DROP TABLE KHO;
-CREATE TABLE KHO (
-                     MaKho VARCHAR(10) PRIMARY KEY,
-                     TenKho NVARCHAR(100) NOT NULL,
-                     DiaChi NVARCHAR(200),
-                     MoTa NVARCHAR(255)
+-- 4. Bảng Kế Toán
+CREATE TABLE KE_TOAN (
+    maNhanVien VARCHAR(20) PRIMARY KEY,
+    hoTen NVARCHAR(100) NOT NULL,
+    soDienThoai VARCHAR(15)
 );
+GO
 
--- 7. Bảng Phụ Tùng
-IF OBJECT_ID('PHU_TUNG', 'U') IS NOT NULL DROP TABLE PHU_TUNG;
-CREATE TABLE PHU_TUNG (
-                         MaPhuTung VARCHAR(10) PRIMARY KEY,
-                         TenPhuTung NVARCHAR(100) NOT NULL,
-                         DonGiaNhap DECIMAL(18,2) NOT NULL,
-                         DonGiaBan DECIMAL(18,2) NOT NULL,
-                         SoLuongTon INT DEFAULT 0,
-                         DonViTinh NVARCHAR(20),
-                         MaKho VARCHAR(10),
-                         MaNCC VARCHAR(10),
-                         SoLuongToiThieu INT DEFAULT 5,
-                         FOREIGN KEY (MaKho) REFERENCES KHO(MaKho),
-                         FOREIGN KEY (MaNCC) REFERENCES NHA_CUNG_CAP(MaNCC)
+-- 5. Bảng Thủ Kho
+CREATE TABLE THU_KHO (
+    maNhanVien VARCHAR(20) PRIMARY KEY,
+    hoTen NVARCHAR(100) NOT NULL,
+    soDienThoai VARCHAR(15),
+    tenDangNhap VARCHAR(50) UNIQUE,
+    matKhau VARCHAR(100)
 );
+GO
+
+-- 6. Bảng Tài Khoản (Dùng chung cho hệ thống)
+CREATE TABLE TAI_KHOAN (
+    maTaiKhoan VARCHAR(20) PRIMARY KEY,
+    tenDangNhap VARCHAR(50) NOT NULL UNIQUE,
+    matKhau VARCHAR(100) NOT NULL,
+    loaiTaiKhoan NVARCHAR(50), 
+    maNhanVien VARCHAR(20)     
+);
+GO
+
+-- 7. Bảng Phương Thức Thanh Toán
+CREATE TABLE PHUONG_THUC_THANH_TOAN (
+    maPhuongThuc VARCHAR(20) PRIMARY KEY,
+    tenPhuongThuc NVARCHAR(50) NOT NULL
+);
+GO
 
 -- 8. Bảng Dịch Vụ
-IF OBJECT_ID('DICH_VU', 'U') IS NOT NULL DROP TABLE DICH_VU;
 CREATE TABLE DICH_VU (
-                        MaDichVu VARCHAR(10) PRIMARY KEY,
-                        TenDichVu NVARCHAR(100) NOT NULL,
-                        DonGia DECIMAL(18,2) NOT NULL,
-                        MoTa NVARCHAR(255)
+    maDichVu VARCHAR(20) PRIMARY KEY,
+    tenDichVu NVARCHAR(100) NOT NULL,
+    donGiaHienTai DECIMAL(18, 2),
+    moTa NVARCHAR(MAX),
+    thoiGianBaoHanh INT 
 );
+GO
 
--- 9. Bảng Phiếu Tiếp Nhận
-IF OBJECT_ID('PHIEU_TIEP_NHAN', 'U') IS NOT NULL DROP TABLE PHIEU_TIEP_NHAN;
+-- 9. Bảng Kho
+CREATE TABLE KHO (
+    maKho VARCHAR(20) PRIMARY KEY,
+    tenKho NVARCHAR(100) NOT NULL,
+    diaChi NVARCHAR(200)
+);
+GO
+
+-- 10. Bảng Nhà Cung Cấp
+CREATE TABLE NHA_CUNG_CAP (
+    maNhaCungCap VARCHAR(20) PRIMARY KEY,
+    tenNhaCungCap NVARCHAR(100) NOT NULL,
+    soDienThoai VARCHAR(15),
+    diaChi NVARCHAR(200),
+    email VARCHAR(100)
+);
+GO
+
+-- 11. Bảng Phụ Tùng
+CREATE TABLE PHU_TUNG (
+    maPhuTung VARCHAR(20) PRIMARY KEY,
+    tenPhuTung NVARCHAR(100) NOT NULL,
+    donViTinh NVARCHAR(20),
+    donGiaNhap DECIMAL(18, 2),
+    donGiaBan DECIMAL(18, 2),
+    soLuongTon INT,
+    maKho VARCHAR(20),
+    FOREIGN KEY (maKho) REFERENCES KHO(maKho)
+);
+GO
+
+-- 12. Bảng Phiếu Tiếp Nhận
 CREATE TABLE PHIEU_TIEP_NHAN (
-                               MaPhieuTiepNhan VARCHAR(10) PRIMARY KEY,
-                               BienSo VARCHAR(20) NOT NULL,
-                               MaKH VARCHAR(10) NOT NULL,
-                               MaNVLeTan VARCHAR(10) NOT NULL,
-                               NgayTiepNhan DATETIME DEFAULT GETDATE(),
-                               TinhTrangKiemTra NVARCHAR(500),
-                               TrangThai NVARCHAR(30) DEFAULT N'Chờ sửa chữa',
-                               FOREIGN KEY (BienSo) REFERENCES XE(BienSo),
-                               FOREIGN KEY (MaKH) REFERENCES KHACH_HANG(MaKH),
-                               FOREIGN KEY (MaNVLeTan) REFERENCES NhanVien(MaNV)
+    maPhieuTiepNhan VARCHAR(20) PRIMARY KEY,
+    ngayTiepNhan DATETIME DEFAULT GETDATE(),
+    tinhTrangXe NVARCHAR(MAX),
+    yeuCauKH NVARCHAR(MAX),
+    trangThai NVARCHAR(50),
+    bienSo VARCHAR(20),
+    FOREIGN KEY (bienSo) REFERENCES XE(bienSo)
 );
+GO
 
--- 10. Bảng Phiếu Sửa Chữa
-IF OBJECT_ID('PHIEU_SUA_CHUA', 'U') IS NOT NULL DROP TABLE PHIEU_SUA_CHUA;
+-- 13. Bảng Phiếu Sửa Chữa
 CREATE TABLE PHIEU_SUA_CHUA (
-                              MaPhieuSuaChua VARCHAR(10) PRIMARY KEY,
-                              MaPhieuTiepNhan VARCHAR(10) NOT NULL,
-                              MaKTV VARCHAR(10) NOT NULL,
-                              NgaySuaChua DATETIME DEFAULT GETDATE(),
-                              TongTienDichVu DECIMAL(18,2) DEFAULT 0,
-                              TongTienPhuTung DECIMAL(18,2) DEFAULT 0,
-                              TongTien DECIMAL(18,2) DEFAULT 0,
-                              GhiChu NVARCHAR(255),
-                              TrangThai NVARCHAR(30) DEFAULT N'Đang xử lý',
-                              FOREIGN KEY (MaPhieuTiepNhan) REFERENCES PHIEU_TIEP_NHAN(MaPhieuTiepNhan),
-                              FOREIGN KEY (MaKTV) REFERENCES NhanVien(MaNV)
+    maPhieuSuaChua VARCHAR(20) PRIMARY KEY,
+    ngayLap DATETIME DEFAULT GETDATE(),
+    ngayIn DATETIME,
+    trangThai NVARCHAR(50),
+    bienSo VARCHAR(20),
+    maKTV VARCHAR(20),
+    maPhieuTiepNhan VARCHAR(20),
+    FOREIGN KEY (bienSo) REFERENCES XE(bienSo),
+    FOREIGN KEY (maKTV) REFERENCES KY_THUAT_VIEN(maKTV),
+    FOREIGN KEY (maPhieuTiepNhan) REFERENCES PHIEU_TIEP_NHAN(maPhieuTiepNhan)
 );
+GO
 
--- 11. Bảng Chi Tiết Dịch Vụ Sửa Chữa
-IF OBJECT_ID('CHI_TIET_DICH_VU', 'U') IS NOT NULL DROP TABLE CHI_TIET_DICH_VU;
-CREATE TABLE CHI_TIET_DICH_VU (
-                               MaPhieuSuaChua VARCHAR(10) NOT NULL,
-                               MaDichVu VARCHAR(10) NOT NULL,
-                               SoLuong INT DEFAULT 1,
-                               DonGia DECIMAL(18,2) NOT NULL,
-                               ThanhTien AS (SoLuong * DonGia),
-                               PRIMARY KEY (MaPhieuSuaChua, MaDichVu),
-                               FOREIGN KEY (MaPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(MaPhieuSuaChua) ON DELETE CASCADE,
-                               FOREIGN KEY (MaDichVu) REFERENCES DICH_VU(MaDichVu)
-);
-
--- 12. Bảng Danh Sách Phụ Tùng Sửa Chữa
-IF OBJECT_ID('CHI_TIET_PHIEU_SUA_CHUA', 'U') IS NOT NULL DROP TABLE CHI_TIET_PHIEU_SUA_CHUA;
+-- 14. Bảng Chi Tiết Phiếu Sửa Chữa (Dành cho ThuKho_DAO)
 CREATE TABLE CHI_TIET_PHIEU_SUA_CHUA (
-                                 MaPhieuSuaChua VARCHAR(10) NOT NULL,
-                                 MaPhuTung VARCHAR(10) NOT NULL,
-                                 SoLuong INT NOT NULL,
-                                 DonGia DECIMAL(18,2) NOT NULL,
-                                 ThanhTien AS (SoLuong * DonGia),
-                                 PRIMARY KEY (MaPhieuSuaChua, MaPhuTung),
-                                 FOREIGN KEY (MaPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(MaPhieuSuaChua) ON DELETE CASCADE,
-                                 FOREIGN KEY (MaPhuTung) REFERENCES PHU_TUNG(MaPhuTung)
+    maPhieuSuaChua VARCHAR(20),
+    maPhuTung VARCHAR(20),
+    soLuong INT,
+    donGia DECIMAL(18, 2),
+    PRIMARY KEY (maPhieuSuaChua, maPhuTung),
+    FOREIGN KEY (maPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(maPhieuSuaChua) ON DELETE CASCADE,
+    FOREIGN KEY (maPhuTung) REFERENCES PHU_TUNG(maPhuTung)
 );
+GO
 
--- 13. Bảng Hóa Đơn Thanh Toán
-IF OBJECT_ID('HOA_DON', 'U') IS NOT NULL DROP TABLE HOA_DON;
+-- 15. Bảng Danh Sách Phụ Tùng (Dành cho DanhSachPhuTung_DAO_2)
+CREATE TABLE DANH_SACH_PHU_TUNG (
+    maPhieuSuaChua VARCHAR(20),
+    maPhuTung VARCHAR(20),
+    soLuongPhuTung INT,
+    donGiaBan DECIMAL(18, 2),
+    PRIMARY KEY (maPhieuSuaChua, maPhuTung),
+    FOREIGN KEY (maPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(maPhieuSuaChua) ON DELETE CASCADE,
+    FOREIGN KEY (maPhuTung) REFERENCES PHU_TUNG(maPhuTung)
+);
+GO
+
+-- 16. Bảng Chi Tiết Dịch Vụ (Đã cấu hình thanhTien tự động tính để tránh lỗi code DAO)
+CREATE TABLE CHI_TIET_DICH_VU (
+    maPhieuSuaChua VARCHAR(20),
+    maDichVu VARCHAR(20),
+    soLuong INT,
+    donGia DECIMAL(18, 2),
+    thanhTien AS (soLuong * donGia),
+    PRIMARY KEY (maPhieuSuaChua, maDichVu),
+    FOREIGN KEY (maPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(maPhieuSuaChua) ON DELETE CASCADE,
+    FOREIGN KEY (maDichVu) REFERENCES DICH_VU(maDichVu)
+);
+GO
+
+-- 17. Bảng Hóa Đơn
 CREATE TABLE HOA_DON (
-                        MaHoaDon VARCHAR(10) PRIMARY KEY,
-                        MaPhieuSuaChua VARCHAR(10) NOT NULL,
-                        MaNVKeToan VARCHAR(10) NOT NULL,
-                        NgayLap DATETIME DEFAULT GETDATE(),
-                        TongTien DECIMAL(18,2) NOT NULL,
-                        PhuongThucThanhToan NVARCHAR(50) DEFAULT N'Tiền mặt',
-                        GhiChu NVARCHAR(255),
-                        FOREIGN KEY (MaPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(MaPhieuSuaChua),
-                        FOREIGN KEY (MaNVKeToan) REFERENCES NhanVien(MaNV)
+    maHoaDon VARCHAR(20) PRIMARY KEY,
+    ngayLap DATETIME DEFAULT GETDATE(),
+    maPhuongThuc VARCHAR(20),
+    maPhieuSuaChua VARCHAR(20),
+    maNhanVien VARCHAR(20),
+    FOREIGN KEY (maPhuongThuc) REFERENCES PHUONG_THUC_THANH_TOAN(maPhuongThuc),
+    FOREIGN KEY (maPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(maPhieuSuaChua),
+    FOREIGN KEY (maNhanVien) REFERENCES KE_TOAN(maNhanVien)
 );
+GO
 
--- 14. Bảng Phiếu Nhập KHO
-IF OBJECT_ID('PHIEU_NHAP_KHO', 'U') IS NOT NULL DROP TABLE PHIEU_NHAP_KHO;
-CREATE TABLE PHIEU_NHAP_KHO (
-                              MaPhieuNhap VARCHAR(10) PRIMARY KEY,
-                              MaKho VARCHAR(10) NOT NULL,
-                              MaNCC VARCHAR(10) NOT NULL,
-                              MaNVThuKho VARCHAR(10) NOT NULL,
-                              NgayNhap DATETIME DEFAULT GETDATE(),
-                              TongTien DECIMAL(18,2) DEFAULT 0,
-                              GhiChu NVARCHAR(255),
-                              FOREIGN KEY (MaKho) REFERENCES KHO(MaKho),
-                              FOREIGN KEY (MaNCC) REFERENCES NHA_CUNG_CAP(MaNCC),
-                              FOREIGN KEY (MaNVThuKho) REFERENCES NhanVien(MaNV)
-);
-
--- 15. Bảng Chi Tiết Phiếu Nhập
-IF OBJECT_ID('CHI_TIET_PHIEU_NHAP', 'U') IS NOT NULL DROP TABLE CHI_TIET_PHIEU_NHAP;
-CREATE TABLE CHI_TIET_PHIEU_NHAP (
-                                  MaPhieuNhap VARCHAR(10) NOT NULL,
-                                  MaPhuTung VARCHAR(10) NOT NULL,
-                                  SoLuong INT NOT NULL,
-                                  DonGiaNhap DECIMAL(18,2) NOT NULL,
-                                  ThanhTien AS (SoLuong * DonGiaNhap),
-                                  PRIMARY KEY (MaPhieuNhap, MaPhuTung),
-                                  FOREIGN KEY (MaPhieuNhap) REFERENCES PHIEU_NHAP_KHO(MaPhieuNhap) ON DELETE CASCADE,
-                                  FOREIGN KEY (MaPhuTung) REFERENCES PHU_TUNG(MaPhuTung)
-);
-
--- 16. Bảng Phiếu Kiểm Kê
-IF OBJECT_ID('PHIEU_KIEM_KE', 'U') IS NOT NULL DROP TABLE PHIEU_KIEM_KE;
-CREATE TABLE PHIEU_KIEM_KE (
-                             MaPhieuKiemKe VARCHAR(10) PRIMARY KEY,
-                             MaKho VARCHAR(10) NOT NULL,
-                             MaNVThuKho VARCHAR(10) NOT NULL,
-                             NgayKiemKe DATETIME DEFAULT GETDATE(),
-                             GhiChu NVARCHAR(255),
-                             FOREIGN KEY (MaKho) REFERENCES KHO(MaKho),
-                             FOREIGN KEY (MaNVThuKho) REFERENCES NhanVien(MaNV)
-);
-
--- 17. Bảng Chi Tiết Kiểm Kê
-IF OBJECT_ID('CHI_TIET_KIEM_KE', 'U') IS NOT NULL DROP TABLE CHI_TIET_KIEM_KE;
-CREATE TABLE CHI_TIET_KIEM_KE (
-                               MaPhieuKiemKe VARCHAR(10) NOT NULL,
-                               MaPhuTung VARCHAR(10) NOT NULL,
-                               SoLuongHeThong INT NOT NULL,
-                               SoLuongThucTe INT NOT NULL,
-                               ChenhLech AS (SoLuongThucTe - SoLuongHeThong),
-                               LyDo NVARCHAR(255),
-                               PRIMARY KEY (MaPhieuKiemKe, MaPhuTung),
-                               FOREIGN KEY (MaPhieuKiemKe) REFERENCES PHIEU_KIEM_KE(MaPhieuKiemKe) ON DELETE CASCADE,
-                               FOREIGN KEY (MaPhuTung) REFERENCES PHU_TUNG(MaPhuTung)
-);
-
--- 18. Bang KY_THUAT_VIEN (bo sung theo ERD)
-CREATE TABLE KY_THUAT_VIEN (
-    MaKTV VARCHAR(10) PRIMARY KEY,
-    TrangThai NVARCHAR(30) NOT NULL DEFAULT N'Dang lam viec',
-    FOREIGN KEY (MaKTV) REFERENCES NhanVien(MaNV)
-);
-
--- 19. Bang KE_TOAN (bo sung theo ERD)
-CREATE TABLE KE_TOAN (
-    MaNhanVien VARCHAR(10) PRIMARY KEY,
-    HoTen NVARCHAR(100) NOT NULL,
-    SoDienThoai VARCHAR(15),
-    FOREIGN KEY (MaNhanVien) REFERENCES NhanVien(MaNV)
-);
-
--- 20. Bang THU_KHO (bo sung theo ERD)
-CREATE TABLE THU_KHO (
-    MaNhanVien VARCHAR(10) PRIMARY KEY,
-    HoTen NVARCHAR(100) NOT NULL,
-    SoDienThoai VARCHAR(15),
-    TenDangNhap VARCHAR(50),
-    MatKhau VARCHAR(255),
-    FOREIGN KEY (MaNhanVien) REFERENCES NhanVien(MaNV)
-);
-
--- 21. Bang PHUONG_THUC_THANH_TOAN (bo sung theo ERD)
-CREATE TABLE PHUONG_THUC_THANH_TOAN (
-    MaPhuongThuc VARCHAR(10) PRIMARY KEY,
-    TenPhuongThuc NVARCHAR(50) NOT NULL UNIQUE
-);
-
--- 22. Bang CHI_TIET_HOA_DON (bo sung theo ERD)
+-- 18. Bảng Chi Tiết Hóa Đơn
 CREATE TABLE CHI_TIET_HOA_DON (
-    MaChiTietHD VARCHAR(10) PRIMARY KEY,
-    MaHD VARCHAR(10) NOT NULL,
-    NoiDung NVARCHAR(255) NOT NULL,
-    SoLuong INT NOT NULL DEFAULT 1 CHECK (SoLuong > 0),
-    DonGia DECIMAL(18,2) NOT NULL CHECK (DonGia >= 0),
-    FOREIGN KEY (MaHD) REFERENCES HOA_DON(MaHoaDon) ON DELETE CASCADE
+    maChiTietHD VARCHAR(20) PRIMARY KEY,
+    maHD VARCHAR(20),
+    noiDung NVARCHAR(MAX),
+    soLuong INT,
+    dongia DECIMAL(18, 2),
+    FOREIGN KEY (maHD) REFERENCES HOA_DON(maHoaDon) ON DELETE CASCADE
 );
+GO
 
--- 23. Bang CANH_BAO_TON_KHO (bo sung theo ERD)
+-- 19. Bảng Phiếu Nhập Kho
+CREATE TABLE PHIEU_NHAP_KHO (
+    maPhieuNhap VARCHAR(20) PRIMARY KEY,
+    ngayNhap DATETIME DEFAULT GETDATE(),
+    tongTienNhap DECIMAL(18, 2),
+    maNhanVien VARCHAR(20), 
+    maNhaCungCap VARCHAR(20),
+    FOREIGN KEY (maNhanVien) REFERENCES THU_KHO(maNhanVien),
+    FOREIGN KEY (maNhaCungCap) REFERENCES NHA_CUNG_CAP(maNhaCungCap)
+);
+GO
+
+-- 20. Bảng Chi Tiết Phiếu Nhập
+CREATE TABLE CHI_TIET_PHIEU_NHAP (
+    maPhieuNhap VARCHAR(20),
+    maPhuTung VARCHAR(20),
+    soLuongNhap INT,
+    donGiaNhap DECIMAL(18, 2),
+    thanhTien DECIMAL(18, 2),
+    PRIMARY KEY (maPhieuNhap, maPhuTung),
+    FOREIGN KEY (maPhieuNhap) REFERENCES PHIEU_NHAP_KHO(maPhieuNhap) ON DELETE CASCADE,
+    FOREIGN KEY (maPhuTung) REFERENCES PHU_TUNG(maPhuTung)
+);
+GO
+
+-- 21. Bảng Cảnh Báo Tồn Kho
 CREATE TABLE CANH_BAO_TON_KHO (
-    MaCanhBao VARCHAR(10) PRIMARY KEY,
-    MaPhuTung VARCHAR(10) NOT NULL,
-    NgayCanhBao DATETIME NOT NULL DEFAULT GETDATE(),
-    LoaiCanhBao NVARCHAR(100) NOT NULL,
-    TrangThaiDaXem BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (MaPhuTung) REFERENCES PHU_TUNG(MaPhuTung)
+    maCanhBao VARCHAR(20) PRIMARY KEY,
+    maPhuTung VARCHAR(20),
+    ngayCanhBao DATETIME DEFAULT GETDATE(),
+    loaiCanhBao NVARCHAR(50),
+    trangThaiDaXem BIT,
+    FOREIGN KEY (maPhuTung) REFERENCES PHU_TUNG(maPhuTung)
 );
 GO
 
--- PHẦN 2: TỰ ĐỘNG HÓA KHO VÀ TÍNH TỔNG TIỀN (TRIGGERS & INDEXES)
-
-
--- Trigger 1: Tự động TRỪ tồn kho khi xuất phụ tùng sửa chữa
-GO
-CREATE TRIGGER trg_XuatPhuTung
-    ON CHI_TIET_PHIEU_SUA_CHUA
-    AFTER INSERT
-AS
-BEGIN
-UPDATE PHU_TUNG
-SET SoLuongTon = PHU_TUNG.SoLuongTon - i.SoLuong
-    FROM PHU_TUNG INNER JOIN inserted i ON PHU_TUNG.MaPhuTung = i.MaPhuTung;
-END;
+-- 22. Bảng Phiếu Kiểm Kê
+CREATE TABLE PHIEU_KIEM_KE (
+    maPhieuKiemKe VARCHAR(20) PRIMARY KEY,
+    ngayKiemKe DATETIME DEFAULT GETDATE(),
+    trangThai NVARCHAR(50),
+    maNhanVien VARCHAR(20), 
+    FOREIGN KEY (maNhanVien) REFERENCES THU_KHO(maNhanVien)
+);
 GO
 
--- Trigger 2: Tự động CỘNG tồn kho khi nhập phụ tùng
-GO
-CREATE TRIGGER trg_NhapPhuTung
-    ON CHI_TIET_PHIEU_NHAP
-    AFTER INSERT
-AS
-BEGIN
-UPDATE PHU_TUNG
-SET SoLuongTon = PHU_TUNG.SoLuongTon + i.SoLuong
-    FROM PHU_TUNG INNER JOIN inserted i ON PHU_TUNG.MaPhuTung = i.MaPhuTung;
-END;
-GO
-
--- Trigger 3: Tự động tính tổng tiền ở PHIEU_SUA_CHUA khi thay đổi Dịch Vụ
-GO
-CREATE TRIGGER trg_CapNhatTongTienDichVu
-    ON CHI_TIET_DICH_VU
-    AFTER INSERT, UPDATE, DELETE
-    AS
-BEGIN
-UPDATE PHIEU_SUA_CHUA
-SET TongTienDichVu = ISNULL((SELECT SUM(ThanhTien) FROM CHI_TIET_DICH_VU WHERE MaPhieuSuaChua = PHIEU_SUA_CHUA.MaPhieuSuaChua), 0),
-    TongTien = ISNULL((SELECT SUM(ThanhTien) FROM CHI_TIET_DICH_VU WHERE MaPhieuSuaChua = PHIEU_SUA_CHUA.MaPhieuSuaChua), 0) + TongTienPhuTung
-WHERE MaPhieuSuaChua IN (SELECT DISTINCT MaPhieuSuaChua FROM inserted UNION SELECT DISTINCT MaPhieuSuaChua FROM deleted);
-END;
+-- 23. Bảng Chi Tiết Kiểm Kê
+CREATE TABLE CHI_TIET_KIEM_KE (
+    maPhieuKiemKe VARCHAR(20),
+    maPhuTung VARCHAR(20),
+    soLuongHeThong INT,
+    soLuongThucTe INT,
+    chenhLech INT,
+    lyDoChenhLech NVARCHAR(MAX),
+    PRIMARY KEY (maPhieuKiemKe, maPhuTung),
+    FOREIGN KEY (maPhieuKiemKe) REFERENCES PHIEU_KIEM_KE(maPhieuKiemKe) ON DELETE CASCADE,
+    FOREIGN KEY (maPhuTung) REFERENCES PHU_TUNG(maPhuTung)
+);
 GO
 
--- Trigger 4: Tự động tính tổng tiền ở PHIEU_SUA_CHUA khi thay đổi Phụ Tùng
-GO
-CREATE TRIGGER trg_CapNhatTongTienPhuTung
-    ON CHI_TIET_PHIEU_SUA_CHUA
-    AFTER INSERT, UPDATE, DELETE
-    AS
-BEGIN
-UPDATE PHIEU_SUA_CHUA
-SET TongTienPhuTung = ISNULL((SELECT SUM(ThanhTien) FROM CHI_TIET_PHIEU_SUA_CHUA WHERE MaPhieuSuaChua = PHIEU_SUA_CHUA.MaPhieuSuaChua), 0),
-    TongTien = TongTienDichVu + ISNULL((SELECT SUM(ThanhTien) FROM CHI_TIET_PHIEU_SUA_CHUA WHERE MaPhieuSuaChua = PHIEU_SUA_CHUA.MaPhieuSuaChua), 0)
-WHERE MaPhieuSuaChua IN (SELECT DISTINCT MaPhieuSuaChua FROM inserted UNION SELECT DISTINCT MaPhieuSuaChua FROM deleted);
-END;
-GO
-
--- Tạo Index tăng tốc truy vấn Dashboard & Tìm kiếm
-CREATE INDEX IX_PhieuSuaChua_NgaySuaChua ON PHIEU_SUA_CHUA(NgaySuaChua);
-CREATE INDEX IX_PhieuTiepNhan_NgayTiepNhan ON PHIEU_TIEP_NHAN(NgayTiepNhan);
-CREATE INDEX IX_PhieuNhapKho_NgayNhap ON PHIEU_NHAP_KHO(NgayNhap);
-CREATE INDEX IX_Xe_MaKH ON XE(MaKH);
-GO
-
--- PHẦN 3: DỮ LIỆU MẪU ĐA DẠNG (DML 10 THÁNG NĂM 2026)
-
-
--- Nhân Viên
-INSERT INTO NhanVien (MaNV, HoTen, ChucVu, SoDienThoai, Email, DiaChi) VALUES
-('NV01', N'Phạm Thanh Hùng', N'Admin', '0901234567', 'hung.pt@gara.com', N'Quận Gò Vấp, TP.HCM'),
-('NV02', N'Nguyễn Quang Huy', N'Thủ kho', '0912345678', 'huy.nq@gara.com', N'Quận 12, TP.HCM'),
-('NV03', N'Lê Duy Minh', N'Kế toán', '0923456789', 'minh.ld@gara.com', N'Quận Bình Thạnh, TP.HCM'),
-('NV04', N'Trần Thanh Liêm', N'Lễ tân', '0934567890', 'liem.tt@gara.com', N'Quận Tân Bình, TP.HCM'),
-('NV05', N'Phan Xuân Phụng', N'Kỹ thuật viên', '0945678901', 'phung.px@gara.com', N'Quận Thủ Đức, TP.HCM'),
-('NV06', N'Nguyễn Hoàng Nam', N'Kỹ thuật viên', '0956789012', 'nam.nh@gara.com', N'Quận 9, TP.HCM');
-
--- Tai khoan mau (maTaiKhoan, tenDangNhap, matKhau, loaiTaiKhoan, maNhanVien)
-INSERT INTO TAI_KHOAN (MaTaiKhoan, TenDangNhap, MatKhau, LoaiTaiKhoan, MaNhanVien, TrangThai) VALUES
-    ('TK01', 'admin', 'admin123', N'Admin', 'NV01', N'Hoạt động'),
-    ('TK02', 'huy0804', 'huy0804', N'Thủ kho', 'NV02', N'Hoạt động'),
-    ('TK03', 'minh0806', 'minh0806', N'Kế toán', 'NV03', N'Hoạt động'),
-    ('TK04', 'liem1507', 'liem1507', N'Lễ tân', 'NV04', N'Hoạt động'),
-    ('TK05', 'phung2203', 'phung2203', N'Kỹ thuật viên', 'NV05', N'Hoạt động');
-
--- Khách Hàng
-INSERT INTO KHACH_HANG (MaKH, HoTen, SoDienThoai, DiaChi, Email) VALUES
-                                                                    ('KH01', N'Nguyễn Văn An', '0981111111', N'123 Nguyễn Oanh, Gò Vấp, TP.HCM', 'an.nguyen@gmail.com'),
-                                                                    ('KH02', N'Trần Thị Bích', '0982222222', N'456 Lê Văn Thọ, Gò Vấp, TP.HCM', 'bich.tran@gmail.com'),
-                                                                    ('KH03', N'Lê Hoàng Cường', '0983333333', N'789 Quang Trung, Gò Vấp, TP.HCM', 'cuong.le@gmail.com'),
-                                                                    ('KH04', N'Phạm Minh Dung', '0984444444', N'12 Hoàng Văn Thụ, Tân Bình, TP.HCM', 'dung.pham@gmail.com'),
-                                                                    ('KH05', N'Đặng Quốc Hùng', '0985555555', N'88 Cộng Hòa, Tân Bình, TP.HCM', 'hung.dang@gmail.com'),
-                                                                    ('KH06', N'Cty Vận Tải An Phát', '0289999888', N'102 Kha Vạn Cân, Thủ Đức, TP.HCM', 'contact@anphatlogistics.com');
-
--- XE (KH06 sở hữu 2 xe)
-INSERT INTO XE (BienSo, MaKH, HieuXe, LoaiXe, NamSanXuat, SoKhung, SoMay) VALUES
-                                                                              ('51H-123.45', 'KH01', N'Toyota', N'Camry 2.5Q', 2021, 'SK10001', 'SM10001'),
-                                                                              ('51G-678.90', 'KH02', N'Honda', N'CR-V L', 2020, 'SK10002', 'SM10002'),
-                                                                              ('51F-432.10', 'KH03', N'Ford', N'Ranger Wildtrak', 2019, 'SK10003', 'SM10003'),
-                                                                              ('51A-888.88', 'KH04', N'Mercedes-Benz', N'E300 AMG', 2022, 'SK10004', 'SM10004'),
-                                                                              ('51K-999.99', 'KH05', N'Hyundai', N'Tucson 1.6T', 2023, 'SK10005', 'SM10005'),
-                                                                              ('50LD-111.22', 'KH06', N'Ford', N'Transit 16 chỗ', 2018, 'SK10006', 'SM10006'),
-                                                                              ('50LD-333.44', 'KH06', N'Hyundai', N'Solati 16 chỗ', 2020, 'SK10007', 'SM10007');
-
--- KHO
-INSERT INTO KHO (MaKho, TenKho, DiaChi, MoTa) VALUES
-                                                  ('K01', N'KHO Phụ Tùng Chính', N'Khu A - Gara Ô Tô', N'Chứa động cơ, lốp, dầu nhớt chính hãng'),
-                                                  ('K02', N'KHO Sơ Cấp & Tiêu Hao', N'Khu B - Gara Ô Tô', N'Chứa lọc gió, bugi, hóa chất vệ sinh');
-
--- Nhà Cung Cấp
-INSERT INTO NHA_CUNG_CAP (MaNCC, TenNCC, SoDienThoai, Email, DiaChi) VALUES
-                                                                       ('NCC01', N'Công ty Phụ tùng Ô tô Toyota Việt Nam', '02838001122', 'contact@toyotaparts.vn', N'Quận 1, TP.HCM'),
-                                                                       ('NCC02', N'Nhà phân phối Lốp Bosch & Michelin Việt Nam', '02839003344', 'sales@boschmichelin.vn', N'Quận 7, TP.HCM'),
-                                                                       ('NCC03', N'Tổng đại lý Dầu nhớt Castrol & Shell', '02837005566', 'distributor@shellcastrol.vn', N'Quận Bình Tân, TP.HCM');
-
--- Phụ Tùng (Có PT08 hoàn toàn HẾT HÀNG để test cảnh báo)
-INSERT INTO PHU_TUNG (MaPhuTung, TenPhuTung, DonGiaNhap, DonGiaBan, SoLuongTon, DonViTinh, MaKho, MaNCC, SoLuongToiThieu) VALUES
-                                                                                                                             ('PT01', N'Dầu nhớt Castrol Magnatec 5W-30 (4L)', 450000, 650000, 45, N'Can', 'K01', 'NCC03', 10),
-                                                                                                                             ('PT02', N'Lọc dầu Toyota chính hãng', 80000, 150000, 30, N'Cái', 'K02', 'NCC01', 5),
-                                                                                                                             ('PT03', N'Lọc gió động cơ Honda CR-V', 120000, 220000, 3, N'Cái', 'K02', 'NCC01', 5),
-                                                                                                                             ('PT04', N'Má phanh trước Camry', 850000, 1250000, 8, N'Bộ', 'K01', 'NCC01', 4),
-                                                                                                                             ('PT05', N'Bugi Iridium Denso', 150000, 250000, 50, N'Cái', 'K02', 'NCC01', 10),
-                                                                                                                             ('PT06', N'Lốp xe Michelin 235/55R19', 2800000, 3500000, 2, N'Cái', 'K01', 'NCC02', 4),
-                                                                                                                             ('PT07', N'Gạt mưa Bosch Aerotwin 24 inch', 200000, 350000, 15, N'Cặp', 'K02', 'NCC02', 5),
-                                                                                                                             ('PT08', N'Bơm cao áp xe Ford Transit', 4500000, 6200000, 0, N'Cái', 'K01', 'NCC01', 2);
-
--- Dịch Vụ
-INSERT INTO DICH_VU (MaDichVu, TenDichVu, DonGia, MoTa) VALUES
-                                                           ('DV01', N'Thay dầu nhớt & Lọc nhớt', 150000, N'Công thay dầu, lọc nhớt và kiểm tra tổng quát'),
-                                                           ('DV02', N'Bảo dưỡng hệ thống phanh 4 bánh', 350000, N'Vệ sinh, mài đĩa phanh, tra mỡ chốt phanh'),
-                                                           ('DV03', N'Cân bằng động & Cân chỉnh thước lái', 450000, N'Đo cân bằng động bánh xe bằng máy laser'),
-                                                           ('DV04', N'Vệ sinh kim phun & Họng hút Bạc', 500000, N'Vệ sinh bằng dung dịch chuyên dụng sóng siêu âm'),
-                                                           ('DV05', N'Đọc lỗi & Chẩn đoán hệ thống điện ECU', 200000, N'Quét lỗi tự động bằng máy chẩn đoán chuyên dụng'),
-                                                           ('DV06', N'Rửa xe & Dọn nội thất cao cấp', 300000, N'Hút bụi, dưỡng ghế da, khử mùi Ozon');
-
--- Phiếu Tiếp Nhận (Dữ liệu rải từ Tháng 01 đến Tháng 10/2026)
-INSERT INTO PHIEU_TIEP_NHAN (MaPhieuTiepNhan, BienSo, MaKH, MaNVLeTan, NgayTiepNhan, TinhTrangKiemTra, TrangThai) VALUES
-                                                                                                                    ('TN01', '51H-123.45', 'KH01', 'NV04', '2026-01-15 08:30:00', N'Bảo dưỡng định kỳ 10.000km', N'Đã thanh toán'),
-                                                                                                                    ('TN02', '51G-678.90', 'KH02', 'NV04', '2026-02-20 09:15:00', N'XE bị giật khi tăng tốc', N'Đã thanh toán'),
-                                                                                                                    ('TN03', '51F-432.10', 'KH03', 'NV04', '2026-03-10 14:00:00', N'Thay lốp và cân bằng động', N'Đã thanh toán'),
-                                                                                                                    ('TN04', '51A-888.88', 'KH04', 'NV04', '2026-04-05 10:00:00', N'Báo lỗi đèn Engine Check trên đồng hồ', N'Đã thanh toán'),
-                                                                                                                    ('TN05', '51K-999.99', 'KH05', 'NV04', '2026-05-12 11:00:00', N'Thay dầu máy và gạt mưa', N'Đã thanh toán'),
-                                                                                                                    ('TN06', '50LD-111.22', 'KH06', 'NV04', '2026-06-18 08:00:00', N'Bảo dưỡng tổng thể xe khách', N'Đã thanh toán'),
-                                                                                                                    ('TN07', '51H-123.45', 'KH01', 'NV04', '2026-07-22 13:30:00', N'Tiếng kêu lạ ở phanh trước', N'Đã thanh toán'),
-                                                                                                                    ('TN08', '50LD-333.44', 'KH06', 'NV04', '2026-08-09 15:00:00', N'Vệ sinh kim phun, máy yếu', N'Đã thanh toán'),
-                                                                                                                    ('TN09', '51G-678.90', 'KH02', 'NV04', '2026-09-14 09:00:00', N'Thay dầu nhớt định kỳ', N'Đã thanh toán'),
-                                                                                                                    ('TN10', '51A-888.88', 'KH04', 'NV04', '2026-10-01 08:30:00', N'Thay dầu và bảo dưỡng phanh', N'Đã thanh toán'),
-                                                                                                                    ('TN11', '51F-432.10', 'KH03', 'NV04', '2026-10-10 14:00:00', N'Thay cặp lốp Michelin trước', N'Đang sửa chữa'),
-                                                                                                                    ('TN12', '51K-999.99', 'KH05', 'NV04', '2026-10-20 10:00:00', N'Kiểm tra hệ thống điện', N'Chờ sửa chữa'),
-                                                                                                                    ('TN13', '50LD-111.22', 'KH06', 'NV04', '2026-10-22 16:00:00', N'Khách hoãn sửa chữa', N'Đã hủy');
-
--- Phiếu Sửa Chữa
-INSERT INTO PHIEU_SUA_CHUA (MaPhieuSuaChua, MaPhieuTiepNhan, MaKTV, NgaySuaChua, GhiChu, TrangThai) VALUES
-                                                                                                      ('SC01', 'TN01', 'NV05', '2026-01-15 10:00:00', N'Thay dầu Castrol & Lọc nhớt', N'Hoàn thành'),
-                                                                                                      ('SC02', 'TN02', 'NV06', '2026-02-20 11:30:00', N'Thay 4 bugi Denso & Vệ sinh kim phun', N'Hoàn thành'),
-                                                                                                      ('SC03', 'TN03', 'NV05', '2026-03-10 16:00:00', N'Thay 2 lốp Michelin, cân bằng động', N'Hoàn thành'),
-                                                                                                      ('SC04', 'TN04', 'NV06', '2026-04-05 14:00:00', N'Đọc lỗi ECU, vệ sinh họng hút', N'Hoàn thành'),
-                                                                                                      ('SC05', 'TN05', 'NV05', '2026-05-12 14:30:00', N'Thay dầu và gạt mưa Bosch', N'Hoàn thành'),
-                                                                                                      ('SC06', 'TN06', 'NV06', '2026-06-18 11:00:00', N'Bảo dưỡng phanh, thay lọc dầu', N'Hoàn thành'),
-                                                                                                      ('SC07', 'TN07', 'NV05', '2026-07-22 15:30:00', N'Thay má phanh trước Camry', N'Hoàn thành'),
-                                                                                                      ('SC08', 'TN08', 'NV06', '2026-08-09 17:00:00', N'Vệ sinh kim phun siêu âm', N'Hoàn thành'),
-                                                                                                      ('SC09', 'TN09', 'NV05', '2026-09-14 11:00:00', N'Thay dầu máy Castrol', N'Hoàn thành'),
-                                                                                                      ('SC10', 'TN10', 'NV05', '2026-10-01 10:00:00', N'Thay dầu và bảo dưỡng phanh', N'Hoàn thành'),
-                                                                                                      ('SC11', 'TN11', 'NV06', '2026-10-10 15:30:00', N'Đang thay cặp lốp Michelin', N'Đang xử lý');
-
--- Chi Tiết Dịch Vụ
-INSERT INTO CHI_TIET_DICH_VU (MaPhieuSuaChua, MaDichVu, SoLuong, DonGia) VALUES
-                                                                          ('SC01', 'DV01', 1, 150000),
-                                                                          ('SC02', 'DV04', 1, 500000),
-                                                                          ('SC03', 'DV03', 1, 450000),
-                                                                          ('SC04', 'DV05', 1, 200000), ('SC04', 'DV04', 1, 500000),
-                                                                          ('SC05', 'DV01', 1, 150000),
-                                                                          ('SC06', 'DV02', 1, 350000), ('SC06', 'DV01', 1, 150000),
-                                                                          ('SC07', 'DV02', 1, 350000),
-                                                                          ('SC08', 'DV04', 1, 500000),
-                                                                          ('SC09', 'DV01', 1, 150000),
-                                                                          ('SC10', 'DV01', 1, 150000), ('SC10', 'DV02', 1, 350000),
-                                                                          ('SC11', 'DV03', 1, 450000);
-
--- Danh Sách Phụ Tùng Sửa Chữa (Sẽ tự kích hoạt Trigger tính tổng tiền & trừ kho)
-INSERT INTO CHI_TIET_PHIEU_SUA_CHUA (MaPhieuSuaChua, MaPhuTung, SoLuong, DonGia) VALUES
-                                                                             ('SC01', 'PT01', 1, 650000), ('SC01', 'PT02', 1, 150000),
-                                                                             ('SC02', 'PT05', 4, 250000),
-                                                                             ('SC03', 'PT06', 2, 3500000),
-                                                                             ('SC05', 'PT01', 1, 650000), ('SC05', 'PT07', 1, 350000),
-                                                                             ('SC06', 'PT02', 2, 150000),
-                                                                             ('SC07', 'PT04', 1, 1250000),
-                                                                             ('SC09', 'PT01', 1, 650000),
-                                                                             ('SC10', 'PT01', 1, 650000), ('SC10', 'PT02', 1, 150000), ('SC10', 'PT04', 1, 1250000),
-                                                                             ('SC11', 'PT06', 2, 3500000);
-
--- Hóa Đơn Thanh Toán (Tương ứng các phiếu hoàn thành)
-INSERT INTO HOA_DON (MaHoaDon, MaPhieuSuaChua, MaNVKeToan, NgayLap, TongTien, PhuongThucThanhToan, GhiChu) VALUES
-                                                                                                              ('HD01', 'SC01', 'NV03', '2026-01-15 11:00:00', 950000, N'Tiền mặt', N'Đã thanh toán đủ'),
-                                                                                                              ('HD02', 'SC02', 'NV03', '2026-02-20 12:00:00', 1500000, N'Chuyển khoản', N'Thanh toán qua QR Bank'),
-                                                                                                              ('HD03', 'SC03', 'NV03', '2026-03-10 17:00:00', 7450000, N'Quẹt thẻ', N'Thanh toán thẻ Visa'),
-                                                                                                              ('HD04', 'SC04', 'NV03', '2026-04-05 15:00:00', 700000, N'Tiền mặt', N'Đã thanh toán đủ'),
-                                                                                                              ('HD05', 'SC05', 'NV03', '2026-05-12 15:00:00', 1150000, N'Tiền mặt', N'Đã thanh toán đủ'),
-                                                                                                              ('HD06', 'SC06', 'NV03', '2026-06-18 12:00:00', 800000, N'Chuyển khoản', N'Cty An Phát chuyển khoản'),
-                                                                                                              ('HD07', 'SC07', 'NV03', '2026-07-22 16:30:00', 1600000, N'Tiền mặt', N'Đã thanh toán đủ'),
-                                                                                                              ('HD08', 'SC08', 'NV03', '2026-08-09 17:30:00', 500000, N'Chuyển khoản', N'Đã thanh toán đủ'),
-                                                                                                              ('HD09', 'SC09', 'NV03', '2026-09-14 11:30:00', 800000, N'Tiền mặt', N'Đã thanh toán đủ'),
-                                                                                                              ('HD10', 'SC10', 'NV03', '2026-10-01 11:00:00', 2550000, N'Chuyển khoản', N'Đã thanh toán đủ');
-
--- Phiếu Nhập KHO (Rải từ Tháng 01 đến Tháng 09/2026)
-INSERT INTO PHIEU_NHAP_KHO (MaPhieuNhap, MaKho, MaNCC, MaNVThuKho, NgayNhap, TongTien, GhiChu) VALUES
-                                                                                                 ('PN01', 'K01', 'NCC03', 'NV02', '2026-01-05 09:00:00', 13500000, N'Nhập dầu nhớt Castrol đầu năm'),
-                                                                                                 ('PN02', 'K02', 'NCC01', 'NV02', '2026-03-01 14:00:00', 6000000, N'Nhập lọc dầu & bugi Denso'),
-                                                                                                 ('PN03', 'K01', 'NCC02', 'NV02', '2026-05-02 10:00:00', 14000000, N'Nhập lốp Michelin đợt 1'),
-                                                                                                 ('PN04', 'K01', 'NCC03', 'NV02', '2026-09-01 09:00:00', 9000000, N'Nhập dầu nhớt Castrol tháng 9');
-
--- Chi Tiết Phiếu Nhập (Kích hoạt Trigger tự CỘNG tồn kho)
-INSERT INTO CHI_TIET_PHIEU_NHAP (MaPhieuNhap, MaPhuTung, SoLuong, DonGiaNhap) VALUES
-                                                                               ('PN01', 'PT01', 30, 450000),
-                                                                               ('PN02', 'PT02', 25, 80000), ('PN02', 'PT05', 20, 150000),
-                                                                               ('PN03', 'PT06', 5, 2800000),
-                                                                               ('PN04', 'PT01', 20, 450000);
-
--- Phiếu Kiểm Kê KHO
-INSERT INTO PHIEU_KIEM_KE (MaPhieuKiemKe, MaKho, MaNVThuKho, NgayKiemKe, GhiChu) VALUES
-                                                                                   ('KK01', 'K01', 'NV02', '2026-06-30 17:00:00', N'Kiểm kê định kỳ 6 tháng đầu năm'),
-                                                                                   ('KK02', 'K02', 'NV02', '2026-09-30 17:00:00', N'Kiểm kê định kỳ cuối quý 3');
-
-INSERT INTO CHI_TIET_KIEM_KE (MaPhieuKiemKe, MaPhuTung, SoLuongHeThong, SoLuongThucTe, LyDo) VALUES
-                                                                                              ('KK01', 'PT01', 45, 45, N'Đúng số lượng'),
-                                                                                              ('KK01', 'PT06', 3, 2, N'Hỏng 1 lốp do vận chuyển kho'),
-                                                                                              ('KK02', 'PT02', 30, 30, N'Đúng số lượng');
-
--- Du lieu mau cho cac bang bo sung theo ERD
-INSERT INTO KY_THUAT_VIEN (MaKTV, TrangThai) VALUES
-    ('NV05', N'Đang làm việc'),
-    ('NV06', N'Đang làm việc');
-
-INSERT INTO KE_TOAN (MaNhanVien, HoTen, SoDienThoai) VALUES
-    ('NV03', N'Lê Duy Minh', '0923456789');
-
-INSERT INTO THU_KHO (MaNhanVien, HoTen, SoDienThoai, TenDangNhap, MatKhau) VALUES
-    ('NV02', N'Nguyễn Quang Huy', '0912345678', 'huy0804', 'huy0804');
-
-INSERT INTO PHUONG_THUC_THANH_TOAN (MaPhuongThuc, TenPhuongThuc) VALUES
-    ('PTT01', N'Tiền mặt'),
-    ('PTT02', N'Chuyển khoản'),
-    ('PTT03', N'Quẹt thẻ');
-
--- Moi hoa don co mot dong chi tiet tong hop voi thanh tien bang TongTien cua hoa don goc
-INSERT INTO CHI_TIET_HOA_DON (MaChiTietHD, MaHD, NoiDung, SoLuong, DonGia) VALUES
-    ('CTHD01', 'HD01', N'Chi phí sửa chữa theo phiếu SC01', 1, 950000),
-    ('CTHD02', 'HD02', N'Chi phí sửa chữa theo phiếu SC02', 1, 1500000),
-    ('CTHD03', 'HD03', N'Chi phí sửa chữa theo phiếu SC03', 1, 7450000),
-    ('CTHD04', 'HD04', N'Chi phí sửa chữa theo phiếu SC04', 1, 700000),
-    ('CTHD05', 'HD05', N'Chi phí sửa chữa theo phiếu SC05', 1, 1150000),
-    ('CTHD06', 'HD06', N'Chi phí sửa chữa theo phiếu SC06', 1, 800000),
-    ('CTHD07', 'HD07', N'Chi phí sửa chữa theo phiếu SC07', 1, 1600000),
-    ('CTHD08', 'HD08', N'Chi phí sửa chữa theo phiếu SC08', 1, 500000),
-    ('CTHD09', 'HD09', N'Chi phí sửa chữa theo phiếu SC09', 1, 800000),
-    ('CTHD10', 'HD10', N'Chi phí sửa chữa theo phiếu SC10', 1, 2550000);
-
--- Du lieu canh bao ton kho mau: PT03 sap het, PT06 sap het, PT08 het hang
-INSERT INTO CANH_BAO_TON_KHO (MaCanhBao, MaPhuTung, NgayCanhBao, LoaiCanhBao, TrangThaiDaXem) VALUES
-    ('CB01', 'PT03', '2026-10-23 09:00:00', N'Sắp hết hàng', 0),
-    ('CB02', 'PT06', '2026-10-23 09:05:00', N'Sắp hết hàng', 0),
-    ('CB03', 'PT08', '2026-10-23 09:10:00', N'Hết hàng', 0);
+-- 24. Bảng Danh Sách Khách Hàng Nợ
+CREATE TABLE danhsachKHno (
+    maKhachHang VARCHAR(20) PRIMARY KEY,
+    hoTen NVARCHAR(50),
+    soDienThoai NVARCHAR(15),
+    hanMucNo NVARCHAR(30),
+    tongNo NVARCHAR(30),
+    trangThai NVARCHAR(50),
+    FOREIGN KEY (maKhachHang) REFERENCES KHACH_HANG(maKhachHang) ON DELETE CASCADE
+);
 GO
 
 
--- PHẦN 4: HỖ TRỢ DASHBOARD & JAVA DAO (VIEWS & PROCEDURES)
+-- ==========================================================
+-- PHẦN 2: THÊM DỮ LIỆU MẪU (DML)
+-- ==========================================================
+
+-- 1. Khách Hàng & Nợ
+INSERT INTO KHACH_HANG (maKhachHang, hoTen, soDienThoai, diaChi, email, bienSo) VALUES
+('KH01', N'Nguyễn Văn A', '0901234567', N'123 Nguyễn Trãi, Quận 1', 'nguyenvanA@gmail.com', '51G-123.45'),
+('KH02', N'Trần Thị B', '0912345678', N'456 Lê Văn Việt, TP. Thủ Đức', 'tranthiB@gmail.com', '60B-987.65'),
+('KH03', N'Lê Văn C', '0987654321', N'789 CMT8, Quận 3', 'levanC@gmail.com', '51K-555.88'),
+('KH04', N'Phạm Minh Dung', '0984444444', N'12 Hoàng Văn Thụ, Tân Bình', 'dung.pham@gmail.com', '51A-888.88'),
+('KH05', N'Đặng Quốc Hùng', '0985555555', N'88 Cộng Hòa, Tân Bình', 'hung.dang@gmail.com', '51K-999.99');
+
+INSERT INTO danhsachKHno (maKhachHang, hoTen, soDienThoai, hanMucNo, tongNo, trangThai) VALUES
+('KH01', N'Nguyễn Văn A', '0901234567', '100.000.000', '30.000.000', N'Chưa vượt mức'),
+('KH02', N'Trần Thị B', '0912345678', '200.000.000', '10.000.000', N'Chưa vượt mức'),
+('KH03', N'Lê Văn C', '0987654321', '50.000.000', '2.000.000', N'Chưa vượt mức');
+
+-- 2. Xe
+INSERT INTO XE (bienSo, hangXe, dongXe, namSanXuat, maKhachHang) VALUES
+('51G-123.45', 'Toyota', 'Vios', 2022, 'KH01'),
+('60B-987.65', 'Mazda', 'Mazda 3', 2023, 'KH02'),
+('51K-555.88', 'Honda', 'Civic', 2021, 'KH03'),
+('51A-888.88', 'Mercedes', 'E300', 2022, 'KH04'),
+('51K-999.99', 'Hyundai', 'Tucson', 2023, 'KH05');
+
+-- 3. Nhân Sự (Đầy đủ 5 người: Phụng, Huy, Minh, Liêm và Admin)
+INSERT INTO KY_THUAT_VIEN (maKTV, hoTen, diaChi, ngayVaoLam, trangThai) VALUES
+('KTV01', N'Phan Xuân Phụng', N'Quận Thủ Đức, TP.HCM', '2023-01-15', N'Đang rảnh'),
+('KTV02', N'Nguyễn Hoàng Nam', N'Quận 9, TP.HCM', '2023-05-20', N'Đang bận sửa xe'),
+('KTV03', N'Lê Hoàng Long', N'Gò Vấp, TP.HCM', '2024-01-10', N'Đang rảnh');
+
+INSERT INTO KE_TOAN (maNhanVien, hoTen, soDienThoai) VALUES
+('KT01', N'Lê Duy Minh', '0934567890'),
+('KT02', N'Phạm Thị Dung', '0933111222');
+
+INSERT INTO THU_KHO (maNhanVien, hoTen, soDienThoai, tenDangNhap, matKhau) VALUES
+('TK01', N'Nguyễn Quang Huy', '0912345678', 'huy0804', '123456'),
+('TK02', N'Lê Duy Minh', '0923456789', 'minh0806', '123456');
+
+-- 4. Tài Khoản (Đăng nhập khớp hoàn toàn với DangNhap.java)
+INSERT INTO TAI_KHOAN (maTaiKhoan, tenDangNhap, matKhau, loaiTaiKhoan, maNhanVien) VALUES
+('ACC01', 'admin', 'admin123', N'admin', 'ADMIN'),
+('ACC02', 'huy0804', '123456', N'Thủ kho', 'TK01'),
+('ACC03', 'minh0806', '123456', N'Kế toán', 'KT01'),
+('ACC04', 'liem1507', '123456', N'Lễ tân', 'LT01'),
+('ACC05', 'phung2203', '123456', N'Kỹ thuật viên', 'KTV01');
+
+-- 5. Phương thức & Dịch vụ & Kho & NCC
+INSERT INTO PHUONG_THUC_THANH_TOAN (maPhuongThuc, tenPhuongThuc) VALUES
+('PT01', N'Tiền mặt'),
+('PT02', N'Chuyển khoản ngân hàng'),
+('PT03', N'Thẻ tín dụng / Thẻ ATM');
+
+INSERT INTO DICH_VU (maDichVu, tenDichVu, donGiaHienTai, moTa, thoiGianBaoHanh) VALUES
+('DV01', N'Bảo dưỡng định kỳ 5000km', 350000, N'Thay nhớt, kiểm tra tổng quát', 3),
+('DV02', N'Thay má phanh trước', 500000, N'Thay thế bộ má phanh chính hãng', 6),
+('DV03', N'Cân chỉnh độ chụm bánh xe', 400000, N'Sử dụng máy điện tử cân chỉnh', 1),
+('DV04', N'Vệ sinh kim phun siêu âm', 500000, N'Vệ sinh bằng dung dịch', 1);
+
+INSERT INTO KHO (maKho, tenKho, diaChi) VALUES
+('KHO01', N'Kho Phụ Tùng Quận 1', N'10 Võ Văn Kiệt, Quận 1, TP.HCM'),
+('KHO02', N'Kho Vật Tư Tân Phú', N'50 Luỹ Bán Bích, Tân Phú, TP.HCM');
+
+INSERT INTO NHA_CUNG_CAP (maNhaCungCap, tenNhaCungCap, soDienThoai, diaChi, email) VALUES
+('NCC01', N'CTY Phụ Tùng Ô Tô Sài Gòn', '02838222333', N'12 Lý Tự Trọng, Quận 1', 'contact@ptsaigon.vn'),
+('NCC02', N'Toyota Vietnam Distributor', '02839998888', N'KCN Biên Hòa 2', 'support@toyotavn.com');
+
+-- 6. Phụ tùng (Cố tình cho PT04 hết hàng để Test Cảnh báo)
+INSERT INTO PHU_TUNG (maPhuTung, tenPhuTung, donViTinh, donGiaNhap, donGiaBan, soLuongTon, maKho) VALUES
+('PT01', N'Nhớt động cơ Castrol 4L', N'Bình', 800000, 1000000, 45, 'KHO01'),
+('PT02', N'Má phanh trước Toyota Vios', N'Bộ', 350000, 500000, 15, 'KHO01'),
+('PT03', N'Lọc gió điều hòa Mazda', N'Cái', 120000, 200000, 30, 'KHO02'),
+('PT04', N'Bơm cao áp xe Ford', N'Cái', 4500000, 6200000, 0, 'KHO01'); -- Hết hàng
+
+-- 7. Phiếu Tiếp Nhận & Sửa Chữa (Rải đều các tháng cho biểu đồ)
+INSERT INTO PHIEU_TIEP_NHAN (maPhieuTiepNhan, ngayTiepNhan, tinhTrangXe, yeuCauKH, trangThai, bienSo) VALUES
+('PTN01', '2026-02-15 08:30:00', N'Xe trầy xước nhẹ', N'Bảo dưỡng định kỳ', N'Đã hoàn thành', '51G-123.45'),
+('PTN02', '2026-03-20 09:15:00', N'Bình thường', N'Thay má phanh trước', N'Đã hoàn thành', '60B-987.65'),
+('PTN03', '2026-05-15 08:00:00', N'Lỗi động cơ', N'Check lỗi máy', N'Đã hoàn thành', '51A-888.88'),
+('PTN04', '2026-08-20 09:00:00', N'Bình thường', N'Vệ sinh kim phun', N'Đã hoàn thành', '51K-999.99'),
+('PTN05', '2026-10-05 10:00:00', N'Hỏng phanh', N'Kiểm tra và thay phanh', N'Chờ sửa chữa', '51K-555.88'),
+('PTN06', '2026-10-24 11:00:00', N'Bình thường', N'Bảo dưỡng', N'Đang xử lý', '51G-123.45');
+
+INSERT INTO PHIEU_SUA_CHUA (maPhieuSuaChua, ngayLap, trangThai, bienSo, maKTV, maPhieuTiepNhan) VALUES
+('PSC01', '2026-02-15 09:00:00', N'Hoàn thành', '51G-123.45', 'KTV01', 'PTN01'),
+('PSC02', '2026-03-20 10:00:00', N'Hoàn thành', '60B-987.65', 'KTV02', 'PTN02'),
+('PSC03', '2026-05-15 09:00:00', N'Hoàn thành', '51A-888.88', 'KTV01', 'PTN03'),
+('PSC04', '2026-08-20 10:00:00', N'Hoàn thành', '51K-999.99', 'KTV02', 'PTN04'),
+('PSC06', '2026-10-24 11:30:00', N'Đang xử lý', '51G-123.45', 'KTV01', 'PTN06');
+
+-- 8. Chi tiết Sửa Chữa (Dịch vụ & Phụ tùng)
+INSERT INTO CHI_TIET_DICH_VU (maPhieuSuaChua, maDichVu, soLuong, donGia) VALUES
+('PSC01', 'DV01', 1, 350000),
+('PSC02', 'DV02', 1, 500000),
+('PSC03', 'DV03', 1, 400000),
+('PSC04', 'DV04', 1, 500000);
+
+INSERT INTO DANH_SACH_PHU_TUNG (maPhieuSuaChua, maPhuTung, soLuongPhuTung, donGiaBan) VALUES
+('PSC01', 'PT01', 1, 1000000),
+('PSC02', 'PT02', 2, 500000),
+('PSC03', 'PT03', 1, 200000);
+
+INSERT INTO CHI_TIET_PHIEU_SUA_CHUA (maPhieuSuaChua, maPhuTung, soLuong, donGia) VALUES
+('PSC01', 'PT01', 1, 1000000),
+('PSC02', 'PT02', 2, 500000),
+('PSC03', 'PT03', 1, 200000);
+
+-- 9. Hóa đơn (Phát sinh doanh thu các tháng 2, 3, 5, 8)
+INSERT INTO HOA_DON (maHoaDon, ngayLap, maPhuongThuc, maPhieuSuaChua, maNhanVien) VALUES
+('HD01', '2026-02-15 11:45:00', 'PT01', 'PSC01', 'KT01'),
+('HD02', '2026-03-20 12:00:00', 'PT02', 'PSC02', 'KT01'),
+('HD03', '2026-05-15 14:00:00', 'PT01', 'PSC03', 'KT01'),
+('HD04', '2026-08-20 15:00:00', 'PT02', 'PSC04', 'KT01');
+
+INSERT INTO CHI_TIET_HOA_DON (maChiTietHD, maHD, noiDung, soLuong, dongia) VALUES
+('CTHD01', 'HD01', N'Dịch vụ và phụ tùng', 1, 1350000),
+('CTHD02', 'HD02', N'Dịch vụ và phụ tùng', 1, 1500000),
+('CTHD03', 'HD03', N'Dịch vụ và phụ tùng', 1, 600000),
+('CTHD04', 'HD04', N'Dịch vụ và phụ tùng', 1, 500000);
 
 
--- View 1: Thẻ KPI Tổng Quan Trang Chủ
+-- ==========================================================
+-- PHẦN 3: VIEWS & PROCEDURES (THỐNG KÊ DASHBOARD TRANG CHỦ)
+-- ==========================================================
+
+-- 1. View KPI Tổng Quan
 GO
-CREATE VIEW v_DashboardKPI AS
-SELECT
-    (SELECT ISNULL(SUM(TongTien), 0) FROM PHIEU_SUA_CHUA WHERE MONTH(NgaySuaChua) = 10 AND YEAR(NgaySuaChua) = 2026 AND TrangThai = N'Hoàn thành') AS DoanhThuThangHienTai,
-    (SELECT ISNULL(SUM(TongTien), 0) FROM PHIEU_SUA_CHUA WHERE MONTH(NgaySuaChua) = 9 AND YEAR(NgaySuaChua) = 2026 AND TrangThai = N'Hoàn thành') AS DoanhThuThangTruoc,
-    (SELECT COUNT(*) FROM PHIEU_TIEP_NHAN WHERE TrangThai = N'Chờ sửa chữa') AS SoXeChoSua,
-    (SELECT COUNT(*) FROM PHIEU_TIEP_NHAN WHERE TrangThai = N'Đang sửa chữa') AS SoXeDangSua,
-    (SELECT COUNT(*) FROM PHIEU_SUA_CHUA WHERE TrangThai = N'Hoàn thành' AND MaPhieuSuaChua NOT IN (SELECT MaPhieuSuaChua FROM HOA_DON)) AS SoXeChoThanhToan,
-    (SELECT COUNT(*) FROM PHU_TUNG WHERE SoLuongTon = 0) AS SoPhuTungHetHang,
-    (SELECT COUNT(*) FROM PHU_TUNG WHERE SoLuongTon > 0 AND SoLuongTon <= SoLuongToiThieu) AS SoPhuTungSapHet;
+CREATE VIEW v_Dashboard_KPI AS
+SELECT 
+    (SELECT COUNT(*) FROM PHIEU_TIEP_NHAN WHERE trangThai = N'Chờ sửa chữa' OR trangThai = N'Đang xử lý') AS SoXeDangXuLy,
+    (SELECT COUNT(*) FROM HOA_DON WHERE MONTH(ngayLap) = MONTH(GETDATE()) AND YEAR(ngayLap) = YEAR(GETDATE())) AS SoHoaDonThangNay,
+    (SELECT ISNULL(SUM(soLuong * dongia), 0) FROM CHI_TIET_HOA_DON HD JOIN HOA_DON H ON HD.maHD = H.maHoaDon WHERE MONTH(H.ngayLap) = MONTH(GETDATE()) AND YEAR(H.ngayLap) = YEAR(GETDATE())) AS DoanhThuThangNay,
+    (SELECT COUNT(*) FROM PHU_TUNG WHERE soLuongTon < 5) AS SoPhuTungSapHet;
 GO
 
--- View 2: Biểu đồ Tròn Thống kê theo Hãng XE
+-- 2. View Cảnh Báo Phụ Tùng Tồn Kho
 GO
-CREATE VIEW v_ThongKeTheoHangXe AS
-SELECT
-    X.HieuXe,
-    COUNT(PTN.MaPhieuTiepNhan) AS SoLuotTiepNhan,
-    CAST(ROUND(COUNT(PTN.MaPhieuTiepNhan) * 100.0 / (SELECT COUNT(*) FROM PHIEU_TIEP_NHAN), 2) AS DECIMAL(5,2)) AS TyLePhanTram
-FROM XE X
-         JOIN PHIEU_TIEP_NHAN PTN ON X.BienSo = PTN.BienSo
-GROUP BY X.HieuXe;
-GO
-
--- View 3: Cảnh báo Phụ Tùng Tồn KHO
-GO
-CREATE VIEW v_PhuTungCanhBao AS
-SELECT
-    PT.MaPhuTung,
-    PT.TenPhuTung,
-    PT.SoLuongTon,
-    PT.SoLuongToiThieu,
-    K.TenKho,
-    CASE
-        WHEN PT.SoLuongTon = 0 THEN N'HẾT HÀNG'
-        ELSE N'SẮP HẾT'
-        END AS MucDoCanhBao
-FROM PHU_TUNG PT
-         JOIN KHO K ON PT.MaKho = K.MaKho
-WHERE PT.SoLuongTon <= PT.SoLuongToiThieu;
+CREATE VIEW v_Dashboard_CanhBaoKho AS
+SELECT 
+    maPhuTung, 
+    tenPhuTung, 
+    soLuongTon, 
+    CASE 
+        WHEN soLuongTon = 0 THEN N'Hết hàng'
+        ELSE N'Sắp hết'
+    END AS MucDoCanhBao
+FROM PHU_TUNG 
+WHERE soLuongTon < 5;
 GO
 
--- Stored Procedure: Dữ liệu Biểu đồ Doanh thu & Chi phí 12 Tháng theo Năm
+-- 3. Procedure Lấy Doanh Thu 12 Tháng (Vẽ Biểu Đồ)
 GO
-CREATE PROCEDURE sp_GetDoanhThuChiPhiTheoNam
+CREATE PROCEDURE sp_ThongKeDoanhThu12Thang
     @Nam INT
 AS
 BEGIN
     SET NOCOUNT ON;
-SELECT
-    Thang.Thang,
-    ISNULL(DT.TongDoanhThu, 0) AS TongDoanhThu,
-    ISNULL(DT.TienDichVu, 0) AS TienDichVu,
-    ISNULL(DT.TienPhuTung, 0) AS TienPhuTung,
-    ISNULL(CP.TongChiPhiNhap, 0) AS ChiPhiNhapKho
-FROM (
-         SELECT 1 AS Thang UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6
-         UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
-     ) AS Thang
-         LEFT JOIN (
-    SELECT
-        MONTH(NgaySuaChua) AS Thang,
-        SUM(TongTien) AS TongDoanhThu,
-        SUM(TongTienDichVu) AS TienDichVu,
-        SUM(TongTienPhuTung) AS TienPhuTung
-    FROM PHIEU_SUA_CHUA
-    WHERE YEAR(NgaySuaChua) = @Nam AND TrangThai = N'Hoàn thành'
-    GROUP BY MONTH(NgaySuaChua)
-) DT ON Thang.Thang = DT.Thang
-         LEFT JOIN (
-    SELECT
-        MONTH(NgayNhap) AS Thang,
-        SUM(TongTien) AS TongChiPhiNhap
-    FROM PHIEU_NHAP_KHO
-    WHERE YEAR(NgayNhap) = @Nam
-    GROUP BY MONTH(NgayNhap)
-) CP ON Thang.Thang = CP.Thang
-ORDER BY Thang.Thang ASC;
+    
+    SELECT 
+        Thang.Thang,
+        ISNULL(SUM(CT.soLuong * CT.dongia), 0) AS TongDoanhThu
+    FROM (
+        SELECT 1 AS Thang UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 
+        UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
+    ) AS Thang
+    LEFT JOIN HOA_DON HD ON MONTH(HD.ngayLap) = Thang.Thang AND YEAR(HD.ngayLap) = @Nam
+    LEFT JOIN CHI_TIET_HOA_DON CT ON HD.maHoaDon = CT.maHD
+    GROUP BY Thang.Thang
+    ORDER BY Thang.Thang;
 END;
 GO
 
-PRINT N'=== KHỞI TẠO HỆ THỐNG QUẢN LÝ GARA Ô TÔ THÀNH CÔNG 100% ===';
+PRINT N'Cơ sở dữ liệu hoàn tất 100%. Sẵn sàng kết nối với Java DAO và hiển thị lên Dashboard!';
