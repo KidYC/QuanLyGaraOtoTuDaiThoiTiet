@@ -416,6 +416,59 @@ INSERT INTO CHI_TIET_HOA_DON (maChiTietHD, maHD, noiDung, soLuong, dongia) VALUE
 -- ==========================================================
 -- PHẦN 3: VIEWS & PROCEDURES (THỐNG KÊ DASHBOARD TRANG CHỦ)
 -- ==========================================================
+IF OBJECT_ID('v_ThongKeSuaChua', 'V') IS NOT NULL
+DROP VIEW v_ThongKeSuaChua;
+GO
+
+CREATE VIEW v_ThongKeSuaChua AS
+SELECT
+    p.maPhieuSuaChua,
+    p.ngayLap,
+    p.maKTV,
+    p.trangThai, -- Lấy đúng cột trangThai từ bảng PHIEU_SUA_CHUA
+    COUNT(ct.maPhuTung) AS tongSoPhuTungDung,
+    SUM(ISNULL(ct.soLuong * ct.donGia, 0)) AS tongTienVatTu
+FROM PHIEU_SUA_CHUA p
+         LEFT JOIN CHI_TIET_PHIEU_SUA_CHUA ct ON p.maPhieuSuaChua = ct.maPhieuSuaChua
+GROUP BY p.maPhieuSuaChua, p.ngayLap, p.maKTV, p.trangThai;
+GO
+
+-- thống kê doanh thu
+IF OBJECT_ID('v_ThongKeDoanhThu', 'V') IS NOT NULL
+DROP VIEW v_ThongKeDoanhThu;
+GO
+
+CREATE VIEW v_ThongKeDoanhThu AS
+SELECT
+        MONTH(hd.ngayLap) AS thang,
+        YEAR(hd.ngayLap) AS nam,
+        COUNT(hd.maHoaDon) AS tongSoHoaDon,
+        SUM(ISNULL(ct.soLuong * ct.donGia, 0)) AS doanhThu
+        FROM HOA_DON hd
+        LEFT JOIN PHIEU_SUA_CHUA p ON hd.maPhieuSuaChua = p.maPhieuSuaChua
+        LEFT JOIN CHI_TIET_PHIEU_SUA_CHUA ct ON p.maPhieuSuaChua = ct.maPhieuSuaChua
+        GROUP BY MONTH(hd.ngayLap), YEAR(hd.ngayLap);
+GO
+
+--thống kê kho
+IF OBJECT_ID('v_ThongKeKho', 'V') IS NOT NULL
+DROP VIEW v_ThongKeKho;
+GO
+
+CREATE VIEW v_ThongKeKho AS
+SELECT
+    p.maPhuTung,
+    p.tenPhuTung,
+    p.donViTinh,
+    p.soLuongTon,
+    p.donGiaNhap,
+    p.donGiaBan,
+    CASE
+        WHEN p.soLuongTon <= 5 THEN N'Sắp hết'
+        ELSE N'Bình thường'
+        END AS trangThaiTon
+FROM PHU_TUNG p;
+GO
 
 -- 1. View KPI Tổng Quan
 GO

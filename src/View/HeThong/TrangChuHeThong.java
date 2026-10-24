@@ -45,12 +45,13 @@ import View.KyThuatVien.CapNhatTienDoSuaChua;
 import View.KyThuatVien.ChiTietKiemTraChanDoan;
 import View.KyThuatVien.KiemTraChatLuong;
 import View.KyThuatVien.LapPhieuSuaChua;
+import View.HeThong.QuanLyNhanVien;
 import View.KeToan.ManHinhChiTietHDVaThanhToan;
 import View.KeToan.ManHinhDanhSachKHNo;
 import View.KeToan.ManHinhQuanLyCa;
 import View.LeTan.*;
 import View.ThuKho.*;
-import DAO.TrangChu_DAO;
+import View.KyThuatVien.ManHinhThongKeSuaChua;
 
 public class TrangChuHeThong extends JFrame implements ActionListener, MouseListener {
     private static final Color MAU_NEN = new Color(244, 246, 248);
@@ -143,7 +144,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
         CA_THU_NGAN("Quản lý ca thu ngân", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
 
-        // Phân quyền chi tiết cho nhóm Thống kê báo cáo
+        // Phân hệ Thống kê báo cáo (Phân quyền chi tiết cho từng vai trò)
         THONG_KE_DOANH_THU("Doanh thu", NhomChucNang.THONG_KE, "Thống kê doanh thu theo kỳ", VaiTro.KE_TOAN),
         THONG_KE_SUA_CHUA("Sửa chữa", NhomChucNang.THONG_KE, "Thống kê xe và phiếu sửa chữa", VaiTro.KY_THUAT),
         THONG_KE_KHO("Kho", NhomChucNang.THONG_KE, "Tồn kho và nhập xuất theo thời gian", VaiTro.THU_KHO),
@@ -407,6 +408,9 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case CONG_NO:               hienThi(new ManHinhDanhSachKHNo()); return true;
             case CA_THU_NGAN:           hienThi(new ManHinhQuanLyCa()); return true;
 
+            // Tích hợp mở giao diện Thống kê sửa chữa thành một JFrame riêng biệt
+            case THONG_KE_SUA_CHUA:     hienThi(new ManHinhThongKeSuaChua()); return true;
+
             case QUAN_LY_NHAN_VIEN:     hienThi(new QuanLyNhanVien()); return true;
 
             default:                    return false;
@@ -428,24 +432,6 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         winKhung.setSize(Math.max(winKhung.getWidth(), 1100), Math.max(winKhung.getHeight(), 680));
         winKhung.setLocationRelativeTo(null);
         winKhung.setVisible(true);
-    }
-
-    static JPanel taoTieuDeTrang(String tieuDe, String phuDe) {
-        boolean coPhuDe = phuDe != null && !phuDe.trim().isEmpty();
-        JPanel pnlTieuDe = new JPanel(new GridLayout(coPhuDe ? 2 : 1, 1, 0, 2));
-        pnlTieuDe.setOpaque(false);
-        pnlTieuDe.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
-        JLabel lblTieuDe = new JLabel(tieuDe);
-        lblTieuDe.setFont(FONT_TIEU_DE);
-        lblTieuDe.setForeground(MAU_TEXT);
-        pnlTieuDe.add(lblTieuDe);
-        if (coPhuDe) {
-            JLabel lblPhuDe = new JLabel(phuDe);
-            lblPhuDe.setFont(FONT_NHAN);
-            lblPhuDe.setForeground(MAU_PHU);
-            pnlTieuDe.add(lblPhuDe);
-        }
-        return pnlTieuDe;
     }
 
     static ImageIcon loadIcon(String duongDan, int rong, int cao) {
@@ -630,25 +616,25 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             g2.drawString(tieuDe, 20, 32);
             double max = 1;
             for (double v : giaTri) max = Math.max(max, v);
-            max = max == 0 ? 100 : max * 1.2;
+            max *= 1.2;
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
             for (int i = 0; i <= 4; i++) {
                 int y = tren + caoBieuDo - i * caoBieuDo / 4;
                 g2.setColor(MAU_VIEN);
                 g2.drawLine(trai, y, rong - phai, y);
                 g2.setColor(MAU_PHU);
-                g2.drawString(String.format("%,.0f", max * i / 4), 10, y + 4);
+                g2.drawString(String.valueOf(Math.round(max * i / 4)), 14, y + 4);
             }
             FontMetrics fm = g2.getFontMetrics();
             int soCot = giaTri.length;
             int oRong = rongBieuDo / soCot;
-            int rongCot = Math.min(28, oRong - 10);
+            int rongCot = Math.min(36, oRong - 18);
             for (int i = 0; i < soCot; i++) {
                 int cot = (int) (giaTri[i] / max * caoBieuDo);
                 int x = trai + i * oRong + (oRong - rongCot) / 2;
                 int y = tren + caoBieuDo - cot;
                 g2.setPaint(new GradientPaint(0, y, MAU_XANH, 0, tren + caoBieuDo, new Color(147, 197, 253)));
-                g2.fillRoundRect(x, y, rongCot, cot, 8, 8);
+                g2.fillRoundRect(x, y, rongCot, cot, 10, 10);
                 g2.setColor(MAU_PHU);
                 g2.drawString(nhan[i], x + (rongCot - fm.stringWidth(nhan[i])) / 2, cao - 14);
             }
@@ -698,46 +684,42 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             g2.setColor(MAU_TEXT);
             FontMetrics fmTong = g2.getFontMetrics();
             g2.drawString(chuTong, x + d / 2 - fmTong.stringWidth(chuTong) / 2, y + d / 2 + fmTong.getAscent() / 3);
-            int xChuGiai = x + d + 30, yChuGiai = y + 30;
+            int xChuGiai = x + d + 40, yChuGiai = y + 40;
             for (int i = 0; i < nhan.length; i++) {
                 g2.setColor(mau[i]);
                 g2.fillRoundRect(xChuGiai, yChuGiai - 12, 14, 14, 4, 4);
                 g2.setColor(MAU_TEXT);
                 g2.setFont(FONT_NHAN);
                 g2.drawString(nhan[i] + ": " + soLieu[i] + " xe", xChuGiai + 22, yChuGiai);
-                yChuGiai += 30;
+                yChuGiai += 34;
             }
             g2.dispose();
         }
     }
-
+    static JPanel taoTieuDeTrang(String tieuDe, String phuDe) {
+        boolean coPhuDe = phuDe != null && !phuDe.trim().isEmpty();
+        JPanel pnlTieuDe = new JPanel(new GridLayout(coPhuDe ? 2 : 1, 1, 0, 2));
+        pnlTieuDe.setOpaque(false);
+        pnlTieuDe.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
+        JLabel lblTieuDe = new JLabel(tieuDe);
+        lblTieuDe.setFont(FONT_TIEU_DE);
+        lblTieuDe.setForeground(MAU_TEXT);
+        pnlTieuDe.add(lblTieuDe);
+        if (coPhuDe) {
+            JLabel lblPhuDe = new JLabel(phuDe);
+            lblPhuDe.setFont(FONT_NHAN);
+            lblPhuDe.setForeground(MAU_PHU);
+            pnlTieuDe.add(lblPhuDe);
+        }
+        return pnlTieuDe;
+    }
     static class TongQuanPanel extends JPanel {
-        private final TrangChu_DAO trangChuDAO = new TrangChu_DAO();
-
         TongQuanPanel(String hoTen, VaiTro vt) {
             super(new BorderLayout(0, 18));
             setOpaque(false);
             boolean xemDoanhThu = vt == VaiTro.ADMIN || vt == VaiTro.KE_TOAN;
 
-            add(taoTieuDeTrang("Xin chào, " + hoTen, "Tổng quan hoạt động hệ thống Gara Ô Tô"), BorderLayout.NORTH);
-
-            String sXeDangXuLy = "0";
-            String sPhuTungSapHet = "0";
-            String sDoanhThuThangNay = "0 đ";
-            double[] doanhThu12T = new double[12];
-
-            try {
-                Map<String, Object> kpi = trangChuDAO.laySoLieuKPI();
-                if (kpi != null) {
-                    sXeDangXuLy = String.valueOf(kpi.get("SoXeDangXuLy"));
-                    sPhuTungSapHet = String.valueOf(kpi.get("SoPhuTungSapHet"));
-                    double dt = (double) kpi.get("DoanhThuThangNay");
-                    sDoanhThuThangNay = String.format("%,.0f đ", dt);
-                }
-                doanhThu12T = trangChuDAO.layDoanhThu12Thang(2026);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            add(taoTieuDeTrang("Xin chào, " + hoTen, null), BorderLayout.NORTH);
 
             JPanel pnlHangThe = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangThe.setOpaque(false);
@@ -745,28 +727,28 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
                     () -> moManHinhNghiepVu(ChucNang.CHAN_DOAN, null)));
             pnlHangThe.add(new TheThongKe("Phiếu chờ lập", "3", MAU_XANH_LA,
                     () -> moManHinhNghiepVu(ChucNang.PHIEU_SUA_CHUA, null)));
-            pnlHangThe.add(new TheThongKe("Xe đang xử lý", sXeDangXuLy, MAU_TIM,
+            pnlHangThe.add(new TheThongKe("Xe đang sửa chữa", "8", MAU_TIM,
                     () -> moManHinhNghiepVu(ChucNang.THUC_HIEN_SUA_CHUA, null)));
-            pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", sPhuTungSapHet, MAU_DO,
+            pnlHangThe.add(new TheThongKe("Xe chờ KCS", "2", MAU_XANH_LA,
+                    () -> moManHinhNghiepVu(ChucNang.KIEM_TRA_CHAT_LUONG, null)));
+            pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", "6", MAU_DO,
                     () -> moManHinhNghiepVu(ChucNang.DANH_MUC_PHU_TUNG, null)));
-
             if (xemDoanhThu) {
-                pnlHangThe.add(new TheThongKe("Doanh thu tháng này", sDoanhThuThangNay, MAU_XANH_LA,
+                pnlHangThe.add(new TheThongKe("Doanh thu hôm nay", "18,5 tr", MAU_TIM,
                         () -> moManHinhNghiepVu(ChucNang.HOA_DON_THANH_TOAN, null)));
             }
 
             JPanel pnlHangBieuDo = new JPanel(new GridLayout(1, 0, 16, 0));
             pnlHangBieuDo.setOpaque(false);
             if (xemDoanhThu) {
-                pnlHangBieuDo.add(new BieuDoCot("Biểu đồ doanh thu 12 tháng (VNĐ)",
-                        new String[]{"T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"},
-                        doanhThu12T));
+                pnlHangBieuDo.add(new BieuDoCot("Doanh thu 7 ngày gần nhất (triệu đ)",
+                        new String[]{"T2", "T3", "T4", "T5", "T6", "T7", "CN"},
+                        new double[]{12.5, 9.8, 15.2, 11.0, 18.7, 21.3, 7.4}));
             }
-
             pnlHangBieuDo.add(new BieuDoTron("Tình trạng xe trong gara",
-                    new String[]{"Đang xử lý", "Hoàn thành"},
-                    new int[]{Integer.parseInt(sXeDangXuLy), 5},
-                    new Color[]{MAU_XANH, MAU_XANH_LA}));
+                    new String[]{"Đang sửa", "Chờ báo giá", "Chờ phụ tùng", "Hoàn thành"},
+                    new int[]{8, 5, 3, 12},
+                    new Color[]{MAU_XANH, MAU_CAM, MAU_DO, MAU_XANH_LA}));
 
             JPanel pnlGiua = new JPanel(new BorderLayout(0, 18));
             pnlGiua.setOpaque(false);

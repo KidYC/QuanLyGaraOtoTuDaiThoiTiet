@@ -7,6 +7,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +37,7 @@ import Entity.KhachHang;
 import Entity.PhieuSuaChua;
 import Entity.Xe;
 
-public class KiemTraChatLuong extends JFrame {
+public class KiemTraChatLuong extends JFrame implements ActionListener, MouseListener {
     private JPanel pnlHeaderPanel;
     private JSplitPane splitPane;
     private JPanel pnlLeftPanel;
@@ -77,6 +81,11 @@ public class KiemTraChatLuong extends JFrame {
 
         taoHeader();
         taoContent();
+        btnQuayLai.addActionListener(this);
+        btnTim.addActionListener(this);
+        btnLuuKcs.addActionListener(this);
+        btnLamMoi.addActionListener(this);
+        tblXeKCS.addMouseListener(this);
         loadDanhSachKCS();
         setVisible(true);
     }
@@ -90,7 +99,6 @@ public class KiemTraChatLuong extends JFrame {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
 
         btnQuayLai = taoButton("Quay lại", btnphu);
-        btnQuayLai.addActionListener(e -> dispose());
 
         pnlHeaderPanel.add(lblTitle, BorderLayout.WEST);
         pnlHeaderPanel.add(btnQuayLai, BorderLayout.EAST);
@@ -115,7 +123,6 @@ public class KiemTraChatLuong extends JFrame {
         JPanel pnlSearchPanel = new JPanel(new BorderLayout(10, 0));
         txtSearch = new JTextField();
         btnTim = taoButton("Tìm xe", btnchinh);
-        btnTim.addActionListener(e -> loadDanhSachKCS());
 
         pnlSearchPanel.add(txtSearch, BorderLayout.CENTER);
         pnlSearchPanel.add(btnTim, BorderLayout.EAST);
@@ -130,11 +137,6 @@ public class KiemTraChatLuong extends JFrame {
         pnlLeftPanel.add(pnlSearchPanel, BorderLayout.NORTH);
         pnlLeftPanel.add(new JScrollPane(tblXeKCS), BorderLayout.CENTER);
 
-        tblXeKCS.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                hienThiChiTietXeDuocChon();
-            }
-        });
     }
 
     private void taoFormDanhGiaPanel() {
@@ -198,8 +200,6 @@ public class KiemTraChatLuong extends JFrame {
         pnlRightPanel.add(pnlCenterContainer, BorderLayout.NORTH);
         pnlRightPanel.add(pnlBottomContainer, BorderLayout.CENTER);
 
-        btnLuuKcs.addActionListener(e -> luuKetQuaKCS());
-        btnLamMoi.addActionListener(e -> xoaForm());
     }
 
     private void loadDanhSachKCS() {
@@ -287,6 +287,43 @@ public class KiemTraChatLuong extends JFrame {
         JButton btnButton = new JButton(text);
         btnButton.setBackground(color);
         return btnButton;
+    }
+
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnQuayLai) {
+            dispose();
+        } else if (e.getSource() == btnTim) {
+            loadDanhSachKCS();
+        } else if (e.getSource() == btnLuuKcs) {
+            luuKetQuaKCS();
+        } else if (e.getSource() == btnLamMoi) {
+            xoaForm();
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == tblXeKCS) {
+            hienThiChiTietXeDuocChon();
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
     }
 
 //    public static void main(String[] args) {
