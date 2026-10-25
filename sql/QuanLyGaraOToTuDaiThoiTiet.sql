@@ -284,12 +284,13 @@ CREATE TABLE danhsachKHno (
     maKhachHang VARCHAR(20) PRIMARY KEY,
     hoTen NVARCHAR(50),
     soDienThoai NVARCHAR(15),
-    hanMucNo NVARCHAR(30),
-    tongNo NVARCHAR(30),
+    hanMucNo decimal (18,2),
+    tongNo decimal (18,2),
     trangThai NVARCHAR(50),
     FOREIGN KEY (maKhachHang) REFERENCES KHACH_HANG(maKhachHang) ON DELETE CASCADE
 );
 GO
+
 
 
 -- ==========================================================
@@ -305,9 +306,10 @@ INSERT INTO KHACH_HANG (maKhachHang, hoTen, soDienThoai, diaChi, email, bienSo) 
 ('KH05', N'Đặng Quốc Hùng', '0985555555', N'88 Cộng Hòa, Tân Bình', 'hung.dang@gmail.com', '51K-999.99');
 
 INSERT INTO danhsachKHno (maKhachHang, hoTen, soDienThoai, hanMucNo, tongNo, trangThai) VALUES
-('KH01', N'Nguyễn Văn A', '0901234567', '100.000.000', '30.000.000', N'Chưa vượt mức'),
-('KH02', N'Trần Thị B', '0912345678', '200.000.000', '10.000.000', N'Chưa vượt mức'),
-('KH03', N'Lê Văn C', '0987654321', '50.000.000', '2.000.000', N'Chưa vượt mức');
+('KH01', N'Nguyễn Văn A', '0901234567', 100000000,30000000, N'Chưa vượt mức'),
+('KH02', N'Trần Thị B', '0912345678', 200000000,10000000, N'Chưa vượt mức'),
+('KH03', N'Lê Văn C', '0987654321', 50000000, 2000000, N'Chưa vượt mức');
+select * from danhsachKHno
 
 -- 2. Xe
 INSERT INTO XE (bienSo, hangXe, dongXe, namSanXuat, maKhachHang) VALUES
@@ -518,3 +520,6 @@ END;
 GO
 
 PRINT N'Cơ sở dữ liệu hoàn tất 100%. Sẵn sàng kết nối với Java DAO và hiển thị lên Dashboard!';
+
+
+
