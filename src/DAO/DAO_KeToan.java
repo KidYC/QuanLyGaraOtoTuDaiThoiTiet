@@ -117,8 +117,8 @@ public class DAO_KeToan {
                          rs.getString("hoTen"),
                          rs.getString("soDienThoai"),
                          rs.getString("bienSo"),
-                         rs.getString("hanMucNo"),
-                         rs.getString("tongNo"),
+                         rs.getBigDecimal("hanMucNo"),
+                         rs.getBigDecimal("tongNo"),
                          rs.getString("trangThai")
                  };
                  danhsach.add(dong);
@@ -126,8 +126,42 @@ public class DAO_KeToan {
              return danhsach;
          }
      }
-//     public List<Object[]> laydulieucongno(){
-//
-//     }
+    public Object[] layThongTinKhachHangNo(String maKH) throws SQLException {
+        String sql = """
+        SELECT
+            KH.maKhachHang,
+            K.hoTen,
+            X.bienSo,
+            K.soDienThoai,
+            K.diaChi,
+            KH.hanMucNo,
+            KH.tongNo
+        FROM danhsachKHno KH
+        JOIN KHACH_HANG K
+            ON KH.maKhachHang = K.maKhachHang
+        JOIN XE X
+            ON KH.maKhachHang = X.maKhachHang
+        WHERE KH.maKhachHang = ?
+        """;
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+            ps.setString(1, maKH);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Object[]{
+                            rs.getString("maKhachHang"),
+                            rs.getString("bienSo"),
+                            rs.getString("hoTen"),
+                            rs.getString("soDienThoai"),
+                            rs.getString("diaChi"),
+                            rs.getBigDecimal("hanMucNo"),
+                            rs.getBigDecimal("tongNo")
+                    };
+                }
+            }
+        }
+        return null;
+    }
 }

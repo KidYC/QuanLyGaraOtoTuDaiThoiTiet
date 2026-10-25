@@ -10,7 +10,10 @@ import Entity.TaiKhoan;
 public class TaiKhoan_DAO {
     public TaiKhoan dangNhap(String tenDangNhap, String matKhau) throws SQLException {
         String sql = "SELECT tk.maTaiKhoan, tk.tenDangNhap, tk.matKhau, tk.loaiTaiKhoan, tk.maNhanVien, "
-                + "COALESCE(kho.hoTen, kt.hoTen, ktv.hoTen, N'Quản trị viên') AS hoTen "
+                + "CASE "
+                + "   WHEN tk.loaiTaiKhoan = 'admin' OR tk.tenDangNhap = 'admin' THEN N'Nguyễn Văn Hùng' "
+                + "   ELSE COALESCE(kho.hoTen, kt.hoTen, ktv.hoTen, N'Quản trị viên') "
+                + "END AS hoTen "
                 + "FROM TAI_KHOAN tk "
                 + "LEFT JOIN THU_KHO kho ON tk.maNhanVien = kho.maNhanVien "
                 + "LEFT JOIN KE_TOAN kt ON tk.maNhanVien = kt.maNhanVien "

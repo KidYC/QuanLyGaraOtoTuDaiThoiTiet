@@ -1,4 +1,3 @@
-
 package View.KyThuatVien;
 
 import java.awt.BorderLayout;
@@ -7,6 +6,10 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.GridLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ import Entity.KhachHang;
 import Entity.PhieuSuaChua;
 import Entity.Xe;
 
-public class CapNhatTienDoSuaChua extends JFrame {
+public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, MouseListener {
     private JPanel pnlHeaderPanel;
     private JSplitPane splitPane;
     private JPanel pnlLeftPanel;
@@ -77,6 +80,14 @@ public class CapNhatTienDoSuaChua extends JFrame {
         taoHeader();
         taoContent();
         loadDanhSachLenh();
+
+        btnQuayLai.addActionListener(this);
+        btnTim.addActionListener(this);
+        cmbTienDo.addActionListener(this);
+        btnLuuTienDo.addActionListener(this);
+        btnLamMoi.addActionListener(this);
+        tblLenhSC.addMouseListener(this);
+
         setVisible(true);
     }
 
@@ -92,7 +103,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
 
         btnQuayLai = taoButton("Quay lại", btnphu);
         btnQuayLai.setPreferredSize(new Dimension(110, 40));
-        btnQuayLai.addActionListener(e -> dispose());
 
         pnlHeaderPanel.add(lblTitle, BorderLayout.WEST);
         pnlHeaderPanel.add(btnQuayLai, BorderLayout.EAST);
@@ -121,7 +131,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
         txtSearch = new JTextField();
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btnTim = taoButton("Tìm lệnh", btnchinh);
-        btnTim.addActionListener(e -> loadDanhSachLenh());
 
         pnlSearchPanel.add(txtSearch, BorderLayout.CENTER);
         pnlSearchPanel.add(btnTim, BorderLayout.EAST);
@@ -136,11 +145,6 @@ public class CapNhatTienDoSuaChua extends JFrame {
         pnlLeftPanel.add(pnlSearchPanel, BorderLayout.NORTH);
         pnlLeftPanel.add(new JScrollPane(tblLenhSC), BorderLayout.CENTER);
 
-        tblLenhSC.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                hienThiChiTietLenhDuocChon();
-            }
-        });
     }
 
     private void taoChiTietTienDoPanel() {
@@ -167,7 +171,7 @@ public class CapNhatTienDoSuaChua extends JFrame {
         pnlUpdateFormPanel.setBackground(Color.WHITE);
         pnlUpdateFormPanel.setBorder(BorderFactory.createTitledBorder("Cập nhật tiến độ"));
 
-        cmbTrangThai = new JComboBox<>(new String[]{"Đang sửa chữa", "Chờ xuất kho", "Tạm dừng sửa chữa", "Hoàn thành"});
+        cmbTrangThai = new JComboBox<>(new String[]{"Đang sửa chữa", "Tạm dừng sửa chữa", "Hoàn thành"});
         cmbTienDo = new JComboBox<>(new String[]{"0%", "20%", "40%", "60%", "80%", "100%"});
 
         prgBar = new JProgressBar(0, 100);
@@ -200,13 +204,45 @@ public class CapNhatTienDoSuaChua extends JFrame {
         pnlRightPanel.add(pnlInfoPanel, BorderLayout.NORTH);
         pnlRightPanel.add(pnlBottomContainer, BorderLayout.CENTER);
 
-        cmbTienDo.addActionListener(e -> {
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnQuayLai) {
+            dispose();
+        } else if (e.getSource() == btnTim) {
+            loadDanhSachLenh();
+        } else if (e.getSource() == cmbTienDo) {
             String val = cmbTienDo.getSelectedItem().toString().replace("%", "");
             prgBar.setValue(Integer.parseInt(val));
-        });
+        } else if (e.getSource() == btnLuuTienDo) {
+            luuTienDo();
+        } else if (e.getSource() == btnLamMoi) {
+            xoaForm();
+        }
+    }
 
-        btnLuuTienDo.addActionListener(e -> luuTienDo());
-        btnLamMoi.addActionListener(e -> xoaForm());
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == tblLenhSC) {
+            hienThiChiTietLenhDuocChon();
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
     }
 
     private void loadDanhSachLenh() {
@@ -299,7 +335,7 @@ public class CapNhatTienDoSuaChua extends JFrame {
         return btnButton;
     }
 
-//    public static void main(String[] args) {
-//        new CapNhatTienDoSuaChua();
-//    }
+    public static void main(String[] args) {
+        new CapNhatTienDoSuaChua();
+    }
 }

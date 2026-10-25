@@ -1,4 +1,3 @@
-
 package View.KyThuatVien;
 
 import java.awt.BorderLayout;
@@ -8,6 +7,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +35,7 @@ import Entity.KhachHang;
 import Entity.PhieuTiepNhan;
 import Entity.Xe;
 
-public class ChiTietKiemTraChanDoan extends JFrame {
+public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, MouseListener {
     private JPanel pnlHeaderPanel;
     private JSplitPane splitPane;
     private JPanel pnlLeftPanel;
@@ -75,6 +78,11 @@ public class ChiTietKiemTraChanDoan extends JFrame {
 
         taoHeader();
         taoContent();
+        btnQuayLai.addActionListener(this);
+        btnTim.addActionListener(this);
+        btnXacNhan.addActionListener(this);
+        btnLamMoi.addActionListener(this);
+        tblXe.addMouseListener(this);
         loadDataToTable();
         setVisible(true);
     }
@@ -91,7 +99,6 @@ public class ChiTietKiemTraChanDoan extends JFrame {
 
         btnQuayLai = taoButton("Quay lại", btnphu);
         btnQuayLai.setPreferredSize(new Dimension(110, 40));
-        btnQuayLai.addActionListener(e -> dispose());
 
         pnlHeaderPanel.add(lblTitle, BorderLayout.WEST);
         pnlHeaderPanel.add(btnQuayLai, BorderLayout.EAST);
@@ -127,7 +134,6 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         txtSearch.setPreferredSize(new Dimension(260, 40));
 
         btnTim = taoButton("Tìm xe", btnchinh);
-        btnTim.addActionListener(e -> loadDataToTable());
 
         pnlSearchPanel.add(txtSearch, BorderLayout.CENTER);
         pnlSearchPanel.add(btnTim, BorderLayout.EAST);
@@ -157,11 +163,6 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         pnlLeftPanel.add(pnlSearchPanel, BorderLayout.NORTH);
         pnlLeftPanel.add(scrScrollPane, BorderLayout.CENTER);
 
-        tblXe.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                hienThiThongTinXeDuocChon();
-            }
-        });
     }
 
     private void taoFormKiemTraPanel() {
@@ -216,8 +217,43 @@ public class ChiTietKiemTraChanDoan extends JFrame {
         pnlRightPanel.add(pnlTextInputContainer, BorderLayout.CENTER);
         pnlRightPanel.add(pnlActionPanel, BorderLayout.SOUTH);
 
-        btnXacNhan.addActionListener(e -> xacNhanKiemTra());
-        btnLamMoi.addActionListener(e -> xoaRongForm());
+    }
+
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnQuayLai) {
+            dispose();
+        } else if (e.getSource() == btnTim) {
+            loadDataToTable();
+        } else if (e.getSource() == btnXacNhan) {
+            xacNhanKiemTra();
+        } else if (e.getSource() == btnLamMoi) {
+            xoaRongForm();
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == tblXe) {
+            hienThiThongTinXeDuocChon();
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
     }
 
     private void loadDataToTable() {
