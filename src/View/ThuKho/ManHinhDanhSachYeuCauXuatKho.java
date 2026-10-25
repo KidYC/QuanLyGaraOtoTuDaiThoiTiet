@@ -10,11 +10,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+
+import DAO.DanhSachPhuTung_DAO;
+import DAO.PhieuSuaChua_DAO;
+import DAO.PhuTung_DAO;
+import Entity.DanhSachPhuTung;
+import Entity.PhieuSuaChua;
+import Entity.PhuTung;
 
 public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListener {
 
@@ -38,10 +44,13 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
     private JButton btnlapphieu;
     private JButton btnquaylai;
 
-    private ArrayList<String[]> dsyeucau = new ArrayList<>();
-    private HashMap<String, Object[][]> dschitiet = new HashMap<>();
+    // Khởi tạo các DAO
+    private final PhieuSuaChua_DAO phieuSuaChuaDAO = new PhieuSuaChua_DAO();
+    private final DanhSachPhuTung_DAO danhSachPhuTungDAO = new DanhSachPhuTung_DAO();
+    private final PhuTung_DAO phuTungDAO = new PhuTung_DAO();
 
-    private DateTimeFormatter dinhdangngay = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private List<PhieuSuaChua> dsPhieuFull = new ArrayList<>();
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public ManHinhDanhSachYeuCauXuatKho() {
         setTitle("DANH SÁCH YÊU CẦU XUẤT KHO");
@@ -50,33 +59,15 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        taoDuLieuMau();
         buildUI();
-        napBangYeuCau(dsyeucau);
-    }
-
-    private void taoDuLieuMau() {
-        dsyeucau.add(new String[]{"YC001", "02/10/2026", "Lê Văn C", "51A-123.45", "Chờ duyệt"});
-        dsyeucau.add(new String[]{"YC002", "03/10/2026", "Phạm Văn D", "59B-678.90", "Đã duyệt"});
-        dsyeucau.add(new String[]{"YC003", "04/10/2026", "Lê Văn C", "60C-111.22", "Đã xuất kho"});
-
-        dschitiet.put("YC001", new Object[][]{
-                {"PT002", "Lọc gió", "Cái", 2, 15},
-                {"PT003", "Bugi", "Cái", 4, 5}
-        });
-        dschitiet.put("YC002", new Object[][]{
-                {"PT001", "Dầu nhớt Castrol", "Chai", 1, 20}
-        });
-        dschitiet.put("YC003", new Object[][]{
-                {"PT003", "Bugi", "Cái", 2, 5}
-        });
+        loadDataFromDB();
     }
 
     private void buildUI() {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(245, 245, 245));
 
-        //pNorth
+        // pNorth
         lbltieude = new JLabel("DANH SÁCH YÊU CẦU XUẤT KHO");
         lbltieude.setFont(new Font("Arial", Font.BOLD, 22));
         lbltieude.setHorizontalAlignment(SwingConstants.CENTER);
@@ -84,7 +75,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         lbltieude.setBorder(new EmptyBorder(15, 0, 10, 0));
         add(lbltieude, BorderLayout.NORTH);
 
-        //pCenter
+        // pCenter
         JPanel pCenter = new JPanel(new BorderLayout(0, 10));
         pCenter.setBackground(new Color(245, 245, 245));
         pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
@@ -101,7 +92,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
 
         txtmayeucau = new JTextField();
         txtnguoiyeucau = new JTextField();
-        cbtrangthai = new JComboBox<>(new String[]{"Tất cả", "Chờ duyệt", "Đã duyệt", "Từ chối", "Đã xuất kho"});
+        cbtrangthai = new JComboBox<>(new String[]{"Tất cả", "Chờ xuất kho", "Đang sửa chữa", "Từ chối"});
         txttungay = new JTextField();
         txtdenngay = new JTextField();
 
@@ -136,9 +127,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         String[] columnyc = {"Mã Yêu Cầu", "Ngày Yêu Cầu", "Người Yêu Cầu", "Biển Số Xe", "Trạng Thái"};
         modelyeucau = new DefaultTableModel(columnyc, 0) {
             @Override
-            public boolean isCellEditable(int row, int col) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int col) { return false; }
         };
         tblyeucau = new JTable(modelyeucau);
         tblyeucau.setRowHeight(25);
@@ -148,14 +137,12 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         String[] columnct = {"Mã Phụ Tùng", "Tên Phụ Tùng", "Đơn Vị", "SL Yêu Cầu", "SL Tồn Kho"};
         modelchitiet = new DefaultTableModel(columnct, 0) {
             @Override
-            public boolean isCellEditable(int row, int col) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int col) { return false; }
         };
         tblchitiet = new JTable(modelchitiet);
         tblchitiet.setRowHeight(25);
         JScrollPane scrollct = new JScrollPane(tblchitiet);
-        scrollct.setBorder(BorderFactory.createTitledBorder("Chi tiết yêu cầu"));
+        scrollct.setBorder(BorderFactory.createTitledBorder("Chi tiết yêu cầu phụ tùng"));
 
         pBang.add(scrollyc);
         pBang.add(scrollct);
@@ -163,7 +150,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
 
         add(pCenter, BorderLayout.CENTER);
 
-        //pSouth
+        // pSouth
         JPanel pSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 12));
         pSouth.setBackground(new Color(245, 245, 245));
 
@@ -179,8 +166,8 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         btntuchoi.setForeground(Color.WHITE);
         btntuchoi.setFocusPainted(false);
 
-        btnduyet = new JButton("Duyệt Yêu Cầu");
-        btnduyet.setPreferredSize(new Dimension(140, 35));
+        btnduyet = new JButton("Duyệt & Xuất Kho");
+        btnduyet.setPreferredSize(new Dimension(160, 35));
         btnduyet.setBackground(new Color(52, 152, 219));
         btnduyet.setForeground(Color.WHITE);
         btnduyet.setFocusPainted(false);
@@ -209,13 +196,86 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         btnlapphieu.addActionListener(this);
         btnquaylai.addActionListener(this);
 
-        // bấm vào một yêu cầu thì hiện chi tiết bên dưới
         tblyeucau.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 xuLyChonDong();
             }
         });
+    }
+
+    // Tải dữ liệu từ CSDL
+    private void loadDataFromDB() {
+        try {
+            dsPhieuFull = phieuSuaChuaDAO.getAllPhieuSuaChua();
+            napBangYeuCau(dsPhieuFull);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu từ CSDL: " + e.getMessage(), "Lỗi Kết Nối", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void napBangYeuCau(List<PhieuSuaChua> ds) {
+        modelyeucau.setRowCount(0);
+        modelchitiet.setRowCount(0);
+        if (ds == null) return;
+
+        for (PhieuSuaChua psc : ds) {
+            String ngayFormat = (psc.getNgayLap() != null) ? sdf.format(psc.getNgayLap()) : "";
+
+            // Lấy mã KTV (hoặc mã nhân viên)
+            String maNhanVien = psc.getMaNhanVien();
+            if (maNhanVien == null) {
+                maNhanVien = psc.getMaNhanVien();
+            }
+
+            modelyeucau.addRow(new Object[]{
+                    psc.getMaPhieuSuaChua(),
+                    ngayFormat,
+                    maNhanVien,
+                    psc.getBienSo(),
+                    psc.getTrangThai()
+            });
+        }
+    }
+
+    // Chọn 1 dòng phiếu sửa chữa -> Tải các phụ tùng cần xuất bên dưới
+    private void xuLyChonDong() {
+        int dong = tblyeucau.getSelectedRow();
+        if (dong == -1) return;
+
+        String maPhieuSC = modelyeucau.getValueAt(dong, 0).toString();
+        modelchitiet.setRowCount(0);
+
+        try {
+            List<DanhSachPhuTung> dsCT = danhSachPhuTungDAO.getDSPhuTungByMaPhieu(maPhieuSC);
+            List<PhuTung> dsPhuTungAll = phuTungDAO.getAllPhuTung();
+
+            for (DanhSachPhuTung ct : dsCT) {
+                String tenPT = ct.getMaPhuTung();
+                String donVi = "Cái";
+                int tonKho = 0;
+
+                for (PhuTung pt : dsPhuTungAll) {
+                    if (pt.getMaPhuTung().equalsIgnoreCase(ct.getMaPhuTung())) {
+                        tenPT = pt.getTenPhuTung();
+                        donVi = pt.getDonViTinh();
+                        tonKho = pt.getSoLuongTon();
+                        break;
+                    }
+                }
+
+                modelchitiet.addRow(new Object[]{
+                        ct.getMaPhuTung(),
+                        tenPT,
+                        donVi,
+                        ct.getSoLuongPhuTung(),
+                        tonKho
+                });
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải chi tiết phụ tùng: " + ex.getMessage());
+        }
     }
 
     @Override
@@ -226,70 +286,30 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         } else if (o == btnlammoi) {
             xuLyLamMoi();
         } else if (o == btnduyet) {
-            xuLyDoiTrangThai("Đã duyệt");
+            xuLyDuyetXuatKho();
         } else if (o == btntuchoi) {
-            xuLyDoiTrangThai("Từ chối");
+            xuLyTuChoi();
         } else if (o == btnlapphieu) {
             xuLyLapPhieu();
         } else if (o == btnquaylai) {
-            xuLyQuayLai();
-        }
-    }
-
-    private void napBangYeuCau(ArrayList<String[]> ds) {
-        modelyeucau.setRowCount(0);
-        modelchitiet.setRowCount(0);
-        for (String[] yc : ds) {
-            modelyeucau.addRow(yc);
-        }
-    }
-
-    private void xuLyChonDong() {
-        int dong = tblyeucau.getSelectedRow();
-        if (dong == -1) return;
-
-        String ma = modelyeucau.getValueAt(dong, 0).toString();
-        modelchitiet.setRowCount(0);
-        Object[][] ct = dschitiet.get(ma);
-        if (ct != null) {
-            for (Object[] dongct : ct) {
-                modelchitiet.addRow(dongct);
-            }
+            this.dispose();
         }
     }
 
     private void xuLyTim() {
-        LocalDate tungay = null;
-        LocalDate denngay = null;
-        try {
-            if (!txttungay.getText().trim().isEmpty()) {
-                tungay = LocalDate.parse(txttungay.getText().trim(), dinhdangngay);
-            }
-            if (!txtdenngay.getText().trim().isEmpty()) {
-                denngay = LocalDate.parse(txtdenngay.getText().trim(), dinhdangngay);
-            }
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Ngày phải nhập đúng dạng dd/MM/yyyy (ví dụ 03/10/2026)!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
         String ma = txtmayeucau.getText().trim().toLowerCase();
         String nguoi = txtnguoiyeucau.getText().trim().toLowerCase();
         String trangthai = cbtrangthai.getSelectedItem().toString();
 
-        ArrayList<String[]> ketqua = new ArrayList<>();
-        for (String[] yc : dsyeucau) {
-            if (!yc[0].toLowerCase().contains(ma)) continue;
-            if (!yc[2].toLowerCase().contains(nguoi)) continue;
-            if (!trangthai.equals("Tất cả") && !yc[4].equals(trangthai)) continue;
+        List<PhieuSuaChua> ketqua = new ArrayList<>();
+        for (PhieuSuaChua psc : dsPhieuFull) {
+            if (!psc.getMaPhieuSuaChua().toLowerCase().contains(ma)) continue;
 
-            LocalDate ngay = LocalDate.parse(yc[1], dinhdangngay);
-            if (tungay != null && ngay.isBefore(tungay)) continue;
-            if (denngay != null && ngay.isAfter(denngay)) continue;
+            String maNV = psc.getMaNhanVien();
+            if (maNV != null && !maNV.toLowerCase().contains(nguoi)) continue;
+            if (!trangthai.equals("Tất cả") && !psc.getTrangThai().equalsIgnoreCase(trangthai)) continue;
 
-            ketqua.add(yc);
+            ketqua.add(psc);
         }
 
         napBangYeuCau(ketqua);
@@ -304,65 +324,79 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         cbtrangthai.setSelectedIndex(0);
         txttungay.setText("");
         txtdenngay.setText("");
-        napBangYeuCau(dsyeucau);
+        loadDataFromDB();
     }
 
-    private void xuLyDoiTrangThai(String trangthaimoi) {
+    // Thủ kho bấm Duyệt & Xuất Kho -> Trừ tồn kho và cập nhật trạng thái phiếu
+    private void xuLyDuyetXuatKho() {
         int dong = tblyeucau.getSelectedRow();
         if (dong == -1) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng chọn yêu cầu cần xử lý!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn yêu cầu cần xuất kho!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String ma = modelyeucau.getValueAt(dong, 0).toString();
+        String maPhieuSC = modelyeucau.getValueAt(dong, 0).toString();
         String hientai = modelyeucau.getValueAt(dong, 4).toString();
-        if (!hientai.equals("Chờ duyệt")) {
-            JOptionPane.showMessageDialog(this,
-                    "Chỉ xử lý được yêu cầu đang ở trạng thái 'Chờ duyệt'!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+
+        if (!hientai.equalsIgnoreCase("Chờ xuất kho")) {
+            JOptionPane.showMessageDialog(this, "Chỉ xử lý được các phiếu đang ở trạng thái 'Chờ xuất kho'!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int chon = JOptionPane.showConfirmDialog(this,
-                "Bạn có chắc muốn chuyển yêu cầu " + ma + " sang '" + trangthaimoi + "' không?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                "Xác nhận xuất phụ tùng và trừ số lượng tồn kho cho phiếu " + maPhieuSC + "?",
+                "Xác nhận", JOptionPane.YES_NO_OPTION);
         if (chon != JOptionPane.YES_OPTION) return;
 
-        for (String[] yc : dsyeucau) {
-            if (yc[0].equals(ma)) {
-                yc[4] = trangthaimoi;
+        try {
+            boolean thanhCong = phieuSuaChuaDAO.xacNhanXuatKho(maPhieuSC);
+            if (thanhCong) {
+                JOptionPane.showMessageDialog(this, "Duyệt xuất kho thành công! Số lượng phụ tùng trong kho đã được trừ.");
+                loadDataFromDB();
+            } else {
+                JOptionPane.showMessageDialog(this, "Xuất kho thất bại! Số lượng phụ tùng tồn kho không đủ.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi xử lý: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
         }
-        modelyeucau.setValueAt(trangthaimoi, dong, 4);
+    }
+
+    private void xuLyTuChoi() {
+        int dong = tblyeucau.getSelectedRow();
+        if (dong == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn yêu cầu cần từ chối!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String maPhieuSC = modelyeucau.getValueAt(dong, 0).toString();
+        int chon = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn từ chối yêu cầu xuất kho cho phiếu " + maPhieuSC + "?",
+                "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (chon != JOptionPane.YES_OPTION) return;
+
+        try {
+            boolean thanhCong = phieuSuaChuaDAO.capNhatTrangThai(maPhieuSC, "Từ chối");
+            if (thanhCong) {
+                JOptionPane.showMessageDialog(this, "Đã chuyển trạng thái phiếu sang 'Từ chối'.");
+                loadDataFromDB();
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi xử lý: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void xuLyLapPhieu() {
         int dong = tblyeucau.getSelectedRow();
         if (dong == -1) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng chọn yêu cầu cần lập phiếu xuất!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn yêu cầu cần lập phiếu xuất!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if (!modelyeucau.getValueAt(dong, 4).toString().equals("Đã duyệt")) {
-            JOptionPane.showMessageDialog(this,
-                    "Chỉ lập được phiếu xuất cho yêu cầu đã duyệt!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        ManHinhLapPhieuXuatKho UI = new ManHinhLapPhieuXuatKho();
-        UI.setVisible(true);
-    }
-
-    private void xuLyQuayLai() {
-        this.dispose();
+        JOptionPane.showMessageDialog(this, "Đã chọn phiếu: " + modelyeucau.getValueAt(dong, 0));
     }
 
     public static void main(String[] args) {
-        ManHinhDanhSachYeuCauXuatKho form = new ManHinhDanhSachYeuCauXuatKho();
-        form.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new ManHinhDanhSachYeuCauXuatKho().setVisible(true);
+        });
     }
 }

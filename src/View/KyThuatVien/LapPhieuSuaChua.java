@@ -51,6 +51,7 @@ public class LapPhieuSuaChua extends JFrame {
     private JButton btnTaoPhieu;
     private JButton btnLamMoi;
     private JButton btnQuayLai;
+    private String maKTV = "KTV01";
 
     private final Color maunen = new Color(244, 246, 248);
     private final Color maumenu = new Color(226, 232, 240);
@@ -76,7 +77,10 @@ public class LapPhieuSuaChua extends JFrame {
     private List<PhuTung> dsPhuTung = new ArrayList<>();
     private final DecimalFormat df = new DecimalFormat("#,###");
 
-    public LapPhieuSuaChua() {
+    public LapPhieuSuaChua(String maKTV) {
+        if (maKTV != null && !maKTV.trim().isEmpty()) {
+            this.maKTV = maKTV;
+        }
         setTitle("Lập phiếu sửa chữa - Garage Management");
         setSize(1180, 750);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -88,6 +92,9 @@ public class LapPhieuSuaChua extends JFrame {
         taoContent();
         loadPhieuTiepNhanCombobox();
         setVisible(true);
+    }
+    public LapPhieuSuaChua() {
+        this("KTV01");
     }
 
     private void taoHeader() {
@@ -435,7 +442,16 @@ public class LapPhieuSuaChua extends JFrame {
         String maPhieuSC = "PSC" + System.currentTimeMillis() % 100000;
         Date ngayHienTai = new Date(System.currentTimeMillis());
 
-        PhieuSuaChua psc = new PhieuSuaChua(maPhieuSC, ngayHienTai, ngayHienTai, "Đang sửa chữa", txtBienSo.getText(), "NV001", maPhieuTiepNhan);
+        // ĐÃ SỬA: Đổi trạng thái ban đầu thành "Chờ xuất kho" thay vì "Đang sửa chữa"
+        PhieuSuaChua psc = new PhieuSuaChua(
+                maPhieuSC,
+                ngayHienTai,
+                ngayHienTai,
+                "Chờ xuất kho",
+                txtBienSo.getText(),
+                this.maKTV,
+                maPhieuTiepNhan
+        );
 
         try {
             boolean taoThanhCong = phieuSuaChuaDAO.themPhieuSuaChua(psc);
@@ -451,7 +467,12 @@ public class LapPhieuSuaChua extends JFrame {
                     double donGia = Double.parseDouble(tableModelPhuTung.getValueAt(i, 4).toString().replace(".", "").replace(",", ""));
                     danhSachPhuTungDAO.themDanhSachPhuTung(new DanhSachPhuTung(maPhieuSC, maPT, sl, donGia));
                 }
-                JOptionPane.showMessageDialog(this, "Tạo phiếu sửa chữa thành công!\nMã phiếu: " + maPhieuSC, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+
+                // Cập nhật thông báo rõ ràng cho KTV
+                JOptionPane.showMessageDialog(this,
+                        "Tạo phiếu sửa chữa thành công!\nMã phiếu: " + maPhieuSC +
+                                "\nĐã gửi yêu cầu vật tư sang bộ phận Thủ kho chờ xuất kho.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 xoaForm();
             }
         } catch (SQLException ex) {

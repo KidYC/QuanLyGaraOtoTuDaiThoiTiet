@@ -167,7 +167,7 @@ public class CapNhatTienDoSuaChua extends JFrame {
         pnlUpdateFormPanel.setBackground(Color.WHITE);
         pnlUpdateFormPanel.setBorder(BorderFactory.createTitledBorder("Cập nhật tiến độ"));
 
-        cmbTrangThai = new JComboBox<>(new String[]{"Đang sửa chữa", "Chờ phụ tùng", "Tạm dừng sửa chữa", "Hoàn thành"});
+        cmbTrangThai = new JComboBox<>(new String[]{"Đang sửa chữa", "Tạm dừng sửa chữa", "Hoàn thành"});
         cmbTienDo = new JComboBox<>(new String[]{"0%", "20%", "40%", "60%", "80%", "100%"});
 
         prgBar = new JProgressBar(0, 100);
@@ -299,7 +299,7 @@ public class CapNhatTienDoSuaChua extends JFrame {
         return btnButton;
     }
 
-//    public static void main(String[] args) {
-//        new CapNhatTienDoSuaChua();
-//    }
+    public static void main(String[] args) {
+        new CapNhatTienDoSuaChua();
+    }
 }

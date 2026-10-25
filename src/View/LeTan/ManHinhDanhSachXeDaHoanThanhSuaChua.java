@@ -1,5 +1,7 @@
 package View.LeTan;
 
+import View.HeThong.TrangChuHeThong;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -116,7 +118,7 @@ public class ManHinhDanhSachXeDaHoanThanhSuaChua extends JFrame implements Actio
     }
 
     private void xuLyQuayLai() {
-        TrangChuLeTan Home = new TrangChuLeTan();
+        TrangChuHeThong Home = new TrangChuHeThong();
         Home.setVisible(true);
         this.dispose();
     }

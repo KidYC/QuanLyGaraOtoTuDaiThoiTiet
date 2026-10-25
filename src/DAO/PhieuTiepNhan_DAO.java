@@ -8,7 +8,7 @@ import Entity.PhieuTiepNhan;
 
 public class PhieuTiepNhan_DAO {
 
-    // Lấy danh sách phiếu tiếp nhận phục vụ chẩn đoán & lập phiếu sửa chữa
+
     public List<PhieuTiepNhan> getAllPhieuTiepNhan() throws SQLException {
         List<PhieuTiepNhan> ds = new ArrayList<>();
         String sql = "SELECT * FROM PHIEU_TIEP_NHAN";
@@ -29,7 +29,6 @@ public class PhieuTiepNhan_DAO {
         return ds;
     }
 
-    // Cập nhật kết quả chẩn đoán lỗi thực tế của KTV
     public boolean capNhatChanDoan(String maPhieu, String tinhTrangMoi, String trangThai) throws SQLException {
         String sql = "UPDATE PHIEU_TIEP_NHAN SET tinhTrangXe = ?, trangThai = ? WHERE maPhieuTiepNhan = ?";
         try (Connection conn = connectSQL.getConnection();

@@ -1,5 +1,8 @@
 package View.LeTan;
 
+import DAO.KhachHang_DAO;
+import Entity.KhachHang;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -7,6 +10,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class FormThemKHXe extends JFrame implements ActionListener {
 
@@ -21,9 +26,11 @@ public class FormThemKHXe extends JFrame implements ActionListener {
     private JTextField txtSDT;
     private JPanel pSouth;
     private JButton btnLuu;
+    private JTextField txtDiaChi;
+    private JTextField txtEmail;
 
     public FormThemKHXe(){
-        setTitle("Form Thêm Khách Hàng Và Xe");
+        setTitle("Form Thêm Khách Hàng");
         setSize(700, 300);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -32,7 +39,7 @@ public class FormThemKHXe extends JFrame implements ActionListener {
     }
     public void buildUI(){
         //pNorth
-        lblTitle = new JLabel("FORM THÊM KHÁCH HÀNG VÀ THÊM XE");
+        lblTitle = new JLabel("FORM THÊM KHÁCH HÀNG");
         add(lblTitle, BorderLayout.NORTH);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
@@ -46,7 +53,7 @@ public class FormThemKHXe extends JFrame implements ActionListener {
         setBackground(new Color(245, 245, 245));
         pCenter.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(189, 195, 199)),
-                "Thông tin chung & Khách hàng - Xe",
+                "Thông tin chung & Khách hàng",
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 13), new Color(44, 62, 80)),
                 new EmptyBorder(10, 15, 10, 15)
@@ -80,7 +87,7 @@ public class FormThemKHXe extends JFrame implements ActionListener {
         pCenter.add(lblDiaChi, gbc);
 
         gbc.gridx = 1;
-        JTextField txtDiaChi = new JTextField(15);
+        txtDiaChi = new JTextField(15);
         pCenter.add(txtDiaChi, gbc);
 
         gbc.gridx = 2;
@@ -88,26 +95,26 @@ public class FormThemKHXe extends JFrame implements ActionListener {
         pCenter.add(lblEmail, gbc);
 
         gbc.gridx = 3;
-        JTextField txtEmail = new JTextField(15);
+        txtEmail = new JTextField(15);
         pCenter.add(txtEmail, gbc);
 
-        gbc.gridy = 2;
-
-        gbc.gridx = 0;
-        JLabel lblLoaiXe = new JLabel("Loại Xe:");
-        pCenter.add(lblLoaiXe, gbc);
-
-        gbc.gridx = 1;
-        JTextField txtLoaiXe = new JTextField(15);
-        pCenter.add(txtLoaiXe, gbc);
-
-        gbc.gridx = 2;
-        JLabel lblBienSo = new JLabel("Biển Số Xe:");
-        pCenter.add(lblBienSo, gbc);
-
-        gbc.gridx = 3;
-        JTextField txtBienSo = new JTextField(15);
-        pCenter.add(txtBienSo, gbc);
+//        gbc.gridy = 2;
+//
+//        gbc.gridx = 0;
+//        JLabel lblLoaiXe = new JLabel("Loại Xe:");
+//        pCenter.add(lblLoaiXe, gbc);
+//
+//        gbc.gridx = 1;
+//        JTextField txtLoaiXe = new JTextField(15);
+//        pCenter.add(txtLoaiXe, gbc);
+//
+//        gbc.gridx = 2;
+//        JLabel lblBienSo = new JLabel("Biển Số Xe:");
+//        pCenter.add(lblBienSo, gbc);
+//
+//        gbc.gridx = 3;
+//        JTextField txtBienSo = new JTextField(15);
+//        pCenter.add(txtBienSo, gbc);
 
         JPanel wrapperPanel = new JPanel(new BorderLayout());
         wrapperPanel.add(pCenter, BorderLayout.NORTH);
@@ -121,19 +128,33 @@ public class FormThemKHXe extends JFrame implements ActionListener {
 
         initListener();
     }
+
     public void initListener(){
         btnLuu.addActionListener(this);
     }
 
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if(btnLuu == source){
+        if(btnLuu == source) {
+            try {
+                XuLyThemKhachHang();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
+
 
     public static void main() {
         FormThemKHXe UI = new FormThemKHXe();
         UI.setVisible(true);
+    }
+
+    public void XuLyThemKhachHang() throws SQLException {
+        KhachHang_DAO dao = new KhachHang_DAO();
+        KhachHang khMoi = new KhachHang("", txtTen.getText(), txtSDT.getText(), txtDiaChi.getText(), txtEmail.getText());
+        dao.themKhachHang(khMoi);
     }
 }
