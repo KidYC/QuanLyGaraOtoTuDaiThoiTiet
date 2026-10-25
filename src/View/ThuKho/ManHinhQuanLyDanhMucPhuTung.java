@@ -1,5 +1,8 @@
 package View.ThuKho;
 
+import DAO.PhuTung_DAO;
+import Entity.PhuTung;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -7,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.sql.SQLException;
 
 public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListener {
 
@@ -19,6 +23,7 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
     private JButton btnsua;
     private JButton btnxoa;
     private JButton btnquaylai;
+    private final PhuTung_DAO phuTungDAO = new PhuTung_DAO();
 
     public ManHinhQuanLyDanhMucPhuTung() {
         setTitle("QUẢN LÝ DANH MỤC PHỤ TÙNG");
@@ -28,6 +33,7 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         buildUI();
+        napBang();
     }
 
     private void buildUI() {
@@ -48,11 +54,7 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
 
         String[] column = {"Mã Phụ Tùng", "Tên Phụ Tùng", "Đơn Vị", "Số Lượng"};
-        Object[][] data = {
-                {"PT001", "Dầu nhớt Castrol", "Chai", 20},
-                {"PT002", "Lọc gió", "Cái", 15},
-                {"PT003", "Bugi", "Cái", 5}
-        };
+        Object[][] data = {};
         modelphutung = new DefaultTableModel(data, column) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -127,28 +129,36 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         }
     }
 
-    public boolean tonTaiMa(String ma) {
-        for (int i = 0; i < modelphutung.getRowCount(); i++) {
-            if (modelphutung.getValueAt(i, 0).toString().equalsIgnoreCase(ma)) {
-                return true;
+    private void napBang() {
+        modelphutung.setRowCount(0);
+        try {
+            for (PhuTung pt : phuTungDAO.getAllPhuTung()) {
+                modelphutung.addRow(new Object[]{pt.getMaPhuTung(), pt.getTenPhuTung(),
+                        pt.getDonViTinh(), pt.getSoLuongTon()});
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
         }
-        return false;
+    }
+
+    public boolean tonTaiMa(String ma) {
+        try { return phuTungDAO.timPhuTungTheoMa(ma) != null; } catch (SQLException e) { return false; }
     }
 
     public void themPhuTung(String ma, String ten, String donvi, int soluong) {
-        modelphutung.addRow(new Object[]{ma, ten, donvi, soluong});
+        try {
+            phuTungDAO.themPhuTung(new PhuTung(ma, ten, donvi, 0, 0, soluong, "K01"));
+            napBang();
+        } catch (SQLException e) { JOptionPane.showMessageDialog(this, e.getMessage()); }
     }
 
     public void capNhatPhuTung(String ma, String ten, String donvi, int soluong) {
-        for (int i = 0; i < modelphutung.getRowCount(); i++) {
-            if (modelphutung.getValueAt(i, 0).toString().equals(ma)) {
-                modelphutung.setValueAt(ten, i, 1);
-                modelphutung.setValueAt(donvi, i, 2);
-                modelphutung.setValueAt(soluong, i, 3);
-                return;
-            }
-        }
+        try {
+            PhuTung pt = phuTungDAO.timPhuTungTheoMa(ma);
+            pt.setTenPhuTung(ten); pt.setDonViTinh(donvi); pt.setSoLuongTon(soluong);
+            phuTungDAO.capNhatPhuTung(pt);
+            napBang();
+        } catch (SQLException e) { JOptionPane.showMessageDialog(this, e.getMessage()); }
     }
 
     private void xuLyThem() {
@@ -184,7 +194,16 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
                 "Bạn có chắc muốn xóa phụ tùng " + modelphutung.getValueAt(dong, 0) + " không?",
                 "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (chon == JOptionPane.YES_OPTION) {
-            modelphutung.removeRow(dong);
+            String ma = modelphutung.getValueAt(dong, 0).toString();
+            try {
+                if (phuTungDAO.xoaPhuTung(ma)) {
+                    napBang();
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Không xóa được phụ tùng " + ma + " (có thể đang được dùng trong phiếu nhập/xuất/kiểm kê).",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
