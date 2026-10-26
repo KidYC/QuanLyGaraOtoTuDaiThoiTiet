@@ -2,15 +2,14 @@ package View.KyThuatVien;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.GridLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-
 import DAO.KhachHang_DAO;
 import DAO.PhieuSuaChua_DAO;
 import DAO.Xe_DAO;
@@ -77,21 +75,6 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         getContentPane().setBackground(maunen);
         setLayout(new BorderLayout(0, 10));
 
-        taoHeader();
-        taoContent();
-        loadDanhSachLenh();
-
-        btnQuayLai.addActionListener(this);
-        btnTim.addActionListener(this);
-        cmbTienDo.addActionListener(this);
-        btnLuuTienDo.addActionListener(this);
-        btnLamMoi.addActionListener(this);
-        tblLenhSC.addMouseListener(this);
-
-        setVisible(true);
-    }
-
-    private void taoHeader() {
         pnlHeaderPanel = new JPanel(new BorderLayout());
         pnlHeaderPanel.setBackground(Color.WHITE);
         pnlHeaderPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
@@ -101,27 +84,15 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(chuchinh);
 
-        btnQuayLai = taoButton("Quay lại", btnphu);
+        btnQuayLai = new JButton("Quay lại");
+        btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnQuayLai.setBackground(btnphu);
         btnQuayLai.setPreferredSize(new Dimension(110, 40));
 
         pnlHeaderPanel.add(lblTitle, BorderLayout.WEST);
         pnlHeaderPanel.add(btnQuayLai, BorderLayout.EAST);
         add(pnlHeaderPanel, BorderLayout.NORTH);
-    }
 
-    private void taoContent() {
-        taoDanhSachLenhPanel();
-        taoChiTietTienDoPanel();
-
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pnlLeftPanel, pnlRightPanel);
-        splitPane.setDividerLocation(460);
-        splitPane.setDividerSize(6);
-        splitPane.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 20));
-
-        add(splitPane, BorderLayout.CENTER);
-    }
-
-    private void taoDanhSachLenhPanel() {
         pnlLeftPanel = new JPanel(new BorderLayout(0, 12));
         pnlLeftPanel.setBackground(maunen);
 
@@ -130,7 +101,10 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
 
         txtSearch = new JTextField();
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        btnTim = taoButton("Tìm lệnh", btnchinh);
+
+        btnTim = new JButton("Tìm lệnh");
+        btnTim.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnTim.setBackground(btnchinh);
 
         pnlSearchPanel.add(txtSearch, BorderLayout.CENTER);
         pnlSearchPanel.add(btnTim, BorderLayout.EAST);
@@ -138,16 +112,19 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         String[] columns = {"Mã lệnh", "Biển số", "Trạng thái"};
         tableModelLenhSC = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
-        tblLenhSC = taoTable(tableModelLenhSC);
+        tblLenhSC = new JTable(tableModelLenhSC);
+        tblLenhSC.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tblLenhSC.setRowHeight(36);
+        tblLenhSC.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         pnlLeftPanel.add(pnlSearchPanel, BorderLayout.NORTH);
         pnlLeftPanel.add(new JScrollPane(tblLenhSC), BorderLayout.CENTER);
 
-    }
-
-    private void taoChiTietTienDoPanel() {
         pnlRightPanel = new JPanel(new BorderLayout(0, 12));
         pnlRightPanel.setBackground(Color.WHITE);
         pnlRightPanel.setBorder(BorderFactory.createEmptyBorder(15, 18, 15, 18));
@@ -156,13 +133,30 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         pnlInfoPanel.setBackground(Color.WHITE);
         pnlInfoPanel.setBorder(BorderFactory.createTitledBorder("Thông tin lệnh sửa chữa"));
 
-        txtMaLenh = taoTextFieldReadOnly();
-        txtBienSo = taoTextFieldReadOnly();
-        txtKhachHang = taoTextFieldReadOnly();
+        txtMaLenh = new JTextField();
+        txtMaLenh.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtMaLenh.setEditable(false);
 
-        pnlInfoPanel.add(taoLabel("Mã lệnh SC:"));
-        pnlInfoPanel.add(taoLabel("Biển số xe:"));
-        pnlInfoPanel.add(taoLabel("Khách hàng:"));
+        txtBienSo = new JTextField();
+        txtBienSo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtBienSo.setEditable(false);
+
+        txtKhachHang = new JTextField();
+        txtKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtKhachHang.setEditable(false);
+
+        JLabel lblMaLenh = new JLabel("Mã lệnh SC:");
+        lblMaLenh.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        JLabel lblBienSo = new JLabel("Biển số xe:");
+        lblBienSo.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        JLabel lblKhachHang = new JLabel("Khách hàng:");
+        lblKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        pnlInfoPanel.add(lblMaLenh);
+        pnlInfoPanel.add(lblBienSo);
+        pnlInfoPanel.add(lblKhachHang);
         pnlInfoPanel.add(txtMaLenh);
         pnlInfoPanel.add(txtBienSo);
         pnlInfoPanel.add(txtKhachHang);
@@ -177,12 +171,20 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         prgBar = new JProgressBar(0, 100);
         prgBar.setValue(0);
         prgBar.setStringPainted(true);
+        JLabel lblTrangThai = new JLabel("Trạng thái chung:");
+        lblTrangThai.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
-        pnlUpdateFormPanel.add(taoLabel("Trạng thái chung:"));
+        JLabel lblTienDo = new JLabel("Tiến độ tổng thể (%):");
+        lblTienDo.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        JLabel lblThanhTienDo = new JLabel("Thanh tiến độ:");
+        lblThanhTienDo.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        pnlUpdateFormPanel.add(lblTrangThai);
         pnlUpdateFormPanel.add(cmbTrangThai);
-        pnlUpdateFormPanel.add(taoLabel("Tiến độ tổng thể (%):"));
+        pnlUpdateFormPanel.add(lblTienDo);
         pnlUpdateFormPanel.add(cmbTienDo);
-        pnlUpdateFormPanel.add(taoLabel("Thanh tiến độ:"));
+        pnlUpdateFormPanel.add(lblThanhTienDo);
         pnlUpdateFormPanel.add(prgBar);
 
         txaGhiChu = new JTextArea(4, 20);
@@ -190,8 +192,14 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         JPanel pnlBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlBtnPanel.setBackground(Color.WHITE);
 
-        btnLamMoi = taoButton("Làm mới", maumenu);
-        btnLuuTienDo = taoButton("Lưu tiến độ", btnchinh);
+        btnLamMoi = new JButton("Làm mới");
+        btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnLamMoi.setBackground(maumenu);
+
+        btnLuuTienDo = new JButton("Lưu tiến độ");
+        btnLuuTienDo.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnLuuTienDo.setBackground(btnchinh);
+
         pnlBtnPanel.add(btnLamMoi);
         pnlBtnPanel.add(btnLuuTienDo);
 
@@ -204,6 +212,22 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         pnlRightPanel.add(pnlInfoPanel, BorderLayout.NORTH);
         pnlRightPanel.add(pnlBottomContainer, BorderLayout.CENTER);
 
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pnlLeftPanel, pnlRightPanel);
+        splitPane.setDividerLocation(460);
+        splitPane.setDividerSize(6);
+        splitPane.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 20));
+
+        add(splitPane, BorderLayout.CENTER);
+
+        btnQuayLai.addActionListener(this);
+        btnTim.addActionListener(this);
+        cmbTienDo.addActionListener(this);
+        btnLuuTienDo.addActionListener(this);
+        btnLamMoi.addActionListener(this);
+        tblLenhSC.addMouseListener(this);
+
+        loadDanhSachLenh();
+        setVisible(true);
     }
 
     @Override
@@ -230,20 +254,16 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-    }
+    public void mousePressed(MouseEvent e) {}
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-    }
+    public void mouseReleased(MouseEvent e) {}
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-    }
+    public void mouseEntered(MouseEvent e) {}
 
     @Override
-    public void mouseExited(MouseEvent e) {
-    }
+    public void mouseExited(MouseEvent e) {}
 
     private void loadDanhSachLenh() {
         try {
@@ -264,12 +284,11 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
             txtMaLenh.setText(psc.getMaPhieuSuaChua());
             txtBienSo.setText(psc.getBienSo());
             cmbTrangThai.setSelectedItem(psc.getTrangThai());
-
             try {
                 Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
                 if (xe != null) {
                     KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
-                    txtKhachHang.setText((kh != null) ? kh.getHoTen() : "");
+                    txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -305,34 +324,6 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, Mous
         txaGhiChu.setText("");
         prgBar.setValue(0);
         tblLenhSC.clearSelection();
-    }
-
-    private JTable taoTable(DefaultTableModel model) {
-        JTable tblTable = new JTable(model);
-        tblTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblTable.setRowHeight(36);
-        tblTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        return tblTable;
-    }
-
-    private JLabel taoLabel(String text) {
-        JLabel lblLabel = new JLabel(text);
-        lblLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        return lblLabel;
-    }
-
-    private JTextField taoTextFieldReadOnly() {
-        JTextField txtField = new JTextField();
-        txtField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtField.setEditable(false);
-        return txtField;
-    }
-
-    private JButton taoButton(String text, Color color) {
-        JButton btnButton = new JButton(text);
-        btnButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnButton.setBackground(color);
-        return btnButton;
     }
 
     public static void main(String[] args) {

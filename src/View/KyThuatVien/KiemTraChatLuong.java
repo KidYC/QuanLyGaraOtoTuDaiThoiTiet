@@ -1,4 +1,3 @@
-
 package View.KyThuatVien;
 
 import java.awt.BorderLayout;
@@ -29,7 +28,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-
 import DAO.KhachHang_DAO;
 import DAO.PhieuSuaChua_DAO;
 import DAO.Xe_DAO;
@@ -79,18 +77,6 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         getContentPane().setBackground(maunen);
         setLayout(new BorderLayout(0, 10));
 
-        taoHeader();
-        taoContent();
-        btnQuayLai.addActionListener(this);
-        btnTim.addActionListener(this);
-        btnLuuKcs.addActionListener(this);
-        btnLamMoi.addActionListener(this);
-        tblXeKCS.addMouseListener(this);
-        loadDanhSachKCS();
-        setVisible(true);
-    }
-
-    private void taoHeader() {
         pnlHeaderPanel = new JPanel(new BorderLayout());
         pnlHeaderPanel.setBackground(Color.WHITE);
         pnlHeaderPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
@@ -98,31 +84,23 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         JLabel lblTitle = new JLabel("KIỂM TRA CHẤT LƯỢNG XE SAU SỬA CHỮA (KCS)");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
 
-        btnQuayLai = taoButton("Quay lại", btnphu);
+        btnQuayLai = new JButton("Quay lại");
+        btnQuayLai.setBackground(btnphu);
 
         pnlHeaderPanel.add(lblTitle, BorderLayout.WEST);
         pnlHeaderPanel.add(btnQuayLai, BorderLayout.EAST);
         add(pnlHeaderPanel, BorderLayout.NORTH);
-    }
 
-    private void taoContent() {
-        taoDanhSachXeKCSPanel();
-        taoFormDanhGiaPanel();
-
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pnlLeftPanel, pnlRightPanel);
-        splitPane.setDividerLocation(460);
-        splitPane.setDividerSize(6);
-
-        add(splitPane, BorderLayout.CENTER);
-    }
-
-    private void taoDanhSachXeKCSPanel() {
         pnlLeftPanel = new JPanel(new BorderLayout(0, 12));
         pnlLeftPanel.setBackground(maunen);
+        pnlLeftPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 10));
 
         JPanel pnlSearchPanel = new JPanel(new BorderLayout(10, 0));
+        pnlSearchPanel.setBackground(maunen);
+
         txtSearch = new JTextField();
-        btnTim = taoButton("Tìm xe", btnchinh);
+        btnTim = new JButton("Tìm xe");
+        btnTim.setBackground(btnchinh);
 
         pnlSearchPanel.add(txtSearch, BorderLayout.CENTER);
         pnlSearchPanel.add(btnTim, BorderLayout.EAST);
@@ -130,34 +108,48 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         String[] columns = {"Biển số", "Mã phiếu", "KTV phụ trách", "Trạng thái KCS"};
         tableModelXeKCS = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
-        tblXeKCS = taoTable(tableModelXeKCS);
+        tblXeKCS = new JTable(tableModelXeKCS);
+        tblXeKCS.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tblXeKCS.setRowHeight(36);
+        tblXeKCS.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblXeKCS.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+
         pnlLeftPanel.add(pnlSearchPanel, BorderLayout.NORTH);
         pnlLeftPanel.add(new JScrollPane(tblXeKCS), BorderLayout.CENTER);
 
-    }
-
-    private void taoFormDanhGiaPanel() {
         pnlRightPanel = new JPanel(new BorderLayout(0, 12));
         pnlRightPanel.setBackground(Color.WHITE);
+        pnlRightPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JPanel pnlInfoPanel = new JPanel(new GridLayout(2, 4, 10, 10));
         pnlInfoPanel.setBackground(Color.WHITE);
 
-        txtMaPhieu = taoTextFieldReadOnly();
-        txtBienSo = taoTextFieldReadOnly();
-        txtKhachHang = taoTextFieldReadOnly();
-        txtKtvThucHien = taoTextFieldReadOnly();
+        txtMaPhieu = new JTextField();
+        txtMaPhieu.setEditable(false);
+        txtBienSo = new JTextField();
+        txtBienSo.setEditable(false);
+        txtKhachHang = new JTextField();
+        txtKhachHang.setEditable(false);
+        txtKtvThucHien = new JTextField();
+        txtKtvThucHien.setEditable(false);
 
-        pnlInfoPanel.add(taoLabel("Mã phiếu SC:"));
+        JLabel lblMaPhieu = new JLabel("Mã phiếu SC:");
+        JLabel lblBienSo = new JLabel("Biển số xe:");
+        JLabel lblKhachHang = new JLabel("Khách hàng:");
+        JLabel lblKtvThucHien = new JLabel("KTV thi công:");
+
+        pnlInfoPanel.add(lblMaPhieu);
         pnlInfoPanel.add(txtMaPhieu);
-        pnlInfoPanel.add(taoLabel("Biển số xe:"));
+        pnlInfoPanel.add(lblBienSo);
         pnlInfoPanel.add(txtBienSo);
-        pnlInfoPanel.add(taoLabel("Khách hàng:"));
+        pnlInfoPanel.add(lblKhachHang);
         pnlInfoPanel.add(txtKhachHang);
-        pnlInfoPanel.add(taoLabel("KTV thi công:"));
+        pnlInfoPanel.add(lblKtvThucHien);
         pnlInfoPanel.add(txtKtvThucHien);
 
         JPanel pnlEvaluationPanel = new JPanel(new GridLayout(1, 2, 10, 0));
@@ -165,10 +157,12 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
 
         radDat = new JRadioButton("ĐẠT (Chuyển chờ bàn giao)");
         radDat.setForeground(mauxanh);
+        radDat.setBackground(Color.WHITE);
         radDat.setSelected(true);
 
         radKhongDat = new JRadioButton("KHÔNG ĐẠT (Yêu cầu sửa lại)");
         radKhongDat.setForeground(maudo);
+        radKhongDat.setBackground(Color.WHITE);
 
         danhGiaGroup = new ButtonGroup();
         danhGiaGroup.add(radDat);
@@ -177,20 +171,28 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         pnlEvaluationPanel.add(radDat);
         pnlEvaluationPanel.add(radKhongDat);
 
-        txaGhiChu = new JTextArea(5, 20);
-
-        JPanel pnlBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        pnlBtnPanel.setBackground(Color.WHITE);
-
-        btnLamMoi = taoButton("Làm mới", maumenu);
-        btnLuuKcs = taoButton("Lưu kết quả KCS", mauxanh);
-        pnlBtnPanel.add(btnLamMoi);
-        pnlBtnPanel.add(btnLuuKcs);
-
         JPanel pnlCenterContainer = new JPanel(new BorderLayout(0, 10));
         pnlCenterContainer.setBackground(Color.WHITE);
         pnlCenterContainer.add(pnlInfoPanel, BorderLayout.NORTH);
         pnlCenterContainer.add(pnlEvaluationPanel, BorderLayout.CENTER);
+
+        txaGhiChu = new JTextArea(5, 20);
+        txaGhiChu.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txaGhiChu.setLineWrap(true);
+        txaGhiChu.setWrapStyleWord(true);
+        txaGhiChu.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        JPanel pnlBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pnlBtnPanel.setBackground(Color.WHITE);
+
+        btnLamMoi = new JButton("Làm mới");
+        btnLamMoi.setBackground(maumenu);
+
+        btnLuuKcs = new JButton("Lưu kết quả KCS");
+        btnLuuKcs.setBackground(mauxanh);
+
+        pnlBtnPanel.add(btnLamMoi);
+        pnlBtnPanel.add(btnLuuKcs);
 
         JPanel pnlBottomContainer = new JPanel(new BorderLayout(0, 10));
         pnlBottomContainer.setBackground(Color.WHITE);
@@ -200,14 +202,45 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         pnlRightPanel.add(pnlCenterContainer, BorderLayout.NORTH);
         pnlRightPanel.add(pnlBottomContainer, BorderLayout.CENTER);
 
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pnlLeftPanel, pnlRightPanel);
+        splitPane.setDividerLocation(460);
+        splitPane.setDividerSize(6);
+        splitPane.setBorder(BorderFactory.createEmptyBorder());
+
+        add(splitPane, BorderLayout.CENTER);
+
+        btnQuayLai.addActionListener(this);
+        btnTim.addActionListener(this);
+        btnLuuKcs.addActionListener(this);
+        btnLamMoi.addActionListener(this);
+        tblXeKCS.addMouseListener(this);
+
+        loadDanhSachKCS();
+        setVisible(true);
     }
 
     private void loadDanhSachKCS() {
         try {
             tableModelXeKCS.setRowCount(0);
-            dsPhieuSuaChua = phieuSuaChuaDAO.getAllPhieuSuaChua();
-            for (PhieuSuaChua psc : dsPhieuSuaChua) {
-                tableModelXeKCS.addRow(new Object[]{psc.getBienSo(), psc.getMaPhieuSuaChua(), psc.getMaNhanVien(), psc.getTrangThai()});
+            List<PhieuSuaChua> dsTatCa = phieuSuaChuaDAO.getAllPhieuSuaChua();
+            String tuKhoa = txtSearch.getText().trim().toLowerCase();
+            dsPhieuSuaChua = new ArrayList<>();
+
+            for (PhieuSuaChua psc : dsTatCa) {
+                String bienSo = psc.getBienSo() == null ? "" : psc.getBienSo().toLowerCase();
+                String maPhieu = psc.getMaPhieuSuaChua() == null ? "" : psc.getMaPhieuSuaChua().toLowerCase();
+                String maKtv = psc.getMaNhanVien() == null ? "" : psc.getMaNhanVien().toLowerCase();
+                String trangThai = psc.getTrangThai() == null ? "" : psc.getTrangThai().toLowerCase();
+
+                if (bienSo.contains(tuKhoa) || maPhieu.contains(tuKhoa) || maKtv.contains(tuKhoa) || trangThai.contains(tuKhoa)) {
+                    dsPhieuSuaChua.add(psc);
+                    tableModelXeKCS.addRow(new Object[]{
+                            psc.getBienSo(),
+                            psc.getMaPhieuSuaChua(),
+                            psc.getMaNhanVien(),
+                            psc.getTrangThai()
+                    });
+                }
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi tải danh sách KCS: " + ex.getMessage());
@@ -216,6 +249,7 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
 
     private void hienThiChiTietXeDuocChon() {
         int row = tblXeKCS.getSelectedRow();
+
         if (row != -1 && row < dsPhieuSuaChua.size()) {
             PhieuSuaChua psc = dsPhieuSuaChua.get(row);
             txtMaPhieu.setText(psc.getMaPhieuSuaChua());
@@ -224,32 +258,45 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
 
             try {
                 Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
+
                 if (xe != null) {
                     KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
-                    txtKhachHang.setText((kh != null) ? kh.getHoTen() : "");
+                    txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
+                } else {
+                    txtKhachHang.setText("");
                 }
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi tải thông tin khách hàng: " + ex.getMessage());
             }
         }
     }
 
     private void luuKetQuaKCS() {
         int row = tblXeKCS.getSelectedRow();
+
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn xe cần kiểm tra chất lượng!");
             return;
         }
 
-        String maPhieu = txtMaPhieu.getText();
+        String maPhieu = txtMaPhieu.getText().trim();
+
+        if (maPhieu.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu sửa chữa hợp lệ!");
+            return;
+        }
+
         String trangThaiKCS = radDat.isSelected() ? "Đạt - Chờ bàn giao" : "Không đạt - Sửa lại";
 
         try {
             boolean ok = phieuSuaChuaDAO.capNhatTrangThai(maPhieu, trangThaiKCS);
+
             if (ok) {
                 JOptionPane.showMessageDialog(this, "Lưu kết quả KCS thành công!");
                 loadDanhSachKCS();
                 xoaForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể cập nhật trạng thái KCS!");
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi lưu CSDL: " + ex.getMessage());
@@ -266,30 +313,6 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         tblXeKCS.clearSelection();
     }
 
-    private JTable taoTable(DefaultTableModel model) {
-        JTable tblTable = new JTable(model);
-        tblTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblTable.setRowHeight(36);
-        return tblTable;
-    }
-
-    private JLabel taoLabel(String text) {
-        return new JLabel(text);
-    }
-
-    private JTextField taoTextFieldReadOnly() {
-        JTextField txtField = new JTextField();
-        txtField.setEditable(false);
-        return txtField;
-    }
-
-    private JButton taoButton(String text, Color color) {
-        JButton btnButton = new JButton(text);
-        btnButton.setBackground(color);
-        return btnButton;
-    }
-
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnQuayLai) {
@@ -300,6 +323,8 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
             luuKetQuaKCS();
         } else if (e.getSource() == btnLamMoi) {
             xoaForm();
+            txtSearch.setText("");
+            loadDanhSachKCS();
         }
     }
 
@@ -325,8 +350,4 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
     @Override
     public void mouseExited(MouseEvent e) {
     }
-
-//    public static void main(String[] args) {
-//        new KiemTraChatLuong();
-//    }
 }
