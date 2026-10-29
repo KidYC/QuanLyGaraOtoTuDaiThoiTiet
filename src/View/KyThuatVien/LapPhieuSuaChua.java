@@ -29,9 +29,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
-
 import DAO.*;
 import Entity.*;
 
@@ -39,32 +37,62 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
     private JPanel pnlHeaderPanel;
     private JPanel pnlMainContentPanel;
     private JPanel pnlTopInfoPanel;
+    private JPanel pnlLeftPanel;
+    private JPanel pnlHeaderLeft;
+    private JPanel pnlBtnLeftPanel;
+    private JPanel pnlRightPanel;
+    private JPanel pnlHeaderRight;
+    private JPanel pnlBtnRightPanel;
+    private JPanel pnlBottomPanel;
+    private JPanel pnlActionPanel;
+    private JPanel pnlDialogPanel;
+    private JPanel pnlDialogButtonPanel;
+
+    private JLabel lblTitle;
+    private JLabel lblTitleLeft;
+    private JLabel lblTitleRight;
+    private JLabel lblMaPhieuTiepNhan;
+    private JLabel lblBienSo;
+    private JLabel lblKhachHang;
+    private JLabel lblNgayTiepNhan;
+    private JLabel lblTongTien;
+    private JLabel lblChonCongViec;
+    private JLabel lblChonPhuTung;
+    private JLabel lblSoLuong;
+
     private JComboBox<String> cmbPhieuTiepNhan;
+    private JComboBox<String> cmbCongViecDialog;
+    private JComboBox<String> cmbPhuTungDialog;
+
     private JTextField txtBienSo;
     private JTextField txtKhachHang;
     private JTextField txtNgayTiepNhan;
+    private JTextField txtSoLuongDialog;
+
     private JTable tblCongViec;
+    private JTable tblPhuTung;
+
     private DefaultTableModel tableModelCongViec;
+    private DefaultTableModel tableModelPhuTung;
+
     private JButton btnThemCongViec;
     private JButton btnXoaCongViec;
-    private JTable tblPhuTung;
-    private DefaultTableModel tableModelPhuTung;
     private JButton btnThemPhuTung;
     private JButton btnXoaPhuTung;
-    private JLabel lblTongTien;
     private JButton btnTaoPhieu;
     private JButton btnLamMoi;
     private JButton btnQuayLai;
-    private String maKTV = "KTV01";
+    private JButton btnLuuCongViecDialog;
+    private JButton btnHuyCongViecDialog;
+    private JButton btnLuuPhuTungDialog;
+    private JButton btnHuyPhuTungDialog;
 
-    private final Color maunen = new Color(244, 246, 248);
-    private final Color maumenu = new Color(226, 232, 240);
-    private final Color btnchinh = new Color(186, 230, 253);
-    private final Color btnphu = new Color(219, 234, 254);
-    private final Color chuchinh = new Color(17, 24, 39);
-    private final Color maucotbang = new Color(186, 230, 253);
-    private final Color maudo = new Color(220, 38, 38);
-    private final Color mauxanh = new Color(34, 197, 94);
+    private JScrollPane scrCongViec;
+    private JScrollPane scrPhuTung;
+    private JSplitPane splitPane;
+    private JDialog dialogHienTai;
+
+    private String maKTV = "KTV01";
 
     private final PhieuTiepNhan_DAO phieuTiepNhanDAO = new PhieuTiepNhan_DAO();
     private final Xe_DAO xeDAO = new Xe_DAO();
@@ -78,16 +106,8 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
     private List<PhieuTiepNhan> dsPhieuTiepNhan = new ArrayList<>();
     private List<DichVu> dsDichVu = new ArrayList<>();
     private List<PhuTung> dsPhuTung = new ArrayList<>();
-    private final DecimalFormat df = new DecimalFormat("#,###");
 
-    private JDialog dialogHienTai;
-    private JComboBox<String> cmbCongViecDialog;
-    private JComboBox<String> cmbPhuTungDialog;
-    private JTextField txtSoLuongDialog;
-    private JButton btnLuuCongViecDialog;
-    private JButton btnHuyCongViecDialog;
-    private JButton btnLuuPhuTungDialog;
-    private JButton btnHuyPhuTungDialog;
+    private final DecimalFormat df = new DecimalFormat("#,###");
 
     public LapPhieuSuaChua(String maKTV) {
         if (maKTV != null && !maKTV.trim().isEmpty()) {
@@ -98,7 +118,7 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         setSize(1180, 750);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(maunen);
+        getContentPane().setBackground(new Color(244, 246, 248));
         setLayout(new BorderLayout(0, 10));
 
         pnlHeaderPanel = new JPanel(new BorderLayout());
@@ -106,14 +126,14 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         pnlHeaderPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
         pnlHeaderPanel.setPreferredSize(new Dimension(1180, 75));
 
-        JLabel lblTitle = new JLabel("LẬP PHIẾU SỬA CHỮA & CHỈ ĐỊNH VẬT TƯ");
+        lblTitle = new JLabel("LẬP PHIẾU SỬA CHỮA & CHỈ ĐỊNH VẬT TƯ");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        lblTitle.setForeground(chuchinh);
+        lblTitle.setForeground(new Color(17, 24, 39));
 
         btnQuayLai = new JButton("Quay lại");
         btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnQuayLai.setForeground(chuchinh);
-        btnQuayLai.setBackground(btnphu);
+        btnQuayLai.setForeground(new Color(17, 24, 39));
+        btnQuayLai.setBackground(new Color(219, 234, 254));
         btnQuayLai.setFocusPainted(false);
         btnQuayLai.setBorderPainted(false);
         btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -124,13 +144,13 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         add(pnlHeaderPanel, BorderLayout.NORTH);
 
         pnlMainContentPanel = new JPanel(new BorderLayout(0, 12));
-        pnlMainContentPanel.setBackground(maunen);
+        pnlMainContentPanel.setBackground(new Color(244, 246, 248));
         pnlMainContentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 20));
 
         pnlTopInfoPanel = new JPanel(new GridLayout(2, 4, 15, 10));
         pnlTopInfoPanel.setBackground(Color.WHITE);
         pnlTopInfoPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)));
 
         cmbPhieuTiepNhan = new JComboBox<>();
@@ -140,33 +160,33 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         txtBienSo = new JTextField();
         txtBienSo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtBienSo.setEditable(false);
-        txtBienSo.setBackground(maunen);
+        txtBienSo.setBackground(new Color(244, 246, 248));
 
         txtKhachHang = new JTextField();
         txtKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtKhachHang.setEditable(false);
-        txtKhachHang.setBackground(maunen);
+        txtKhachHang.setBackground(new Color(244, 246, 248));
 
         txtNgayTiepNhan = new JTextField();
         txtNgayTiepNhan.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtNgayTiepNhan.setEditable(false);
-        txtNgayTiepNhan.setBackground(maunen);
+        txtNgayTiepNhan.setBackground(new Color(244, 246, 248));
 
-        JLabel lblMaPhieuTiepNhan = new JLabel("Mã phiếu tiếp nhận:");
+        lblMaPhieuTiepNhan = new JLabel("Mã phiếu tiếp nhận:");
         lblMaPhieuTiepNhan.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblMaPhieuTiepNhan.setForeground(chuchinh);
+        lblMaPhieuTiepNhan.setForeground(new Color(17, 24, 39));
 
-        JLabel lblBienSo = new JLabel("Biển số xe:");
+        lblBienSo = new JLabel("Biển số xe:");
         lblBienSo.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblBienSo.setForeground(chuchinh);
+        lblBienSo.setForeground(new Color(17, 24, 39));
 
-        JLabel lblKhachHang = new JLabel("Tên khách hàng:");
+        lblKhachHang = new JLabel("Tên khách hàng:");
         lblKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblKhachHang.setForeground(chuchinh);
+        lblKhachHang.setForeground(new Color(17, 24, 39));
 
-        JLabel lblNgayTiepNhan = new JLabel("Ngày tiếp nhận:");
+        lblNgayTiepNhan = new JLabel("Ngày tiếp nhận:");
         lblNgayTiepNhan.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblNgayTiepNhan.setForeground(chuchinh);
+        lblNgayTiepNhan.setForeground(new Color(17, 24, 39));
 
         pnlTopInfoPanel.add(lblMaPhieuTiepNhan);
         pnlTopInfoPanel.add(cmbPhieuTiepNhan);
@@ -179,26 +199,26 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
 
         pnlMainContentPanel.add(pnlTopInfoPanel, BorderLayout.NORTH);
 
-        JPanel pnlLeftPanel = new JPanel(new BorderLayout(0, 8));
+        pnlLeftPanel = new JPanel(new BorderLayout(0, 8));
         pnlLeftPanel.setBackground(Color.WHITE);
         pnlLeftPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
 
-        JPanel pnlHeaderLeft = new JPanel(new BorderLayout());
+        pnlHeaderLeft = new JPanel(new BorderLayout());
         pnlHeaderLeft.setBackground(Color.WHITE);
 
-        JLabel lblTitleLeft = new JLabel("1. HẠNG MỤC CÔNG VIỆC SỬA CHỮA");
+        lblTitleLeft = new JLabel("1. HẠNG MỤC CÔNG VIỆC SỬA CHỮA");
         lblTitleLeft.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        lblTitleLeft.setForeground(chuchinh);
+        lblTitleLeft.setForeground(new Color(17, 24, 39));
 
-        JPanel pnlBtnLeftPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        pnlBtnLeftPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         pnlBtnLeftPanel.setBackground(Color.WHITE);
 
         btnThemCongViec = new JButton("Thêm CV");
         btnThemCongViec.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnThemCongViec.setForeground(chuchinh);
-        btnThemCongViec.setBackground(btnchinh);
+        btnThemCongViec.setForeground(new Color(17, 24, 39));
+        btnThemCongViec.setBackground(new Color(186, 230, 253));
         btnThemCongViec.setFocusPainted(false);
         btnThemCongViec.setBorderPainted(false);
         btnThemCongViec.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -206,8 +226,8 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
 
         btnXoaCongViec = new JButton("Xóa");
         btnXoaCongViec.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnXoaCongViec.setForeground(chuchinh);
-        btnXoaCongViec.setBackground(maudo);
+        btnXoaCongViec.setForeground(new Color(17, 24, 39));
+        btnXoaCongViec.setBackground(new Color(220, 38, 38));
         btnXoaCongViec.setFocusPainted(false);
         btnXoaCongViec.setBorderPainted(false);
         btnXoaCongViec.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -230,34 +250,36 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         tblCongViec.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblCongViec.setRowHeight(36);
         tblCongViec.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblCongViec.setSelectionBackground(btnphu);
-        tblCongViec.setSelectionForeground(chuchinh);
+        tblCongViec.setSelectionBackground(new Color(219, 234, 254));
+        tblCongViec.setSelectionForeground(new Color(17, 24, 39));
         tblCongViec.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblCongViec.getTableHeader().setBackground(btnchinh);
+        tblCongViec.getTableHeader().setBackground(new Color(186, 230, 253));
+
+        scrCongViec = new JScrollPane(tblCongViec);
 
         pnlLeftPanel.add(pnlHeaderLeft, BorderLayout.NORTH);
-        pnlLeftPanel.add(new JScrollPane(tblCongViec), BorderLayout.CENTER);
+        pnlLeftPanel.add(scrCongViec, BorderLayout.CENTER);
 
-        JPanel pnlRightPanel = new JPanel(new BorderLayout(0, 8));
+        pnlRightPanel = new JPanel(new BorderLayout(0, 8));
         pnlRightPanel.setBackground(Color.WHITE);
         pnlRightPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
 
-        JPanel pnlHeaderRight = new JPanel(new BorderLayout());
+        pnlHeaderRight = new JPanel(new BorderLayout());
         pnlHeaderRight.setBackground(Color.WHITE);
 
-        JLabel lblTitleRight = new JLabel("2. DANH SÁCH PHỤ TÙNG SỬ DỤNG");
+        lblTitleRight = new JLabel("2. DANH SÁCH PHỤ TÙNG SỬ DỤNG");
         lblTitleRight.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        lblTitleRight.setForeground(chuchinh);
+        lblTitleRight.setForeground(new Color(17, 24, 39));
 
-        JPanel pnlBtnRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        pnlBtnRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         pnlBtnRightPanel.setBackground(Color.WHITE);
 
         btnThemPhuTung = new JButton("Thêm PT");
         btnThemPhuTung.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnThemPhuTung.setForeground(chuchinh);
-        btnThemPhuTung.setBackground(btnphu);
+        btnThemPhuTung.setForeground(new Color(17, 24, 39));
+        btnThemPhuTung.setBackground(new Color(219, 234, 254));
         btnThemPhuTung.setFocusPainted(false);
         btnThemPhuTung.setBorderPainted(false);
         btnThemPhuTung.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -265,8 +287,8 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
 
         btnXoaPhuTung = new JButton("Xóa");
         btnXoaPhuTung.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnXoaPhuTung.setForeground(chuchinh);
-        btnXoaPhuTung.setBackground(maudo);
+        btnXoaPhuTung.setForeground(new Color(17, 24, 39));
+        btnXoaPhuTung.setBackground(new Color(220, 38, 38));
         btnXoaPhuTung.setFocusPainted(false);
         btnXoaPhuTung.setBorderPainted(false);
         btnXoaPhuTung.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -289,46 +311,48 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         tblPhuTung.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblPhuTung.setRowHeight(36);
         tblPhuTung.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblPhuTung.setSelectionBackground(btnphu);
-        tblPhuTung.setSelectionForeground(chuchinh);
+        tblPhuTung.setSelectionBackground(new Color(219, 234, 254));
+        tblPhuTung.setSelectionForeground(new Color(17, 24, 39));
         tblPhuTung.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblPhuTung.getTableHeader().setBackground(btnchinh);
+        tblPhuTung.getTableHeader().setBackground(new Color(186, 230, 253));
+
+        scrPhuTung = new JScrollPane(tblPhuTung);
 
         pnlRightPanel.add(pnlHeaderRight, BorderLayout.NORTH);
-        pnlRightPanel.add(new JScrollPane(tblPhuTung), BorderLayout.CENTER);
+        pnlRightPanel.add(scrPhuTung, BorderLayout.CENTER);
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pnlLeftPanel, pnlRightPanel);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pnlLeftPanel, pnlRightPanel);
         splitPane.setDividerLocation(560);
         splitPane.setDividerSize(6);
         splitPane.setBorder(null);
 
         pnlMainContentPanel.add(splitPane, BorderLayout.CENTER);
 
-        JPanel pnlBottomPanel = new JPanel(new BorderLayout());
+        pnlBottomPanel = new JPanel(new BorderLayout());
         pnlBottomPanel.setBackground(Color.WHITE);
         pnlBottomPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(12, 20, 12, 20)));
 
         lblTongTien = new JLabel("Tổng chi phí ước tính: 0 VNĐ");
         lblTongTien.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblTongTien.setForeground(maudo);
+        lblTongTien.setForeground(new Color(220, 38, 38));
 
-        JPanel pnlActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pnlActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlActionPanel.setBackground(Color.WHITE);
 
         btnLamMoi = new JButton("Làm mới");
         btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnLamMoi.setForeground(chuchinh);
-        btnLamMoi.setBackground(maumenu);
+        btnLamMoi.setForeground(new Color(17, 24, 39));
+        btnLamMoi.setBackground(new Color(226, 232, 240));
         btnLamMoi.setFocusPainted(false);
         btnLamMoi.setBorderPainted(false);
         btnLamMoi.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnTaoPhieu = new JButton("Tạo phiếu sửa chữa");
         btnTaoPhieu.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnTaoPhieu.setForeground(chuchinh);
-        btnTaoPhieu.setBackground(mauxanh);
+        btnTaoPhieu.setForeground(new Color(17, 24, 39));
+        btnTaoPhieu.setBackground(new Color(34, 197, 94));
         btnTaoPhieu.setFocusPainted(false);
         btnTaoPhieu.setBorderPainted(false);
         btnTaoPhieu.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -386,6 +410,8 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
                 if (xe != null) {
                     KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
                     txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
+                } else {
+                    txtKhachHang.setText("");
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -403,9 +429,9 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         dialogHienTai.setSize(480, 240);
         dialogHienTai.setLocationRelativeTo(this);
 
-        JPanel pnlPanel = new JPanel(new GridLayout(2, 2, 10, 15));
-        pnlPanel.setBackground(Color.WHITE);
-        pnlPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        pnlDialogPanel = new JPanel(new GridLayout(2, 2, 10, 15));
+        pnlDialogPanel.setBackground(Color.WHITE);
+        pnlDialogPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
         cmbCongViecDialog = new JComboBox<>();
         try {
@@ -417,38 +443,38 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
             ex.printStackTrace();
         }
 
-        JLabel lblChonCongViec = new JLabel("Chọn công việc:");
+        lblChonCongViec = new JLabel("Chọn công việc:");
         lblChonCongViec.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblChonCongViec.setForeground(chuchinh);
+        lblChonCongViec.setForeground(new Color(17, 24, 39));
 
-        pnlPanel.add(lblChonCongViec);
-        pnlPanel.add(cmbCongViecDialog);
+        pnlDialogPanel.add(lblChonCongViec);
+        pnlDialogPanel.add(cmbCongViecDialog);
 
-        JPanel pnlBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        pnlBtnPanel.setBackground(Color.WHITE);
+        pnlDialogButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        pnlDialogButtonPanel.setBackground(Color.WHITE);
 
         btnHuyCongViecDialog = new JButton("Hủy");
         btnHuyCongViecDialog.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnHuyCongViecDialog.setForeground(chuchinh);
-        btnHuyCongViecDialog.setBackground(maumenu);
+        btnHuyCongViecDialog.setForeground(new Color(17, 24, 39));
+        btnHuyCongViecDialog.setBackground(new Color(226, 232, 240));
         btnHuyCongViecDialog.setFocusPainted(false);
         btnHuyCongViecDialog.setBorderPainted(false);
 
         btnLuuCongViecDialog = new JButton("Thêm");
         btnLuuCongViecDialog.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnLuuCongViecDialog.setForeground(chuchinh);
-        btnLuuCongViecDialog.setBackground(btnchinh);
+        btnLuuCongViecDialog.setForeground(new Color(17, 24, 39));
+        btnLuuCongViecDialog.setBackground(new Color(186, 230, 253));
         btnLuuCongViecDialog.setFocusPainted(false);
         btnLuuCongViecDialog.setBorderPainted(false);
 
-        pnlBtnPanel.add(btnHuyCongViecDialog);
-        pnlBtnPanel.add(btnLuuCongViecDialog);
+        pnlDialogButtonPanel.add(btnHuyCongViecDialog);
+        pnlDialogButtonPanel.add(btnLuuCongViecDialog);
 
         btnHuyCongViecDialog.addActionListener(this);
         btnLuuCongViecDialog.addActionListener(this);
 
-        dialogHienTai.add(pnlPanel, BorderLayout.CENTER);
-        dialogHienTai.add(pnlBtnPanel, BorderLayout.SOUTH);
+        dialogHienTai.add(pnlDialogPanel, BorderLayout.CENTER);
+        dialogHienTai.add(pnlDialogButtonPanel, BorderLayout.SOUTH);
         dialogHienTai.setVisible(true);
     }
 
@@ -458,9 +484,9 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         dialogHienTai.setSize(480, 240);
         dialogHienTai.setLocationRelativeTo(this);
 
-        JPanel pnlPanel = new JPanel(new GridLayout(2, 2, 10, 15));
-        pnlPanel.setBackground(Color.WHITE);
-        pnlPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        pnlDialogPanel = new JPanel(new GridLayout(2, 2, 10, 15));
+        pnlDialogPanel.setBackground(Color.WHITE);
+        pnlDialogPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
         cmbPhuTungDialog = new JComboBox<>();
         txtSoLuongDialog = new JTextField("1");
@@ -474,44 +500,44 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
             ex.printStackTrace();
         }
 
-        JLabel lblChonPhuTung = new JLabel("Chọn phụ tùng:");
+        lblChonPhuTung = new JLabel("Chọn phụ tùng:");
         lblChonPhuTung.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblChonPhuTung.setForeground(chuchinh);
+        lblChonPhuTung.setForeground(new Color(17, 24, 39));
 
-        JLabel lblSoLuong = new JLabel("Số lượng:");
+        lblSoLuong = new JLabel("Số lượng:");
         lblSoLuong.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblSoLuong.setForeground(chuchinh);
+        lblSoLuong.setForeground(new Color(17, 24, 39));
 
-        pnlPanel.add(lblChonPhuTung);
-        pnlPanel.add(cmbPhuTungDialog);
-        pnlPanel.add(lblSoLuong);
-        pnlPanel.add(txtSoLuongDialog);
+        pnlDialogPanel.add(lblChonPhuTung);
+        pnlDialogPanel.add(cmbPhuTungDialog);
+        pnlDialogPanel.add(lblSoLuong);
+        pnlDialogPanel.add(txtSoLuongDialog);
 
-        JPanel pnlBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        pnlBtnPanel.setBackground(Color.WHITE);
+        pnlDialogButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        pnlDialogButtonPanel.setBackground(Color.WHITE);
 
         btnHuyPhuTungDialog = new JButton("Hủy");
         btnHuyPhuTungDialog.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnHuyPhuTungDialog.setForeground(chuchinh);
-        btnHuyPhuTungDialog.setBackground(maumenu);
+        btnHuyPhuTungDialog.setForeground(new Color(17, 24, 39));
+        btnHuyPhuTungDialog.setBackground(new Color(226, 232, 240));
         btnHuyPhuTungDialog.setFocusPainted(false);
         btnHuyPhuTungDialog.setBorderPainted(false);
 
         btnLuuPhuTungDialog = new JButton("Thêm");
         btnLuuPhuTungDialog.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnLuuPhuTungDialog.setForeground(chuchinh);
-        btnLuuPhuTungDialog.setBackground(btnphu);
+        btnLuuPhuTungDialog.setForeground(new Color(17, 24, 39));
+        btnLuuPhuTungDialog.setBackground(new Color(219, 234, 254));
         btnLuuPhuTungDialog.setFocusPainted(false);
         btnLuuPhuTungDialog.setBorderPainted(false);
 
-        pnlBtnPanel.add(btnHuyPhuTungDialog);
-        pnlBtnPanel.add(btnLuuPhuTungDialog);
+        pnlDialogButtonPanel.add(btnHuyPhuTungDialog);
+        pnlDialogButtonPanel.add(btnLuuPhuTungDialog);
 
         btnHuyPhuTungDialog.addActionListener(this);
         btnLuuPhuTungDialog.addActionListener(this);
 
-        dialogHienTai.add(pnlPanel, BorderLayout.CENTER);
-        dialogHienTai.add(pnlBtnPanel, BorderLayout.SOUTH);
+        dialogHienTai.add(pnlDialogPanel, BorderLayout.CENTER);
+        dialogHienTai.add(pnlDialogButtonPanel, BorderLayout.SOUTH);
         dialogHienTai.setVisible(true);
     }
 
@@ -553,7 +579,7 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         String maPhieuTiepNhan = dsPhieuTiepNhan.get(cmbPhieuTiepNhan.getSelectedIndex() - 1).getMaPhieuTiepNhan();
         String maPhieuSC = "PSC" + System.currentTimeMillis() % 100000;
         Date ngayHienTai = new Date(System.currentTimeMillis());
-        PhieuSuaChua psc = new PhieuSuaChua(maPhieuSC, ngayHienTai, ngayHienTai, "Chờ xuất kho", txtBienSo.getText(), this.maKTV, maPhieuTiepNhan);
+        PhieuSuaChua psc = new PhieuSuaChua(maPhieuSC, ngayHienTai, ngayHienTai, "Chờ xuất kho", txtBienSo.getText(), maKTV, maPhieuTiepNhan);
 
         try {
             boolean taoThanhCong = phieuSuaChuaDAO.themPhieuSuaChua(psc);
@@ -572,8 +598,8 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
                 }
 
                 JOptionPane.showMessageDialog(this,
-                        "Tạo phiếu sửa chữa thành công!\nMã phiếu: " + maPhieuSC +
-                                "\nĐã gửi yêu cầu vật tư sang bộ phận Thủ kho chờ xuất kho.",
+                        "Tạo phiếu sửa chữa thành công!\nMã phiếu: " + maPhieuSC
+                                + "\nĐã gửi yêu cầu vật tư sang bộ phận Thủ kho chờ xuất kho.",
                         "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 xoaForm();
             }

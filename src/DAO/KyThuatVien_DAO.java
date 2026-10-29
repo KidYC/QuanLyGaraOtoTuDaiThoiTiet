@@ -13,7 +13,7 @@ public class KyThuatVien_DAO {
 
     public List<KyThuatVien> getAllKyThuatVien() throws SQLException {
         List<KyThuatVien> ds = new ArrayList<>();
-        String sql = "SELECT maKTV, hoTen, diaChi, ngayVaoLam, trangThai FROM KY_THUAT_VIEN";
+        String sql = "SELECT maKTV, hoTen, soDienThoai, diaChi, ngayVaoLam, trangThai FROM KY_THUAT_VIEN";
         try (Connection conn = connectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -21,6 +21,7 @@ public class KyThuatVien_DAO {
                 ds.add(new KyThuatVien(
                         rs.getString("maKTV"),
                         rs.getString("hoTen"),
+                        rs.getString("soDienThoai"),
                         rs.getString("diaChi"),
                         rs.getDate("ngayVaoLam"),
                         rs.getString("trangThai")
@@ -31,7 +32,7 @@ public class KyThuatVien_DAO {
     }
 
     public KyThuatVien getKyThuatVienByMa(String maKTV) throws SQLException {
-        String sql = "SELECT maKTV, hoTen, diaChi, ngayVaoLam, trangThai FROM KY_THUAT_VIEN WHERE maKTV = ?";
+        String sql = "SELECT maKTV, hoTen, soDienThoai, diaChi, ngayVaoLam, trangThai FROM KY_THUAT_VIEN WHERE maKTV = ?";
         try (Connection conn = connectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maKTV);
@@ -40,6 +41,7 @@ public class KyThuatVien_DAO {
                     return new KyThuatVien(
                             rs.getString("maKTV"),
                             rs.getString("hoTen"),
+                            rs.getString("soDienThoai"),
                             rs.getString("diaChi"),
                             rs.getDate("ngayVaoLam"),
                             rs.getString("trangThai")
@@ -50,10 +52,9 @@ public class KyThuatVien_DAO {
         return null;
     }
 
-    // ĐÃ SỬA: Hoàn thiện hàm lấy danh sách KTV đang rảnh từ Database
     public List<KyThuatVien> getDanhSachKTVRanh() throws SQLException {
         List<KyThuatVien> ds = new ArrayList<>();
-        String sql = "SELECT maKTV, hoTen, diaChi, ngayVaoLam, trangThai FROM KY_THUAT_VIEN WHERE trangThai = N'Đang rảnh'";
+        String sql = "SELECT maKTV, hoTen, soDienThoai, diaChi, ngayVaoLam, trangThai FROM KY_THUAT_VIEN WHERE trangThai = N'Đang rảnh'";
         try (Connection conn = connectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -61,6 +62,7 @@ public class KyThuatVien_DAO {
                 ds.add(new KyThuatVien(
                         rs.getString("maKTV"),
                         rs.getString("hoTen"),
+                        rs.getString("soDienThoai"),
                         rs.getString("diaChi"),
                         rs.getDate("ngayVaoLam"),
                         rs.getString("trangThai")

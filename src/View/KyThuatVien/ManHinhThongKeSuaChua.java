@@ -16,12 +16,39 @@ import java.util.Calendar;
 import java.util.List;
 
 public class ManHinhThongKeSuaChua extends JFrame {
+    private JPanel pnlHeader;
+    private JPanel pnlCenter;
+    private JPanel pnlKPI;
+    private JPanel pnlCardTongPhieu;
+    private JPanel pnlCardTongTien;
+    private JPanel pnlBody;
+    private JPanel pnlFilter;
+
+    private JLabel lblTieuDe;
+    private JLabel lblTongPhieu;
+    private JLabel lblTongTienVatTu;
+    private JLabel lblTitleTongPhieu;
+    private JLabel lblTitleTongTien;
+    private JLabel lblMaKTV;
+    private JLabel lblThang;
+    private JLabel lblNam;
+    private JLabel lblTrangThai;
+
+    private JTextField txtTimKiemKTV;
+
+    private JComboBox<String> cbThang;
+    private JComboBox<String> cbNam;
+    private JComboBox<String> cbTrangThai;
+
+    private JButton btnLoc;
+    private JButton btnLamMoi;
+    private JButton btnXuatBaoCao;
+
     private JTable tblThongKe;
     private DefaultTableModel modelTable;
+    private JScrollPane scrollPane;
+
     private ThongKeSuaChua_DAO thongKeDAO;
-    private JTextField txtTimKiemKTV;
-    private JComboBox<String> cbThang, cbNam, cbTrangThai;
-    private JLabel lblTongPhieu, lblTongTienVatTu;
 
     public ManHinhThongKeSuaChua() {
         thongKeDAO = new ThongKeSuaChua_DAO();
@@ -32,36 +59,36 @@ public class ManHinhThongKeSuaChua extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        JPanel pnlHeader = new JPanel(new BorderLayout());
+        pnlHeader = new JPanel(new BorderLayout());
         pnlHeader.setBorder(new EmptyBorder(15, 20, 10, 20));
         pnlHeader.setBackground(Color.WHITE);
 
-        JLabel lblTieuDe = new JLabel("THỐNG KÊ BÁO CÁO SỬA CHỮA HỆ THỐNG");
+        lblTieuDe = new JLabel("THỐNG KÊ BÁO CÁO SỬA CHỮA HỆ THỐNG");
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTieuDe.setForeground(new Color(15, 23, 42));
 
         pnlHeader.add(lblTieuDe, BorderLayout.WEST);
         add(pnlHeader, BorderLayout.NORTH);
 
-        JPanel pnlCenter = new JPanel(new BorderLayout(10, 10));
+        pnlCenter = new JPanel(new BorderLayout(10, 10));
         pnlCenter.setBorder(new EmptyBorder(0, 20, 20, 20));
         pnlCenter.setOpaque(false);
 
-        JPanel pnlKPI = new JPanel(new GridLayout(1, 2, 15, 0));
+        pnlKPI = new JPanel(new GridLayout(1, 2, 15, 0));
         pnlKPI.setOpaque(false);
         pnlKPI.setPreferredSize(new Dimension(0, 90));
 
         lblTongPhieu = new JLabel("0", JLabel.CENTER);
         lblTongTienVatTu = new JLabel("0 đ", JLabel.CENTER);
 
-        JPanel pnlCardTongPhieu = new JPanel(new BorderLayout(5, 5));
+        pnlCardTongPhieu = new JPanel(new BorderLayout(5, 5));
         pnlCardTongPhieu.setBackground(Color.WHITE);
         pnlCardTongPhieu.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(226, 232, 240)),
                 new EmptyBorder(12, 15, 12, 15)
         ));
 
-        JLabel lblTitleTongPhieu = new JLabel("Tổng số phiếu sửa chữa");
+        lblTitleTongPhieu = new JLabel("Tổng số phiếu sửa chữa");
         lblTitleTongPhieu.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         lblTitleTongPhieu.setForeground(new Color(107, 114, 128));
 
@@ -71,14 +98,14 @@ public class ManHinhThongKeSuaChua extends JFrame {
         pnlCardTongPhieu.add(lblTitleTongPhieu, BorderLayout.NORTH);
         pnlCardTongPhieu.add(lblTongPhieu, BorderLayout.CENTER);
 
-        JPanel pnlCardTongTien = new JPanel(new BorderLayout(5, 5));
+        pnlCardTongTien = new JPanel(new BorderLayout(5, 5));
         pnlCardTongTien.setBackground(Color.WHITE);
         pnlCardTongTien.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(226, 232, 240)),
                 new EmptyBorder(12, 15, 12, 15)
         ));
 
-        JLabel lblTitleTongTien = new JLabel("Tổng tiền vật tư sử dụng");
+        lblTitleTongTien = new JLabel("Tổng tiền vật tư sử dụng");
         lblTitleTongTien.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         lblTitleTongTien.setForeground(new Color(107, 114, 128));
 
@@ -93,38 +120,38 @@ public class ManHinhThongKeSuaChua extends JFrame {
 
         pnlCenter.add(pnlKPI, BorderLayout.NORTH);
 
-        JPanel pnlBody = new JPanel(new BorderLayout(0, 10));
+        pnlBody = new JPanel(new BorderLayout(0, 10));
         pnlBody.setOpaque(false);
 
-        JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
+        pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
         pnlFilter.setBackground(Color.WHITE);
         pnlFilter.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(226, 232, 240)),
                 new EmptyBorder(8, 10, 8, 10)
         ));
 
-        JLabel lblMaKTV = new JLabel("Mã KTV:");
+        lblMaKTV = new JLabel("Mã KTV:");
         txtTimKiemKTV = new JTextField(8);
         txtTimKiemKTV.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        JLabel lblThang = new JLabel("Tháng:");
+        lblThang = new JLabel("Tháng:");
         cbThang = new JComboBox<>(new String[]{
                 "Tất cả", "1", "2", "3", "4", "5", "6",
                 "7", "8", "9", "10", "11", "12"
         });
         cbThang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
-        JLabel lblNam = new JLabel("Năm:");
+        lblNam = new JLabel("Năm:");
         cbNam = new JComboBox<>(new String[]{"Tất cả", "2024", "2025", "2026"});
         cbNam.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
-        JLabel lblTrangThai = new JLabel("Trạng thái:");
+        lblTrangThai = new JLabel("Trạng thái:");
         cbTrangThai = new JComboBox<>(new String[]{
                 "Tất cả", "Hoàn thành", "Đang xử lý", "Chờ xuất kho"
         });
         cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
-        JButton btnLoc = new JButton("Lọc dữ liệu");
+        btnLoc = new JButton("Lọc dữ liệu");
         btnLoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnLoc.setForeground(Color.WHITE);
         btnLoc.setBackground(new Color(37, 99, 235));
@@ -132,7 +159,7 @@ public class ManHinhThongKeSuaChua extends JFrame {
         btnLoc.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnLoc.setBorder(new EmptyBorder(6, 12, 6, 12));
 
-        JButton btnLamMoi = new JButton("Làm mới");
+        btnLamMoi = new JButton("Làm mới");
         btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnLamMoi.setForeground(Color.WHITE);
         btnLamMoi.setBackground(new Color(107, 114, 128));
@@ -140,7 +167,7 @@ public class ManHinhThongKeSuaChua extends JFrame {
         btnLamMoi.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnLamMoi.setBorder(new EmptyBorder(6, 12, 6, 12));
 
-        JButton btnXuatBaoCao = new JButton("Xuất Excel");
+        btnXuatBaoCao = new JButton("Xuất Excel");
         btnXuatBaoCao.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnXuatBaoCao.setForeground(Color.WHITE);
         btnXuatBaoCao.setBackground(new Color(16, 185, 129));
@@ -173,7 +200,7 @@ public class ManHinhThongKeSuaChua extends JFrame {
         tblThongKe.setRowHeight(28);
         tblThongKe.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        JScrollPane scrollPane = new JScrollPane(tblThongKe);
+        scrollPane = new JScrollPane(tblThongKe);
         pnlBody.add(scrollPane, BorderLayout.CENTER);
 
         pnlCenter.add(pnlBody, BorderLayout.CENTER);

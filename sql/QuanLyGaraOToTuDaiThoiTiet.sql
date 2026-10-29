@@ -349,9 +349,14 @@ INSERT INTO LE_TAN (maNhanVien, hoTen, soDienThoai, diaChi, ngayVaoLam, trangTha
 INSERT INTO TAI_KHOAN (maTaiKhoan, tenDangNhap, matKhau, loaiTaiKhoan, maNhanVien) VALUES
                                                                                        ('ACC01', 'admin', 'admin123', N'admin', 'ADMIN'),
                                                                                        ('ACC02', 'huy0804', '123456', N'Thủ kho', 'TK01'),
+                                                                                       ('ACC09', 'minh0804', '123456', N'Thủ kho', 'TK02'),
                                                                                        ('ACC03', 'minh0806', '123456', N'Kế toán', 'KT01'),
+                                                                                       ('ACC10', 'dung0806', '123456', N'Kế toán', 'KT02'),
                                                                                        ('ACC04', 'liem1507', '123456', N'Lễ tân', 'LT01'),
-                                                                                       ('ACC05', 'phung2203', '123456', N'Kỹ thuật viên', 'KTV01');
+                                                                                       ('ACC06', 'linh1507', '123456', N'Lễ tân', 'LT02'),
+                                                                                       ('ACC05', 'phung2203', '123456', N'Kỹ thuật viên', 'KTV01'),
+                                                                                       ('ACC07', 'nam2203', '123456', N'Kỹ thuật viên', 'KTV02'),
+                                                                                       ('ACC08', 'long2203', '123456', N'Kỹ thuật viên', 'KTV03');
 
 -- Phương Thức Thanh Toán
 INSERT INTO PHUONG_THUC_THANH_TOAN (maPhuongThuc, tenPhuongThuc) VALUES

@@ -36,29 +36,37 @@ import Entity.Xe;
 
 public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, MouseListener {
     private JPanel pnlHeaderPanel;
-    private JSplitPane splitPane;
     private JPanel pnlLeftPanel;
-    private JTextField txtSearch;
-    private JButton btnTim;
-    private JTable tblXe;
-    private DefaultTableModel tableModelXe;
+    private JPanel pnlSearchPanel;
     private JPanel pnlRightPanel;
+    private JPanel pnlInfoPanel;
+    private JPanel pnlTextInputContainer;
+    private JPanel pnlLoiPhatHien;
+    private JPanel pnlNguyenNhan;
+    private JPanel pnlDeXuat;
+    private JPanel pnlActionPanel;
+    private JSplitPane splitPane;
+    private JTextField txtSearch;
     private JTextField txtBienSo;
     private JTextField txtKhachHang;
     private JTextField txtYeuCau;
     private JTextArea txaLoiPhatHien;
     private JTextArea txaNguyenNhan;
     private JTextArea txaDeXuat;
+    private JButton btnTim;
     private JButton btnXacNhan;
     private JButton btnLamMoi;
     private JButton btnQuayLai;
-
-    private final Color maunen = new Color(244, 246, 248);
-    private final Color maumenu = new Color(226, 232, 240);
-    private final Color btnchinh = new Color(186, 230, 253);
-    private final Color btnphu = new Color(219, 234, 254);
-    private final Color chuchinh = new Color(17, 24, 39);
-    private final Color maucotbang = new Color(186, 230, 253);
+    private JTable tblXe;
+    private DefaultTableModel tableModelXe;
+    private JScrollPane scrScrollPane;
+    private JLabel lblTitle;
+    private JLabel lblBienSo;
+    private JLabel lblKhachHang;
+    private JLabel lblYeuCau;
+    private JLabel lblLoiPhatHien;
+    private JLabel lblNguyenNhan;
+    private JLabel lblDeXuat;
 
     private final PhieuTiepNhan_DAO phieuTiepNhanDAO = new PhieuTiepNhan_DAO();
     private final Xe_DAO xeDAO = new Xe_DAO();
@@ -70,7 +78,7 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         setSize(1200, 780);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(maunen);
+        getContentPane().setBackground(new Color(244, 246, 248));
         setLayout(new BorderLayout(0, 10));
 
         pnlHeaderPanel = new JPanel(new BorderLayout());
@@ -78,14 +86,14 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         pnlHeaderPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
         pnlHeaderPanel.setPreferredSize(new Dimension(1200, 75));
 
-        JLabel lblTitle = new JLabel("KIỂM TRA & CHẨN ĐOÁN TÌNH TRẠNG XE");
+        lblTitle = new JLabel("KIỂM TRA & CHẨN ĐOÁN TÌNH TRẠNG XE");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        lblTitle.setForeground(chuchinh);
+        lblTitle.setForeground(new Color(17, 24, 39));
 
         btnQuayLai = new JButton("Quay lại");
         btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnQuayLai.setForeground(chuchinh);
-        btnQuayLai.setBackground(btnphu);
+        btnQuayLai.setForeground(new Color(17, 24, 39));
+        btnQuayLai.setBackground(new Color(219, 234, 254));
         btnQuayLai.setFocusPainted(false);
         btnQuayLai.setBorderPainted(false);
         btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -96,23 +104,23 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         add(pnlHeaderPanel, BorderLayout.NORTH);
 
         pnlLeftPanel = new JPanel(new BorderLayout(0, 12));
-        pnlLeftPanel.setBackground(maunen);
+        pnlLeftPanel.setBackground(new Color(244, 246, 248));
 
-        JPanel pnlSearchPanel = new JPanel(new BorderLayout(10, 0));
-        pnlSearchPanel.setBackground(maunen);
+        pnlSearchPanel = new JPanel(new BorderLayout(10, 0));
+        pnlSearchPanel.setBackground(new Color(244, 246, 248));
 
         txtSearch = new JTextField();
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtSearch.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10)
         ));
         txtSearch.setPreferredSize(new Dimension(260, 40));
 
         btnTim = new JButton("Tìm xe");
         btnTim.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnTim.setForeground(chuchinh);
-        btnTim.setBackground(btnchinh);
+        btnTim.setForeground(new Color(17, 24, 39));
+        btnTim.setBackground(new Color(186, 230, 253));
         btnTim.setFocusPainted(false);
         btnTim.setBorderPainted(false);
         btnTim.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -132,16 +140,16 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         tblXe.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tblXe.setRowHeight(40);
         tblXe.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblXe.setSelectionBackground(btnphu);
-        tblXe.setSelectionForeground(chuchinh);
+        tblXe.setSelectionBackground(new Color(219, 234, 254));
+        tblXe.setSelectionForeground(new Color(17, 24, 39));
         tblXe.setShowVerticalLines(false);
         tblXe.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        tblXe.getTableHeader().setForeground(chuchinh);
-        tblXe.getTableHeader().setBackground(btnchinh);
+        tblXe.getTableHeader().setForeground(new Color(17, 24, 39));
+        tblXe.getTableHeader().setBackground(new Color(186, 230, 253));
         tblXe.getTableHeader().setPreferredSize(new Dimension(0, 42));
 
-        JScrollPane scrScrollPane = new JScrollPane(tblXe);
-        scrScrollPane.setBorder(BorderFactory.createLineBorder(maucotbang));
+        scrScrollPane = new JScrollPane(tblXe);
+        scrScrollPane.setBorder(BorderFactory.createLineBorder(new Color(186, 230, 253)));
         scrScrollPane.getViewport().setBackground(Color.WHITE);
 
         pnlLeftPanel.add(pnlSearchPanel, BorderLayout.NORTH);
@@ -150,56 +158,56 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         pnlRightPanel = new JPanel(new BorderLayout(0, 12));
         pnlRightPanel.setBackground(Color.WHITE);
         pnlRightPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(18, 18, 18, 18)
         ));
 
-        JPanel pnlInfoPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        pnlInfoPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         pnlInfoPanel.setBackground(Color.WHITE);
         pnlInfoPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(maucotbang),
+                BorderFactory.createLineBorder(new Color(186, 230, 253)),
                 "Thông tin xe & Yêu cầu của khách hàng",
-                0, 0, new Font("Segoe UI", Font.BOLD, 14), chuchinh
+                0, 0, new Font("Segoe UI", Font.BOLD, 14), new Color(17, 24, 39)
         ));
 
         txtBienSo = new JTextField();
         txtBienSo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtBienSo.setEditable(false);
-        txtBienSo.setBackground(maunen);
+        txtBienSo.setBackground(new Color(244, 246, 248));
         txtBienSo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(0, 8, 0, 8)
         ));
 
         txtKhachHang = new JTextField();
         txtKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtKhachHang.setEditable(false);
-        txtKhachHang.setBackground(maunen);
+        txtKhachHang.setBackground(new Color(244, 246, 248));
         txtKhachHang.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(0, 8, 0, 8)
         ));
 
         txtYeuCau = new JTextField();
         txtYeuCau.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtYeuCau.setEditable(false);
-        txtYeuCau.setBackground(maunen);
+        txtYeuCau.setBackground(new Color(244, 246, 248));
         txtYeuCau.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(maucotbang, 1),
+                BorderFactory.createLineBorder(new Color(186, 230, 253), 1),
                 BorderFactory.createEmptyBorder(0, 8, 0, 8)
         ));
 
-        JLabel lblBienSo = new JLabel("Biển số xe:");
+        lblBienSo = new JLabel("Biển số xe:");
         lblBienSo.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblBienSo.setForeground(chuchinh);
+        lblBienSo.setForeground(new Color(17, 24, 39));
 
-        JLabel lblKhachHang = new JLabel("Khách hàng:");
+        lblKhachHang = new JLabel("Khách hàng:");
         lblKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblKhachHang.setForeground(chuchinh);
+        lblKhachHang.setForeground(new Color(17, 24, 39));
 
-        JLabel lblYeuCau = new JLabel("Yêu cầu KH:");
+        lblYeuCau = new JLabel("Yêu cầu KH:");
         lblYeuCau.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblYeuCau.setForeground(chuchinh);
+        lblYeuCau.setForeground(new Color(17, 24, 39));
 
         pnlInfoPanel.add(lblBienSo);
         pnlInfoPanel.add(txtBienSo);
@@ -208,7 +216,7 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         pnlInfoPanel.add(lblYeuCau);
         pnlInfoPanel.add(txtYeuCau);
 
-        JPanel pnlTextInputContainer = new JPanel(new GridLayout(3, 1, 0, 8));
+        pnlTextInputContainer = new JPanel(new GridLayout(3, 1, 0, 8));
         pnlTextInputContainer.setBackground(Color.WHITE);
 
         txaLoiPhatHien = new JTextArea();
@@ -226,27 +234,27 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         txaDeXuat.setLineWrap(true);
         txaDeXuat.setWrapStyleWord(true);
 
-        JPanel pnlLoiPhatHien = new JPanel(new BorderLayout(0, 4));
+        pnlLoiPhatHien = new JPanel(new BorderLayout(0, 4));
         pnlLoiPhatHien.setBackground(Color.WHITE);
-        JLabel lblLoiPhatHien = new JLabel("Lỗi phát hiện:");
+        lblLoiPhatHien = new JLabel("Lỗi phát hiện:");
         lblLoiPhatHien.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblLoiPhatHien.setForeground(chuchinh);
+        lblLoiPhatHien.setForeground(new Color(17, 24, 39));
         pnlLoiPhatHien.add(lblLoiPhatHien, BorderLayout.NORTH);
         pnlLoiPhatHien.add(new JScrollPane(txaLoiPhatHien), BorderLayout.CENTER);
 
-        JPanel pnlNguyenNhan = new JPanel(new BorderLayout(0, 4));
+        pnlNguyenNhan = new JPanel(new BorderLayout(0, 4));
         pnlNguyenNhan.setBackground(Color.WHITE);
-        JLabel lblNguyenNhan = new JLabel("Nguyên nhân:");
+        lblNguyenNhan = new JLabel("Nguyên nhân:");
         lblNguyenNhan.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblNguyenNhan.setForeground(chuchinh);
+        lblNguyenNhan.setForeground(new Color(17, 24, 39));
         pnlNguyenNhan.add(lblNguyenNhan, BorderLayout.NORTH);
         pnlNguyenNhan.add(new JScrollPane(txaNguyenNhan), BorderLayout.CENTER);
 
-        JPanel pnlDeXuat = new JPanel(new BorderLayout(0, 4));
+        pnlDeXuat = new JPanel(new BorderLayout(0, 4));
         pnlDeXuat.setBackground(Color.WHITE);
-        JLabel lblDeXuat = new JLabel("Đề xuất phương án sửa chữa:");
+        lblDeXuat = new JLabel("Đề xuất phương án sửa chữa:");
         lblDeXuat.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblDeXuat.setForeground(chuchinh);
+        lblDeXuat.setForeground(new Color(17, 24, 39));
         pnlDeXuat.add(lblDeXuat, BorderLayout.NORTH);
         pnlDeXuat.add(new JScrollPane(txaDeXuat), BorderLayout.CENTER);
 
@@ -254,21 +262,21 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         pnlTextInputContainer.add(pnlNguyenNhan);
         pnlTextInputContainer.add(pnlDeXuat);
 
-        JPanel pnlActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pnlActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlActionPanel.setBackground(Color.WHITE);
 
         btnLamMoi = new JButton("Nhập lại");
         btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnLamMoi.setForeground(chuchinh);
-        btnLamMoi.setBackground(maumenu);
+        btnLamMoi.setForeground(new Color(17, 24, 39));
+        btnLamMoi.setBackground(new Color(226, 232, 240));
         btnLamMoi.setFocusPainted(false);
         btnLamMoi.setBorderPainted(false);
         btnLamMoi.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnXacNhan = new JButton("Xác nhận hoàn thành");
         btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnXacNhan.setForeground(chuchinh);
-        btnXacNhan.setBackground(btnchinh);
+        btnXacNhan.setForeground(new Color(17, 24, 39));
+        btnXacNhan.setBackground(new Color(186, 230, 253));
         btnXacNhan.setFocusPainted(false);
         btnXacNhan.setBorderPainted(false);
         btnXacNhan.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -285,7 +293,7 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         splitPane.setDividerLocation(480);
         splitPane.setDividerSize(6);
         splitPane.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
-        splitPane.setBackground(maunen);
+        splitPane.setBackground(new Color(244, 246, 248));
 
         add(splitPane, BorderLayout.CENTER);
 
@@ -375,9 +383,11 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
                 if (xe != null) {
                     KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
                     txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
+                } else {
+                    txtKhachHang.setText("");
                 }
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi tải thông tin khách hàng: " + ex.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

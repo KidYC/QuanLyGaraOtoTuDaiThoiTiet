@@ -1,20 +1,24 @@
 package Entity;
 
-import java.sql.Date;
+import java.util.Date;
+import java.util.Objects;
 
 public class KyThuatVien {
     private String maKTV;
     private String hoTen;
+    private String soDienThoai;
     private String diaChi;
     private Date ngayVaoLam;
     private String trangThai;
 
+
     public KyThuatVien() {
     }
 
-    public KyThuatVien(String maKTV, String hoTen, String diaChi, Date ngayVaoLam, String trangThai) {
+    public KyThuatVien(String maKTV, String hoTen, String soDienThoai, String diaChi, Date ngayVaoLam, String trangThai) {
         this.maKTV = maKTV;
         this.hoTen = hoTen;
+        this.soDienThoai = soDienThoai;
         this.diaChi = diaChi;
         this.ngayVaoLam = ngayVaoLam;
         this.trangThai = trangThai;
@@ -28,21 +32,20 @@ public class KyThuatVien {
         this.maKTV = maKTV;
     }
 
-    // Giữ phương thức alias này để tránh lỗi nếu code giao diện cũ có gọi getMaNhanVien()
-    public String getMaNhanVien() {
-        return maKTV;
-    }
-
-    public void setMaNhanVien(String maNhanVien) {
-        this.maKTV = maNhanVien;
-    }
-
     public String getHoTen() {
         return hoTen;
     }
 
     public void setHoTen(String hoTen) {
         this.hoTen = hoTen;
+    }
+
+    public String getSoDienThoai() {
+        return soDienThoai;
+    }
+
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
     }
 
     public String getDiaChi() {
@@ -67,5 +70,23 @@ public class KyThuatVien {
 
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KyThuatVien that = (KyThuatVien) o;
+        return Objects.equals(maKTV, that.maKTV);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maKTV);
+    }
+
+    @Override
+    public String toString() {
+        return hoTen;
     }
 }
