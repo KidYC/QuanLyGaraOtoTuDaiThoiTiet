@@ -101,37 +101,61 @@ public class ThuKho_DAO {
         return ds;
     }
 
-    // 3. Duyệt xuất kho: Tự động trừ tồn kho + Đổi trạng thái phiếu
     public boolean xacNhanXuatKho(String maPhieuSC) throws SQLException {
-        String sqlUpdateStatus = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Đã xuất kho' WHERE maPhieuSuaChua = ?";
-        String sqlTruTonKho = "UPDATE pt " +
-                "SET pt.soLuongTon = pt.soLuongTon - ct.soLuong " +
-                "FROM PHU_TUNG pt " +
-                "JOIN CHI_TIET_PHIEU_SUA_CHUA ct ON pt.maPhuTung = ct.maPhuTung " +
-                "WHERE ct.maPhieuSuaChua = ?";
-
         Connection conn = null;
         try {
             conn = connectSQL.getConnection();
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // Bật giao dịch (Transaction)
 
-            try (PreparedStatement ps1 = conn.prepareStatement(sqlTruTonKho)) {
-                ps1.setString(1, maPhieuSC);
-                ps1.executeUpdate();
+            String sqlGetCT = "SELECT maPhuTung, soLuong FROM CHI_TIET_PHIEU_SUA_CHUA WHERE maPhieuSuaChua = ?";
+            List<String[]> listPT = new ArrayList<>();
+
+            try (PreparedStatement psGet = conn.prepareStatement(sqlGetCT)) {
+                psGet.setString(1, maPhieuSC);
+                try (ResultSet rs = psGet.executeQuery()) {
+                    while (rs.next()) {
+                        listPT.add(new String[]{ rs.getString("maPhuTung"), rs.getString("soLuong") });
+                    }
+                }
             }
 
-            try (PreparedStatement ps2 = conn.prepareStatement(sqlUpdateStatus)) {
-                ps2.setString(1, maPhieuSC);
-                ps2.executeUpdate();
+            String sqlUpdateTon = "UPDATE PHU_TUNG SET soLuongTon = soLuongTon - ? WHERE maPhuTung = ? AND soLuongTon >= ?";
+            try (PreparedStatement psUpdateTon = conn.prepareStatement(sqlUpdateTon)) {
+                for (String[] pt : listPT) {
+                    String maPT = pt[0];
+                    int soLuongXuat = Integer.parseInt(pt[1]);
+
+                    psUpdateTon.setInt(1, soLuongXuat);
+                    psUpdateTon.setString(2, maPT);
+                    psUpdateTon.setInt(3, soLuongXuat); // Đảm bảo tồn kho đủ mới cho trừ (tùy chọn)
+
+                    int affectedRows = psUpdateTon.executeUpdate();
+                    if (affectedRows == 0) {
+                        // Nếu không cập nhật được (do không đủ tồn kho hoặc sai mã), rollback ngay lập tức
+                        conn.rollback();
+                        return false;
+                    }
+                }
             }
 
-            conn.commit();
+            // Bước 3: Cập nhật trạng thái phiếu sửa chữa thành "Đang sửa chữa"
+            String sqlUpdateStatus = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Đang sửa chữa' WHERE maPhieuSuaChua = ?";
+            try (PreparedStatement psStatus = conn.prepareStatement(sqlUpdateStatus)) {
+                psStatus.setString(1, maPhieuSC);
+                psStatus.executeUpdate();
+            }
+
+            conn.commit(); // Xác nhận toàn bộ thay đổi thành công
             return true;
+
         } catch (SQLException e) {
-            if (conn != null) conn.rollback();
+            if (conn != null) conn.rollback(); // Hoàn tác nếu có lỗi bất ngờ
             throw e;
         } finally {
-            if (conn != null) conn.setAutoCommit(true);
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
         }
     }
 }

@@ -159,10 +159,19 @@ CREATE TABLE PHIEU_SUA_CHUA (
                                 maPhieuSuaChua VARCHAR(20) PRIMARY KEY,
                                 ngayLap DATETIME DEFAULT GETDATE(),
                                 ngayIn DATETIME,
+                                ngayDuKienHoanThanh DATETIME,
                                 trangThai NVARCHAR(50),
                                 bienSo VARCHAR(20),
                                 maKTV VARCHAR(20),
                                 maPhieuTiepNhan VARCHAR(20),
+                                loiPhatHien NVARCHAR(MAX),
+                                nguyenNhan NVARCHAR(MAX),
+                                deXuatSuaChua NVARCHAR(MAX),
+                                tienDo INT DEFAULT 0,
+                                ghiChu NVARCHAR(MAX),
+                                ketQuaKCS NVARCHAR(50),
+                                ghiChuKCS NVARCHAR(MAX),
+                                ngayKiemTraKCS DATE,
                                 FOREIGN KEY (bienSo) REFERENCES XE(bienSo),
                                 FOREIGN KEY (maKTV) REFERENCES KY_THUAT_VIEN(maKTV),
                                 FOREIGN KEY (maPhieuTiepNhan) REFERENCES PHIEU_TIEP_NHAN(maPhieuTiepNhan)
@@ -392,21 +401,117 @@ INSERT INTO PHU_TUNG (maPhuTung, tenPhuTung, donViTinh, donGiaNhap, donGiaBan, s
                                                                                                       ('PT04', N'Bơm cao áp', N'Cái', 4500000, 6200000, 50, 'KHO01');
 
 -- Phiếu Tiếp Nhận & Phiếu Sửa Chữa
-INSERT INTO PHIEU_TIEP_NHAN (maPhieuTiepNhan, ngayTiepNhan, tinhTrangXe, yeuCauKH, trangThai, bienSo) VALUES
-                                                                                                          ('PTN01', '2026-02-15 08:30:00', N'Trầy xước nhẹ', N'Bảo dưỡng', N'Đã hoàn thành', '51G-123.45'),
-                                                                                                          ('PTN02', '2026-03-20 09:15:00', N'Bình thường', N'Thay má phanh', N'Đã hoàn thành', '60B-987.65'),
-                                                                                                          ('PTN03', '2026-05-15 08:00:00', N'Lỗi động cơ', N'Check máy', N'Đã hoàn thành', '51A-888.88'),
-                                                                                                          ('PTN04', '2026-08-20 09:00:00', N'Bình thường', N'Vệ sinh kim phun', N'Đã hoàn thành', '51K-999.99'),
-                                                                                                          ('PTN05', '2026-10-05 10:00:00', N'Hỏng phanh', N'Kiểm tra phanh', N'Chờ sửa chữa', '51K-555.88'),
-                                                                                                          ('PTN06', '2026-10-24 11:00:00', N'Bình thường', N'Bảo dưỡng', N'Đang xử lý', '51G-123.45');
-
-INSERT INTO PHIEU_SUA_CHUA (maPhieuSuaChua, ngayLap, trangThai, bienSo, maKTV, maPhieuTiepNhan) VALUES
-                                                                                                    ('PSC01', '2026-02-15 09:00:00', N'Hoàn thành', '51G-123.45', 'KTV01', 'PTN01'),
-                                                                                                    ('PSC02', '2026-03-20 10:00:00', N'Hoàn thành', '60B-987.65', 'KTV02', 'PTN02'),
-                                                                                                    ('PSC03', '2026-05-15 09:00:00', N'Hoàn thành', '51A-888.88', 'KTV01', 'PTN03'),
-                                                                                                    ('PSC04', '2026-08-20 10:00:00', N'Hoàn thành', '51K-999.99', 'KTV02', 'PTN04'),
-                                                                                                    ('PSC06', '2026-10-24 11:30:00', N'Đang xử lý', '51G-123.45', 'KTV01', 'PTN06');
-
+INSERT INTO PHIEU_SUA_CHUA (
+    maPhieuSuaChua,
+    ngayLap,
+    ngayIn,
+    ngayDuKienHoanThanh,
+    trangThai,
+    bienSo,
+    maKTV,
+    maPhieuTiepNhan,
+    loiPhatHien,
+    nguyenNhan,
+    deXuatSuaChua,
+    tienDo,
+    ghiChu,
+    ketQuaKCS,
+    ghiChuKCS,
+    ngayKiemTraKCS
+)
+VALUES
+    (
+        'PSC01', '2026-02-15 09:00:00', '2026-02-15 11:00:00',
+        '2026-02-15 17:00:00', N'Hoàn thành',
+        '51G-123.45', 'KTV01', 'PTN01',
+        N'Dầu nhớt động cơ đã đen, lọc nhớt bám nhiều cặn bẩn.',
+        N'Xe tới hạn bảo dưỡng định kỳ (đã chạy đủ 5000km).',
+        N'Thay nhớt động cơ, thay lọc nhớt, vệ sinh lọc gió.',
+        100,
+        N'Đã hoàn tất thay nhớt và kiểm tra động cơ tổng quát.',
+        N'Đạt',
+        N'Động cơ hoạt động ổn định, không phát hiện tiếng ồn bất thường.',
+        '2026-02-16'
+    ),
+    (
+        'PSC02', '2026-03-20 10:00:00', '2026-03-20 12:00:00',
+        '2026-03-20 16:00:00', N'Hoàn thành',
+        '60B-987.65', 'KTV02', 'PTN02',
+        N'Má phanh trước mòn mỏng, gần sát tới đĩa phanh. Đĩa phanh có vệt xước nhẹ.',
+        N'Hao mòn tự nhiên trong quá trình sử dụng.',
+        N'Thay bộ má phanh trước mới, vệ sinh cụm heo dầu phanh.',
+        100,
+        N'Đã thay má phanh và vệ sinh heo dầu thành công.',
+        N'Không đạt',
+        N'Hệ thống phanh chưa đạt yêu cầu, cần kiểm tra và điều chỉnh lại.',
+        '2026-03-21'
+    ),
+    (
+        'PSC03', '2026-05-15 09:00:00', '2026-05-15 10:30:00',
+        '2026-05-16 17:00:00', N'Hoàn thành',
+        '51A-888.88', 'KTV01', 'PTN03',
+        N'Máy nổ rung giật mạnh ở vòng tua thấp, đồng hồ báo đèn Check Engine.',
+        N'Chết bô bin đánh lửa máy số 2, bugi bám muội đen.',
+        N'Thay bô bin máy số 2, vệ sinh lại 4 bugi và dùng máy đọc lỗi xóa mã lỗi.',
+        100,
+        N'Đã thay bô bin và xóa mã lỗi trên xe.',
+        N'Đạt',
+        N'Hệ thống đèn chiếu sáng hoạt động tốt, các kết nối điện ổn định.',
+        '2026-05-17'
+    ),
+    (
+        'PSC04', '2026-08-20 10:00:00', '2026-08-20 11:30:00',
+        '2026-08-21 17:00:00', N'Hoàn thành',
+        '51K-999.99', 'KTV02', 'PTN04',
+        N'Xe chạy ỳ, hao xăng hơn bình thường, kim phun có hiện tượng đái xăng do cặn bẩn.',
+        N'Sử dụng xăng kém chất lượng lâu ngày sinh cặn.',
+        N'Xúc rửa súc béc, vệ sinh kim phun bằng dung dịch chuyên dụng 3M.',
+        100,
+        N'Đã vệ sinh kim phun, xe chạy bốc trở lại.',
+        N'Đạt',
+        N'Đã khắc phục tình trạng rung lắc, xe vận hành bình thường khi chạy thử.',
+        '2026-08-22'
+    ),
+    (
+        'PSC05', '2026-09-15 08:30:00', '2026-09-15 10:00:00',
+        '2026-09-16 17:00:00', N'Hoàn thành',
+        '51F-555.55', 'KTV01', 'PTN05',
+        N'Điều hòa làm mát yếu, nhiệt độ trong cabin không đạt yêu cầu.',
+        N'Hệ thống điều hòa thiếu gas, lọc gió điều hòa bám nhiều bụi bẩn.',
+        N'Kiểm tra rò rỉ gas, nạp gas điều hòa và thay lọc gió cabin.',
+        100,
+        N'Đã nạp gas và thay lọc gió cabin.',
+        N'Không đạt',
+        N'Điều hòa làm mát chưa đủ công suất, yêu cầu kiểm tra lại hệ thống gas.',
+        '2026-09-17'
+    ),
+    (
+        'PSC06', '2026-10-24 11:30:00', '2026-10-24 13:00:00',
+        '2026-10-26 17:00:00', N'Đang sửa chữa',
+        '51G-123.45', 'KTV01', 'PTN06',
+        N'Dây curoa máy phát rạn nứt nhiều đường, ắc quy đo được dòng điện thấp.',
+        N'Linh kiện cao su lão hóa theo thời gian, bình ắc quy xuống cấp.',
+        N'Thay dây curoa tổng, kích sạc lại ắc quy kiểm tra thêm.',
+        60,
+        N'Đang tháo dây curoa cũ, chuẩn bị lắp dây mới.',
+        N'Chưa kiểm tra',
+        N'Đang trong quá trình sửa chữa, chưa thực hiện KCS.',
+        '2026-10-26'
+    ),
+    (
+        'PSC07', '2026-10-28 09:00:00', '2026-10-28 10:00:00',
+        '2026-11-03 17:00:00', N'Đang sửa chữa',
+        '51A-888.88', 'KTV01', 'PTN07',
+        N'Kiểm tra tổng quát định kỳ các chi tiết gầm máy.',
+        N'Xe di chuyển đường dài thường xuyên.',
+        N'Bảo dưỡng hệ thống treo và siết lại ốc gầm.',
+        40,
+        N'Đang tiến hành kiểm tra phần gầm xe.',
+        N'Chưa kiểm tra',
+        N'Đang thực hiện, chờ hoàn thiện để KCS.',
+        '2026-11-03'
+    );
+GO
 -- Chi Tiết Giao Dịch
 INSERT INTO CHI_TIET_DICH_VU (maPhieuSuaChua, maDichVu, soLuong, donGia) VALUES
                                                                              ('PSC01', 'DV01', 1, 350000),

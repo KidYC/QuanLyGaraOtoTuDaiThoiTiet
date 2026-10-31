@@ -327,7 +327,12 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
             txtMaPhieu.setText(psc.getMaPhieuSuaChua());
             txtBienSo.setText(psc.getBienSo());
             txtKtvThucHien.setText(psc.getMaNhanVien());
-
+            txaGhiChu.setText(psc.getGhiChuKCS() != null ? psc.getGhiChuKCS() : "");
+            if ("Không đạt".equals(psc.getKetQuaKCS())) {
+                radKhongDat.setSelected(true);
+            } else {
+                radDat.setSelected(true);
+            }
             try {
                 Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
 
@@ -352,23 +357,28 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         }
 
         String maPhieu = txtMaPhieu.getText().trim();
-
         if (maPhieu.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu sửa chữa hợp lệ!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String trangThaiKCS = radDat.isSelected() ? "Đạt - Chờ bàn giao" : "Không đạt - Sửa lại";
+        // Xác định kết quả và trạng thái dựa trên RadioButton
+        String ketQuaKCS = radDat.isSelected() ? "Đạt" : "Không đạt";
+        String trangThaiMoi = radDat.isSelected() ? "Chờ bàn giao" : "Đang sửa chữa"; // Hoặc trạng thái tùy logic nhóm bạn
+        String ghiChuKCS = txaGhiChu.getText().trim();
+
+        // Lấy ngày hiện tại làm ngày kiểm tra KCS
+        java.sql.Date ngayKiemTra = new java.sql.Date(System.currentTimeMillis());
 
         try {
-            boolean ok = phieuSuaChuaDAO.capNhatTrangThai(maPhieu, trangThaiKCS);
+            boolean ok = phieuSuaChuaDAO.capNhatKCS(maPhieu, ketQuaKCS, ghiChuKCS, ngayKiemTra, trangThaiMoi);
 
             if (ok) {
                 JOptionPane.showMessageDialog(this, "Lưu kết quả KCS thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 loadDanhSachKCS();
                 xoaForm();
             } else {
-                JOptionPane.showMessageDialog(this, "Không thể cập nhật trạng thái KCS!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Không thể cập nhật kết quả KCS!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi lưu CSDL: " + ex.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
@@ -418,4 +428,8 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
 
     @Override
     public void mouseExited(MouseEvent e) {}
+
+    public static void main(String[] args) {
+        new KiemTraChatLuong();
+    }
 }

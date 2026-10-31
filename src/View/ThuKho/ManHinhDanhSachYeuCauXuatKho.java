@@ -18,6 +18,7 @@ import java.util.List;
 import DAO.DanhSachPhuTung_DAO;
 import DAO.PhieuSuaChua_DAO;
 import DAO.PhuTung_DAO;
+import DAO.ThuKho_DAO;
 import Entity.DanhSachPhuTung;
 import Entity.PhieuSuaChua;
 import Entity.PhuTung;
@@ -48,6 +49,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
     private final PhieuSuaChua_DAO phieuSuaChuaDAO = new PhieuSuaChua_DAO();
     private final DanhSachPhuTung_DAO danhSachPhuTungDAO = new DanhSachPhuTung_DAO();
     private final PhuTung_DAO phuTungDAO = new PhuTung_DAO();
+    private final ThuKho_DAO thuKhoDAO = new ThuKho_DAO();
 
     private List<PhieuSuaChua> dsPhieuFull = new ArrayList<>();
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -327,7 +329,6 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         loadDataFromDB();
     }
 
-    // Thủ kho bấm Duyệt & Xuất Kho -> Trừ tồn kho và cập nhật trạng thái phiếu
     private void xuLyDuyetXuatKho() {
         int dong = tblyeucau.getSelectedRow();
         if (dong == -1) {
@@ -349,9 +350,10 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         if (chon != JOptionPane.YES_OPTION) return;
 
         try {
-            boolean thanhCong = phieuSuaChuaDAO.xacNhanXuatKho(maPhieuSC);
+            // ĐÃ SỬA: Gọi qua thuKhoDAO
+            boolean thanhCong = thuKhoDAO.xacNhanXuatKho(maPhieuSC);
             if (thanhCong) {
-                JOptionPane.showMessageDialog(this, "Duyệt xuất kho thành công! Số lượng phụ tùng trong kho đã được trừ.");
+                JOptionPane.showMessageDialog(this, "Duyệt xuất kho thành công! Xe đã được chuyển sang trạng thái Đang sửa chữa.");
                 loadDataFromDB();
             } else {
                 JOptionPane.showMessageDialog(this, "Xuất kho thất bại! Số lượng phụ tùng tồn kho không đủ.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
@@ -375,9 +377,10 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         if (chon != JOptionPane.YES_OPTION) return;
 
         try {
-            boolean thanhCong = phieuSuaChuaDAO.capNhatTrangThai(maPhieuSC, "Từ chối");
+            // ĐÃ SỬA: Đổi trạng thái thành "Từ chối xuất kho"
+            boolean thanhCong = phieuSuaChuaDAO.capNhatTrangThai(maPhieuSC, "Từ chối xuất kho");
             if (thanhCong) {
-                JOptionPane.showMessageDialog(this, "Đã chuyển trạng thái phiếu sang 'Từ chối'.");
+                JOptionPane.showMessageDialog(this, "Đã chuyển trạng thái phiếu sang 'Từ chối xuất kho'.");
                 loadDataFromDB();
             }
         } catch (SQLException ex) {

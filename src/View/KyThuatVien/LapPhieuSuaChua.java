@@ -106,6 +106,7 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
     private List<PhieuTiepNhan> dsPhieuTiepNhan = new ArrayList<>();
     private List<DichVu> dsDichVu = new ArrayList<>();
     private List<PhuTung> dsPhuTung = new ArrayList<>();
+    private List<PhieuSuaChua> dsPhieuSuaChuaChoLap = new ArrayList<>();
 
     private final DecimalFormat df = new DecimalFormat("#,###");
 
@@ -172,7 +173,7 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         txtNgayTiepNhan.setEditable(false);
         txtNgayTiepNhan.setBackground(new Color(244, 246, 248));
 
-        lblMaPhieuTiepNhan = new JLabel("Mã phiếu tiếp nhận:");
+        lblMaPhieuTiepNhan = new JLabel("Mã phiếu sửa chữa:");
         lblMaPhieuTiepNhan.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblMaPhieuTiepNhan.setForeground(new Color(17, 24, 39));
 
@@ -349,7 +350,7 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         btnLamMoi.setBorderPainted(false);
         btnLamMoi.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        btnTaoPhieu = new JButton("Tạo phiếu sửa chữa");
+        btnTaoPhieu = new JButton("Hoàn tất & Chuyển báo giá");
         btnTaoPhieu.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnTaoPhieu.setForeground(new Color(17, 24, 39));
         btnTaoPhieu.setBackground(new Color(34, 197, 94));
@@ -389,24 +390,33 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
     private void loadPhieuTiepNhanCombobox() {
         try {
             cmbPhieuTiepNhan.removeAllItems();
-            cmbPhieuTiepNhan.addItem("-- Chọn phiếu tiếp nhận --");
-            dsPhieuTiepNhan = phieuTiepNhanDAO.getAllPhieuTiepNhan();
-            for (PhieuTiepNhan ptn : dsPhieuTiepNhan) {
-                cmbPhieuTiepNhan.addItem(ptn.getMaPhieuTiepNhan() + " - " + ptn.getBienSo());
+            cmbPhieuTiepNhan.addItem("-- Chọn phiếu đang lập vật tư --");
+
+            List<PhieuSuaChua> allPSC = phieuSuaChuaDAO.getAllPhieuSuaChua();
+            for (PhieuSuaChua psc : allPSC) {
+                // CHỈ LẤY CÁC PHIẾU VỪA ĐƯỢC CHẨN ĐOÁN
+                if ("Đang lập vật tư".equals(psc.getTrangThai())) {
+                    dsPhieuSuaChuaChoLap.add(psc);
+                    cmbPhieuTiepNhan.addItem(psc.getMaPhieuSuaChua() + " - " + psc.getBienSo());
+                }
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi tải phiếu tiếp nhận: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
-    private void chonPhieuTiepNhan() {
+    private void chonPhieuSuaChua() {
         int index = cmbPhieuTiepNhan.getSelectedIndex();
-        if (index > 0 && index <= dsPhieuTiepNhan.size()) {
-            PhieuTiepNhan ptn = dsPhieuTiepNhan.get(index - 1);
-            txtBienSo.setText(ptn.getBienSo());
-            txtNgayTiepNhan.setText(ptn.getNgayTiepNhan().toString());
+        // Phải dựa vào dsPhieuSuaChuaChoLap vì combobox đang chứa danh sách Phiếu Sửa Chữa
+        if (index > 0 && index <= dsPhieuSuaChuaChoLap.size()) {
+            PhieuSuaChua psc = dsPhieuSuaChuaChoLap.get(index - 1);
+
+            // Điền thông tin lên các ô text
+            txtBienSo.setText(psc.getBienSo() != null ? psc.getBienSo() : "");
+            txtNgayTiepNhan.setText(psc.getNgayLap() != null ? psc.getNgayLap().toString() : "");
+
             try {
-                Xe xe = xeDAO.getXeByBienSo(ptn.getBienSo());
+                Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
                 if (xe != null) {
                     KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
                     txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
@@ -571,42 +581,73 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
     }
 
     private void xacNhanTaoPhieu() {
-        if (cmbPhieuTiepNhan.getSelectedIndex() <= 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu tiếp nhận xe!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        int index = cmbPhieuTiepNhan.getSelectedIndex();
+        if (index <= 0) return;
 
-        String maPhieuTiepNhan = dsPhieuTiepNhan.get(cmbPhieuTiepNhan.getSelectedIndex() - 1).getMaPhieuTiepNhan();
-        String maPhieuSC = "PSC" + System.currentTimeMillis() % 100000;
-        Date ngayHienTai = new Date(System.currentTimeMillis());
-        PhieuSuaChua psc = new PhieuSuaChua(maPhieuSC, ngayHienTai, ngayHienTai, "Chờ xuất kho", txtBienSo.getText(), maKTV, maPhieuTiepNhan);
+        String maPhieuSC = dsPhieuSuaChuaChoLap.get(index - 1).getMaPhieuSuaChua();
 
         try {
-            boolean taoThanhCong = phieuSuaChuaDAO.themPhieuSuaChua(psc);
-            if (taoThanhCong) {
-                for (int i = 0; i < tableModelCongViec.getRowCount(); i++) {
-                    String maDV = tableModelCongViec.getValueAt(i, 1).toString();
-                    double donGia = Double.parseDouble(tableModelCongViec.getValueAt(i, 3).toString().replace(".", "").replace(",", ""));
-                    chiTietDichVuDAO.themChiTietDichVu(new ChiTietDichVu(maPhieuSC, maDV, 1, donGia));
-                }
-
-                for (int i = 0; i < tableModelPhuTung.getRowCount(); i++) {
-                    String maPT = tableModelPhuTung.getValueAt(i, 1).toString();
-                    int sl = Integer.parseInt(tableModelPhuTung.getValueAt(i, 3).toString());
-                    double donGia = Double.parseDouble(tableModelPhuTung.getValueAt(i, 4).toString().replace(".", "").replace(",", ""));
-                    danhSachPhuTungDAO.themDanhSachPhuTung(new DanhSachPhuTung(maPhieuSC, maPT, sl, donGia));
-                }
-
-                JOptionPane.showMessageDialog(this,
-                        "Tạo phiếu sửa chữa thành công!\nMã phiếu: " + maPhieuSC
-                                + "\nĐã gửi yêu cầu vật tư sang bộ phận Thủ kho chờ xuất kho.",
-                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                xoaForm();
+            // 1. Insert Chi Tiết Dịch Vụ
+            for (int i = 0; i < tableModelCongViec.getRowCount(); i++) {
+                String maDV = tableModelCongViec.getValueAt(i, 1).toString();
+                double donGia = Double.parseDouble(tableModelCongViec.getValueAt(i, 3).toString().replace(".", "").replace(",", ""));
+                chiTietDichVuDAO.themChiTietDichVu(new ChiTietDichVu(maPhieuSC, maDV, 1, donGia));
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi tạo phiếu sửa chữa: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+
+            // 2. Insert Chi Tiết Phụ Tùng
+            for (int i = 0; i < tableModelPhuTung.getRowCount(); i++) {
+                String maPT = tableModelPhuTung.getValueAt(i, 1).toString();
+                int sl = Integer.parseInt(tableModelPhuTung.getValueAt(i, 3).toString());
+                double donGia = Double.parseDouble(tableModelPhuTung.getValueAt(i, 4).toString().replace(".", "").replace(",", ""));
+                danhSachPhuTungDAO.themDanhSachPhuTung(new DanhSachPhuTung(maPhieuSC, maPT, sl, donGia));
+            }
+
+            // 3. Update trạng thái phiếu
+            phieuSuaChuaDAO.capNhatTrangThai(maPhieuSC, "Chờ xác nhận báo giá");
+
+            JOptionPane.showMessageDialog(this, "Lập phiếu thành công! Đã chuyển sang bộ phận Lễ tân chờ báo giá.");
+            xoaForm();
+            loadPhieuTiepNhanCombobox();
+
+        } catch (Exception ex) { // Đổi từ SQLException thành Exception để bắt mọi loại lỗi
+            ex.printStackTrace();
+            // BẬT DÒNG NÀY LÊN ĐỂ XEM LỖI CHI TIẾT BẬT RA MÀN HÌNH:
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phụ tùng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
+//    private void xacNhanTaoPhieu() {
+//        int index = cmbPhieuTiepNhan.getSelectedIndex();
+//        if (index <= 0) return;
+//
+//        String maPhieuSC = dsPhieuSuaChuaChoLap.get(index - 1).getMaPhieuSuaChua();
+//
+//        try {
+//            // 1. Insert Chi Tiết Dịch Vụ
+//            for (int i = 0; i < tableModelCongViec.getRowCount(); i++) {
+//                String maDV = tableModelCongViec.getValueAt(i, 1).toString();
+//                double donGia = Double.parseDouble(tableModelCongViec.getValueAt(i, 3).toString().replace(".", "").replace(",", ""));
+//                chiTietDichVuDAO.themChiTietDichVu(new ChiTietDichVu(maPhieuSC, maDV, 1, donGia));
+//            }
+//
+//            // 2. Insert Chi Tiết Phụ Tùng
+//            for (int i = 0; i < tableModelPhuTung.getRowCount(); i++) {
+//                String maPT = tableModelPhuTung.getValueAt(i, 1).toString();
+//                int sl = Integer.parseInt(tableModelPhuTung.getValueAt(i, 3).toString());
+//                double donGia = Double.parseDouble(tableModelPhuTung.getValueAt(i, 4).toString().replace(".", "").replace(",", ""));
+//                danhSachPhuTungDAO.themDanhSachPhuTung(new DanhSachPhuTung(maPhieuSC, maPT, sl, donGia));
+//            }
+//
+//            // 3. QUAN TRỌNG NHẤT: Update trạng thái phiếu thành "Chờ xác nhận báo giá"
+//            phieuSuaChuaDAO.capNhatTrangThai(maPhieuSC, "Chờ xác nhận báo giá");
+//
+//            JOptionPane.showMessageDialog(this, "Lập phiếu thành công! Đã chuyển sang bộ phận Lễ tân chờ báo giá.");
+//            xoaForm();
+//            loadPhieuTiepNhanCombobox(); // Refresh lại danh sách
+//
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//        }
+//    }
 
     private void xoaForm() {
         cmbPhieuTiepNhan.setSelectedIndex(0);
@@ -625,7 +666,7 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
         if (source == btnQuayLai) {
             dispose();
         } else if (source == cmbPhieuTiepNhan) {
-            chonPhieuTiepNhan();
+            chonPhieuSuaChua();
         } else if (source == btnThemCongViec) {
             moFormThemCongViec();
         } else if (source == btnXoaCongViec) {
