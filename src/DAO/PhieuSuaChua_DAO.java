@@ -102,6 +102,18 @@ public class PhieuSuaChua_DAO {
         try {
             conn.setAutoCommit(false); // Bắt đầu Transaction
 
+            // Đổi trạng thái trước, chỉ khi phiếu còn "Chờ xuất kho" -> tránh duyệt (trừ kho) 2 lần cùng 1 phiếu
+            String sqlUpdate = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Đang sửa chữa' WHERE maPhieuSuaChua = ? AND trangThai = N'Chờ xuất kho'";
+            int soDong;
+            try (PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
+                ps.setString(1, maPhieuSC);
+                soDong = ps.executeUpdate();
+            }
+            if (soDong == 0) {
+                conn.rollback(); // phiếu đã được duyệt / từ chối ở nơi khác
+                return false;
+            }
+
             List<DanhSachPhuTung> dsPT = dsPhuTungDAO.getDSPhuTungByMaPhieu(maPhieuSC);
             for (DanhSachPhuTung pt : dsPT) {
                 boolean checkTon = phuTungDAO.giamSoLuongTon(pt.getMaPhuTung(), pt.getSoLuongPhuTung(), conn);
@@ -109,12 +121,6 @@ public class PhieuSuaChua_DAO {
                     conn.rollback();
                     return false;
                 }
-            }
-
-            String sqlUpdate = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Đang sửa chữa' WHERE maPhieuSuaChua = ?";
-            try (PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
-                ps.setString(1, maPhieuSC);
-                ps.executeUpdate();
             }
 
             conn.commit();
