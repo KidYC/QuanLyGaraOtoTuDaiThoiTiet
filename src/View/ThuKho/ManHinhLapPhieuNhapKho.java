@@ -1,5 +1,14 @@
 package View.ThuKho;
 
+import DAO.NhaCungCap_DAO;
+import DAO.PhieuNhapKho_DAO;
+import DAO.PhuTung_DAO;
+import Entity.ChiTietPhieuNhap;
+import Entity.NhaCungCap;
+import Entity.PhieuNhapKho;
+import Entity.PhuTung;
+import Entity.ThuKho;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -7,9 +16,13 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
 
@@ -31,27 +44,100 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
     private JButton btnlammoi;
     private JButton btnluu;
 
-    private final String[] dsphutung = {
-            "PT001 - Dầu nhớt Castrol", "PT002 - Lọc gió", "PT003 - Bugi"};
-    private final String[] dsdonvi = {"Chai", "Cái", "Cái"};
+    private final PhuTung_DAO phuTungDAO = new PhuTung_DAO();
+    private final NhaCungCap_DAO nhaCungCapDAO = new NhaCungCap_DAO();
+    private final PhieuNhapKho_DAO phieuNhapDAO = new PhieuNhapKho_DAO();
 
-    private DecimalFormat dinhdang = new DecimalFormat("#,###");
+    private List<PhuTung> dsphutung = new ArrayList<>();
+    private List<NhaCungCap> dsnhacungcap = new ArrayList<>();
+    private final DecimalFormat dinhdang = new DecimalFormat("#,###");
+    private boolean chedosua = false;
+    private String maphieugoc = "";
 
     public ManHinhLapPhieuNhapKho() {
-        this("PN004", "Nguyễn Văn A");
+        khoiTao();
+        txtmaphieu.setText(taoMaPhieu());
     }
 
-    public ManHinhLapPhieuNhapKho(String maphieu, String nhanvien) {
-        setTitle("LẬP PHIẾU NHẬP KHO");
+    public ManHinhLapPhieuNhapKho(String maphieu) {
+        this.chedosua = true;
+        this.maphieugoc = maphieu;
+        khoiTao();
+        napDuLieuSua();
+    }
+
+    private void khoiTao() {
+        setTitle(chedosua ? "SỬA PHIẾU NHẬP KHO" : "LẬP PHIẾU NHẬP KHO");
         setSize(850, 480);
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
+        taiDanhMuc();
         buildUI();
+    }
 
-        if (maphieu != null) txtmaphieu.setText(maphieu);
-        if (nhanvien != null) txtnhanvien.setText(nhanvien);
+    private void napDuLieuSua() {
+        try {
+            PhieuNhapKho pn = phieuNhapDAO.timPhieuNhapTheoMa(maphieugoc);
+            List<ChiTietPhieuNhap> dsct = phieuNhapDAO.getChiTietPhieuNhap(maphieugoc);
+            if (pn == null || dsct.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy dữ liệu của phiếu " + maphieugoc + "!",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                btnluu.setEnabled(false);
+                return;
+            }
+
+            txtmaphieu.setText(pn.getMaPhieuNhap());
+            if (pn.getNgayNhap() != null) {
+                txtngaynhap.setText(new SimpleDateFormat("dd/MM/yyyy").format(pn.getNgayNhap()));
+            }
+            txtnhanvien.setText(pn.getThuKho().getMaNhanVien());
+
+            String mancc = pn.getNhaCungCap().getMaNhaCungCap();
+            for (int i = 0; i < dsnhacungcap.size(); i++) {
+                if (dsnhacungcap.get(i).getMaNhaCungCap().equals(mancc)) {
+                    cbnhacungcap.setSelectedIndex(i);
+                }
+            }
+
+            ChiTietPhieuNhap ct = dsct.get(0);
+            for (int i = 0; i < dsphutung.size(); i++) {
+                if (dsphutung.get(i).getMaPhuTung().equals(ct.getMaPhuTung())) {
+                    cbphutung.setSelectedIndex(i);
+                }
+            }
+            txtsoluong.setText(String.valueOf(ct.getSoLuongNhap()));
+            txtdongia.setText(String.valueOf((long) ct.getDonGiaNhap()));
+            tinhThanhTien();
+
+            if (dsct.size() > 1) {
+                JOptionPane.showMessageDialog(this,
+                        "Phiếu này có nhiều phụ tùng, màn hình chỉ sửa được phiếu có 1 phụ tùng!",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                btnluu.setEnabled(false);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
+        }
+    }
+
+    private void taiDanhMuc() {
+        try {
+            dsphutung = phuTungDAO.getAllPhuTung();
+            dsnhacungcap = nhaCungCapDAO.getAllNhaCungCap();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
+        }
+    }
+
+    private String taoMaPhieu() {
+        try {
+            return phieuNhapDAO.sinhMaPhieuNhap();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tạo mã phiếu: " + e.getMessage());
+            return "";
+        }
     }
 
     private void buildUI() {
@@ -59,7 +145,7 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         getContentPane().setBackground(new Color(245, 245, 245));
 
         //pNorth
-        lbltieude = new JLabel("LẬP PHIẾU NHẬP KHO");
+        lbltieude = new JLabel(chedosua ? "SỬA PHIẾU NHẬP KHO" : "LẬP PHIẾU NHẬP KHO");
         lbltieude.setFont(new Font("Arial", Font.BOLD, 22));
         lbltieude.setHorizontalAlignment(SwingConstants.CENTER);
         lbltieude.setForeground(new Color(44, 62, 80));
@@ -81,7 +167,7 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
                 new EmptyBorder(10, 15, 10, 15)
         ));
 
-        txtmaphieu = new JTextField("PN004");
+        txtmaphieu = new JTextField();
         txtmaphieu.setEditable(false);
         txtmaphieu.setBackground(new Color(236, 240, 241));
 
@@ -90,8 +176,13 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         txtngaynhap.setEditable(false);
         txtngaynhap.setBackground(new Color(236, 240, 241));
 
-        cbnhacungcap = new JComboBox<>(new String[]{"Công ty Castrol VN", "Đại lý Hòa Phát", "Bosch Việt Nam"});
+        cbnhacungcap = new JComboBox<>();
+        for (NhaCungCap ncc : dsnhacungcap) {
+            cbnhacungcap.addItem(ncc.getTenNhaCungCap());
+        }
+
         txtnhanvien = new JTextField();
+
         txtghichu = new JTextField();
 
         pThongTin.add(new JLabel("Mã Phiếu:"));
@@ -100,7 +191,7 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         pThongTin.add(txtngaynhap);
         pThongTin.add(new JLabel("Nhà Cung Cấp:"));
         pThongTin.add(cbnhacungcap);
-        pThongTin.add(new JLabel("Nhân Viên Lập:"));
+        pThongTin.add(new JLabel("Mã Nhân Viên Lập:"));
         pThongTin.add(txtnhanvien);
         pThongTin.add(new JLabel("Ghi Chú:"));
         pThongTin.add(txtghichu);
@@ -117,9 +208,15 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
                 new EmptyBorder(10, 15, 10, 15)
         ));
 
-        cbphutung = new JComboBox<>(dsphutung);
+        cbphutung = new JComboBox<>();
+        for (PhuTung pt : dsphutung) {
+            cbphutung.addItem(pt.getMaPhuTung() + " - " + pt.getTenPhuTung());
+        }
 
-        txtdonvi = new JTextField(dsdonvi[0]);
+        txtdonvi = new JTextField();
+        if (!dsphutung.isEmpty()) {
+            txtdonvi.setText(dsphutung.get(0).getDonViTinh());
+        }
         txtdonvi.setEditable(false);
         txtdonvi.setBackground(new Color(236, 240, 241));
 
@@ -187,7 +284,7 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         btnquaylai.addActionListener(this);
         btnlammoi.addActionListener(this);
         cbphutung.addActionListener(this);
-        txtsoluong.addActionListener(this);  // nhấn Enter để tính thành tiền
+        txtsoluong.addActionListener(this);
         txtdongia.addActionListener(this);
     }
 
@@ -208,7 +305,10 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
     }
 
     private void xuLyDoiPhuTung() {
-        txtdonvi.setText(dsdonvi[cbphutung.getSelectedIndex()]);
+        int vitri = cbphutung.getSelectedIndex();
+        if (vitri >= 0) {
+            txtdonvi.setText(dsphutung.get(vitri).getDonViTinh());
+        }
     }
 
     private boolean tinhThanhTien() {
@@ -225,11 +325,19 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
     }
 
     private void xuLyLuuPhieu() {
-        if (txtnhanvien.getText().trim().isEmpty()) {
+        String manv = txtnhanvien.getText().trim();
+        if (manv.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập Nhân viên lập phiếu!",
+                    "Vui lòng nhập mã nhân viên lập phiếu!",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             txtnhanvien.requestFocus();
+            return;
+        }
+
+        if (dsphutung.isEmpty() || dsnhacungcap.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Hệ thống chưa có phụ tùng hoặc nhà cung cấp!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -241,31 +349,65 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
             return;
         }
 
-        int chon = JOptionPane.showConfirmDialog(this,
-                "Lập phiếu nhập " + txtmaphieu.getText() + " thành công!\n"
-                        + "Bạn có muốn mở 'Màn hình Danh sách phiếu nhập kho' ngay không?",
-                "Thông báo", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        PhuTung pt = dsphutung.get(cbphutung.getSelectedIndex());
+        NhaCungCap ncc = dsnhacungcap.get(cbnhacungcap.getSelectedIndex());
+        int soluong = Integer.parseInt(txtsoluong.getText().trim());
+        double dongia = Double.parseDouble(txtdongia.getText().replace(",", "").trim());
 
-        if (chon == JOptionPane.YES_OPTION) {
-            ManHinhDanhSachPhieuNhapKho UI = new ManHinhDanhSachPhieuNhapKho();
-            UI.setVisible(true);
+        PhieuNhapKho pn = new PhieuNhapKho();
+        pn.setThuKho(new ThuKho(manv, null, null));
+        pn.setMaPhieuNhap(txtmaphieu.getText());
+        pn.setNgayNhap(new java.util.Date());
+        pn.setTongTienNhap(0.0);
+        pn.setNhaCungCap(ncc);
+        List<ChiTietPhieuNhap> dsChiTiet = new ArrayList<>();
+        dsChiTiet.add(new ChiTietPhieuNhap(pn.getMaPhieuNhap(), pt.getMaPhuTung(), soluong, dongia));
+
+        try {
+            boolean thanhcong = chedosua
+                    ? phieuNhapDAO.capNhatPhieuNhap(pn, dsChiTiet)
+                    : phieuNhapDAO.taoPhieuNhap(pn, dsChiTiet);
+            if (!thanhcong) {
+                JOptionPane.showMessageDialog(this,
+                        chedosua ? "Sửa phiếu nhập thất bại! Tồn kho không đủ để điều chỉnh." : "Lập phiếu nhập thất bại!",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (SQLException e) {
+            if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY")) {
+                JOptionPane.showMessageDialog(this,
+                        "Mã nhân viên " + manv + " không tồn tại trong danh sách thủ kho!",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                txtnhanvien.requestFocus();
+            } else {
+                JOptionPane.showMessageDialog(this, "Lỗi lưu phiếu nhập: " + e.getMessage(),
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+            return;
         }
+
+        JOptionPane.showMessageDialog(this,
+                (chedosua ? "Sửa" : "Lập") + " phiếu nhập " + txtmaphieu.getText() + " thành công!");
         this.dispose();
     }
 
     private void xuLyLamMoi() {
+        if (chedosua) {
+            napDuLieuSua();
+            return;
+        }
         txtghichu.setText("");
-        cbnhacungcap.setSelectedIndex(0);
-        cbphutung.setSelectedIndex(0);
-        txtdonvi.setText(dsdonvi[0]);
+        if (cbnhacungcap.getItemCount() > 0) cbnhacungcap.setSelectedIndex(0);
+        if (cbphutung.getItemCount() > 0) {
+            cbphutung.setSelectedIndex(0);
+            txtdonvi.setText(dsphutung.get(0).getDonViTinh());
+        }
         txtsoluong.setText("");
         txtdongia.setText("");
         txtthanhtien.setText("");
     }
 
     private void xuLyQuayLai() {
-        ManHinhDanhSachPhieuNhapKho UI = new ManHinhDanhSachPhieuNhapKho();
-        UI.setVisible(true);
         this.dispose();
     }
 
