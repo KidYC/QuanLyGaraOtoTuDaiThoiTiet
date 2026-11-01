@@ -39,4 +39,18 @@ public class PhieuTiepNhan_DAO {
             return ps.executeUpdate() > 0;
         }
     }
+
+    // Hàm cập nhật trạng thái cho Phiếu Tiếp Nhận
+    public boolean capNhatTrangThai(String maPhieuTN, String trangThaiMoi) throws SQLException {
+        String sql = "UPDATE PHIEU_TIEP_NHAN SET trangThai = ? WHERE maPhieuTiepNhan = ?";
+
+        try (Connection conn = DB.connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, trangThaiMoi);
+            ps.setString(2, maPhieuTN);
+
+            return ps.executeUpdate() > 0;
+        }
+    }
 }

@@ -91,13 +91,13 @@ public class ThongKeKho_DAO {
         List<Object[]> ds = new ArrayList<>();
         String sql = "SELECT dspt.maPhuTung, pt.tenPhuTung, pt.donViTinh, "
                 + "COUNT(DISTINCT psc.maPhieuSuaChua) AS soPhieu, "
-                + "SUM(dspt.soLuongPhuTung) AS tongSoLuong, "
-                + "SUM(dspt.soLuongPhuTung * dspt.donGiaBan) AS tongTien "
-                + "FROM DANH_SACH_PHU_TUNG dspt "
+                + "SUM(dspt.soLuong) AS tongSoLuong, "
+                + "SUM(dspt.soLuong * dspt.donGia) AS tongTien "
+                + "FROM CHI_TIET_PHIEU_SUA_CHUA dspt "
                 + "JOIN PHIEU_SUA_CHUA psc ON dspt.maPhieuSuaChua = psc.maPhieuSuaChua "
                 + "JOIN PHU_TUNG pt ON dspt.maPhuTung = pt.maPhuTung "
-                // Chỉ tính phiếu đã qua bước xuất kho: bỏ phiếu còn chờ báo giá, chờ xuất kho, bị từ chối
-                + "WHERE psc.trangThai NOT IN (N'Chờ báo giá', N'Chờ xuất kho', N'Từ chối') "
+                // Chỉ tính phiếu đã qua bước xuất kho: bỏ phiếu còn chờ xác nhận báo giá, chờ xuất kho, bị từ chối
+                + "WHERE psc.trangThai NOT IN (N'Chờ xác nhận báo giá', N'Chờ xuất kho', N'Từ chối', N'Từ chối xuất kho') "
                 + "AND psc.ngayLap >= ? AND psc.ngayLap < ? "
                 + "GROUP BY dspt.maPhuTung, pt.tenPhuTung, pt.donViTinh "
                 + "ORDER BY tongSoLuong DESC";

@@ -57,7 +57,7 @@ public class DAO_KeToan {
                  PT.tenPhuTung,
                  CTPSC.soLuong,
                  PT.donGiaBan,
-                 PT.donGiaBan as thanhtien
+                 PT.donGiaBan * CTPSC.soLuong as thanhtien
                  from HOA_DON HD
                  join PHIEU_SUA_CHUA PSC
                  on HD.maPhieuSuaChua=PSC.maPhieuSuaChua
@@ -162,6 +162,34 @@ public class DAO_KeToan {
                 }
             }
         }
+        return null;
+    }
+    public Object[] laythongtinthanhtoan () throws SQLException{
+         String sql = """
+                 select 
+                 sum(PT.donGiaBan) as tongtienphutung,
+                 CTDV.thanhTien,
+                 sum(PT.donGiaBan) + CTDV.thanhTien as tongcong
+                 from CHI_TIET_PHIEU_SUA_CHUA CTPSC
+                 join CHI_TIET_DICH_VU CTDV 
+                 on CTPSC.maPhieuSuaChua=CTDV.maPhieuSuaChua
+                 join PHU_TUNG PT
+                 on PT.maPhuTung=CTPSC.maPhuTung
+                 group by CTDV.thanhTien
+                 """;
+         try (
+                 Connection conn = connectSQL.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)){
+             try(ResultSet rs = ps.executeQuery()){
+                 if (rs.next()){
+                     return new Object[]{
+                             rs.getBigDecimal("tongtienphutung"),
+                             rs.getBigDecimal("thanhTien"),
+                             rs.getBigDecimal("tongcong")
+                     };
+                 }
+             }
+         }
         return null;
     }
 }

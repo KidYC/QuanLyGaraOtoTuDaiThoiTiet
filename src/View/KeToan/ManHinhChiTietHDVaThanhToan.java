@@ -290,16 +290,16 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         pCenter3.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         tongtienphutung = taoNhan("Tổng tiền phụ tùng");
-        txttongtienphutung = taoTextField("1.300.000 VNĐ");
+        txttongtienphutung = taoTextField("");
 
         tongtiendichvu = taoNhan("Tổng tiền dịch vụ");
-        txttongtiendichvu = taoTextField("200.000 VNĐ");
+        txttongtiendichvu = taoTextField("");
 
         khuyenmai = taoNhan("Khuyến mãi");
-        txtkhuyenmai = taoTextField("0 VNĐ");
+        txtkhuyenmai = taoTextField("0");
 
         tongcong = taoNhan("TỔNG CỘNG");
-        txttongcong = taoTextField("1.500.000 VNĐ");
+        txttongcong = taoTextField("");
         txttongcong.setFont(new Font("Segoe UI", Font.BOLD, 17));
         txttongcong.setForeground(new Color(3, 105, 161));
 
@@ -489,7 +489,37 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         table.getTableHeader().setForeground(MAU_CHU);
     }
 
+    private void capNhatThongTinThanhToan() {
+        try {
+            DAO_KeToan dao = new DAO_KeToan();
 
+            Object[] ketQua = dao.laythongtinthanhtoan();
+
+            if (ketQua != null) {
+                txttongtienphutung.setText(
+                        String.valueOf(ketQua[0])
+                );
+
+                txttongtiendichvu.setText(
+                        String.valueOf(ketQua[1])
+                );
+
+                txttongcong.setText(
+                        String.valueOf(ketQua[2])
+                );
+            } else {
+                txttongtienphutung.setText("0");
+                txttongtiendichvu.setText("0");
+                txttongcong.setText("0");
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Lỗi lấy thông tin thanh toán: " + e.getMessage()
+            );
+        }
+    }
 
     public void laydulieu() {
         DAO_KeToan dao = new DAO_KeToan();
@@ -568,6 +598,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
                 table.setRowSelectionInterval(i, i);
                 table.scrollRectToVisible(
                         table.getCellRect(i, 0, true)
+
                 );
                 return;
             }
@@ -596,6 +627,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
 
         } else if (o == btntim) {
             timkiem();
+            capNhatThongTinThanhToan();
         }
     }
 

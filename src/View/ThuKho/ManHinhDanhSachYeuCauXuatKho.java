@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import DAO.PhieuSuaChua_DAO;
+import DAO.ThuKho_DAO;
 import Entity.PhieuSuaChua;
 
 public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListener {
@@ -41,6 +42,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
     private JButton btnchitiet;
     private JButton btnquaylai;
     private final PhieuSuaChua_DAO phieuSuaChuaDAO = new PhieuSuaChua_DAO();
+    private final ThuKho_DAO thuKhoDAO = new ThuKho_DAO();
 
     private List<PhieuSuaChua> dsPhieuFull = new ArrayList<>();
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -85,8 +87,8 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
 
         txtmayeucau = new JTextField();
         txtnguoiyeucau = new JTextField();
-        cbtrangthai = new JComboBox<>(new String[]{"Tất cả", "Chờ báo giá", "Chờ xuất kho", "Đang sửa chữa", "Tạm dừng sửa chữa",
-                "Hoàn thành", "Đạt - Chờ bàn giao", "Không đạt - Sửa lại", "Đang xử lý", "Từ chối"});
+        cbtrangthai = new JComboBox<>(new String[]{"Tất cả", "Chờ xác nhận báo giá", "Chờ xuất kho", "Đang sửa chữa", "Tạm dừng sửa chữa",
+                "Hoàn thành", "Đạt - Chờ bàn giao", "Không đạt - Sửa lại", "Đang xử lý", "Từ chối", "Từ chối xuất kho"});
         txtngayyeucau = new JTextField();
         txtbienso = new JTextField();
 
@@ -338,9 +340,10 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         if (chon != JOptionPane.YES_OPTION) return;
 
         try {
-            boolean thanhCong = phieuSuaChuaDAO.xacNhanXuatKho(maPhieuSC);
+            // ĐÃ SỬA: Gọi qua thuKhoDAO
+            boolean thanhCong = thuKhoDAO.xacNhanXuatKho(maPhieuSC);
             if (thanhCong) {
-                JOptionPane.showMessageDialog(this, "Duyệt xuất kho thành công! Số lượng phụ tùng trong kho đã được trừ.");
+                JOptionPane.showMessageDialog(this, "Duyệt xuất kho thành công! Xe đã được chuyển sang trạng thái Đang sửa chữa.");
                 loadDataFromDB();
             } else {
                 JOptionPane.showMessageDialog(this, "Xuất kho thất bại! Tồn kho không đủ hoặc phiếu không còn ở trạng thái 'Chờ xuất kho'.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
@@ -365,9 +368,10 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         if (chon != JOptionPane.YES_OPTION) return;
 
         try {
-            boolean thanhCong = phieuSuaChuaDAO.capNhatTrangThai(maPhieuSC, "Từ chối");
+            // ĐÃ SỬA: Đổi trạng thái thành "Từ chối xuất kho"
+            boolean thanhCong = phieuSuaChuaDAO.capNhatTrangThai(maPhieuSC, "Từ chối xuất kho");
             if (thanhCong) {
-                JOptionPane.showMessageDialog(this, "Đã chuyển trạng thái phiếu sang 'Từ chối'.");
+                JOptionPane.showMessageDialog(this, "Đã chuyển trạng thái phiếu sang 'Từ chối xuất kho'.");
                 loadDataFromDB();
             }
         } catch (SQLException ex) {
