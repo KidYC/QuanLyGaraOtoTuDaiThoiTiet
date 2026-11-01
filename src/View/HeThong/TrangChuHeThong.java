@@ -170,7 +170,6 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         NHAP_KHO("Danh sách phiếu nhập kho", NhomChucNang.KHO, "Tra cứu các phiếu nhập kho", VaiTro.THU_KHO),
         LAP_PHIEU_NHAP_KHO("Lập phiếu nhập kho", NhomChucNang.KHO, "Tạo phiếu nhập phụ tùng", VaiTro.THU_KHO),
         XUAT_KHO("Danh sách yêu cầu xuất kho", NhomChucNang.KHO, "Tra cứu yêu cầu xuất phụ tùng", VaiTro.THU_KHO),
-        LAP_PHIEU_XUAT_KHO("Lập phiếu xuất kho", NhomChucNang.KHO, "Tạo phiếu xuất phụ tùng", VaiTro.THU_KHO),
         KIEM_KE("Danh sách phiếu kiểm kê", NhomChucNang.KHO, "Tra cứu phiếu kiểm kê kho", VaiTro.THU_KHO),
         LAP_PHIEU_KIEM_KE("Lập phiếu kiểm kê", NhomChucNang.KHO, "Tạo phiếu kiểm kê kho", VaiTro.THU_KHO),
 
@@ -443,7 +442,6 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case NHAP_KHO:              hienThi(new ManHinhDanhSachPhieuNhapKho()); return true;
             case LAP_PHIEU_NHAP_KHO:    hienThi(new ManHinhLapPhieuNhapKho()); return true;
             case XUAT_KHO:              hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
-            case LAP_PHIEU_XUAT_KHO:    hienThi(new ManHinhLapPhieuXuatKho()); return true;
             case KIEM_KE:               hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
             case LAP_PHIEU_KIEM_KE:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
 
