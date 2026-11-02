@@ -144,8 +144,8 @@ public class ManHinhDanhSachXeDaHoanThanhSuaChua extends JFrame implements Actio
     }
 
     private void xuLyQuayLai() {
-        TrangChuHeThong Home = new TrangChuHeThong();
-        Home.setVisible(true);
+//        TrangChuHeThong Home = new TrangChuHeThong();
+//        Home.setVisible(true);
         this.dispose();
     }
 

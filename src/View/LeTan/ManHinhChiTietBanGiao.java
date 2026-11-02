@@ -302,13 +302,16 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
         if (opt == JOptionPane.YES_OPTION) {
             try {
                 PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
-                boolean success = dao.capNhatTrangThaiDaBanGiao(txtMaPhieu.getText().trim());
+
+                // Gọi hàm cập nhật trạng thái thành "Hoàn thành"
+                boolean success = dao.capNhatTrangThaiHoanThanh(txtMaPhieu.getText().trim());
 
                 if (success) {
                     JOptionPane.showMessageDialog(this,
-                            "Xác nhận bàn giao xe thành công!\nTrạng thái phiếu đã chuyển sang 'Đã bàn giao'.",
+                            "Xác nhận bàn giao xe thành công!\nTrạng thái phiếu đã chuyển sang 'Hoàn thành'.",
                             "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
+                    // Chuyển sang màn hình Quản lý bảo hành
                     FormQuanLyBaoHanh formBaoHanh = new FormQuanLyBaoHanh(
                             txtMaPhieu.getText().trim(),
                             txtBienSo.getText().trim(),

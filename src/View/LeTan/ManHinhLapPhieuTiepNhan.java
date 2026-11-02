@@ -219,8 +219,8 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
                     UI.setVisible(true);
                     this.dispose();
                 } else {
-                    TrangChuHeThong Home = new TrangChuHeThong();
-                    Home.setVisible(true);
+//                    TrangChuHeThong Home = new TrangChuHeThong();
+//                    Home.setVisible(true);
                     this.dispose();
                 }
             } else {

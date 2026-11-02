@@ -254,8 +254,8 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
                 "Đã kích hoạt bảo hành thành công cho xe " + txtBienSo.getText() + "!\nQuy trình dịch vụ đã hoàn tất.",
                 "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
-         TrangChuHeThong Home = new TrangChuHeThong();
-         Home.setVisible(true);
+//         TrangChuHeThong Home = new TrangChuHeThong();
+//         Home.setVisible(true);
         this.dispose();
 
     }

@@ -556,4 +556,12 @@ public class PhieuSuaChua_DAO {
             return false;
         }
     }
+    public boolean capNhatTrangThaiHoanThanh(String maPhieuSuaChua) throws SQLException {
+        String sql = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Hoàn thành' WHERE maPhieuSuaChua = ?";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maPhieuSuaChua);
+            return ps.executeUpdate() > 0;
+        }
+    }
 }
