@@ -89,7 +89,69 @@ public class DAO_KeToan {
          }
          return danhsach;
      }
+    public List<Object[]> laydulieucongno(
+            String maKH,
+            java.sql.Date tuNgay,
+            java.sql.Date denNgay
+    ) throws SQLException {
 
+        List<Object[]> danhsach = new ArrayList<>();
+
+        String sql = """
+            
+                WITH CongNo AS (
+                SELECT
+                maGiaoDich,
+                maKhachHang,
+                ngayGiaoDich,
+                noiDung,
+                ghiNo,
+                ghiCo,
+                SUM(ghiNo - ghiCo) OVER (
+                    PARTITION BY maKhachHang
+                    ORDER BY ngayGiaoDich, maGiaoDich
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                ) AS duNoCuoi
+                FROM LICH_SU_CONG_NO
+                WHERE maKhachHang = ?
+                )
+                SELECT
+                ngayGiaoDich,
+                noiDung,
+                ghiNo,
+                ghiCo,
+                duNoCuoi
+                FROM CongNo
+                WHERE ngayGiaoDich >= ?
+                AND ngayGiaoDich < DATEADD(DAY, 1, ?)
+                ORDER BY ngayGiaoDich DESC, maGiaoDich DESC;
+            """;
+
+        try (
+                Connection conn = connectSQL.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, maKH);
+            ps.setDate(2, tuNgay);
+            ps.setDate(3, denNgay);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object[] dong = {
+                            rs.getString("ngayGiaoDich"),
+                            rs.getString("noiDung"),
+                            rs.getBigDecimal("ghiNo"),
+                            rs.getBigDecimal("ghiCo"),
+                            rs.getBigDecimal("duNoCuoi")
+                    };
+
+                    danhsach.add(dong);
+                }
+            }
+        }
+
+        return danhsach;
+    }
      public List<Object[]> laydulieuKHno() throws SQLException{
          List<Object[]> danhsach = new ArrayList<>();
          String sql = """
@@ -192,4 +254,6 @@ public class DAO_KeToan {
          }
         return null;
     }
+
+
 }
