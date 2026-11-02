@@ -1,5 +1,7 @@
 package View.LeTan;
 
+import DAO.PhieuSuaChua_DAO;
+import Entity.XeDaHoanThanh_DTO;
 import View.HeThong.TrangChuHeThong;
 
 import javax.swing.*;
@@ -9,6 +11,9 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class ManHinhDanhSachXeDaHoanThanhSuaChua extends JFrame implements ActionListener {
 
@@ -102,9 +107,30 @@ public class ManHinhDanhSachXeDaHoanThanhSuaChua extends JFrame implements Actio
     }
 
     private void loadData() {
-        modelXe.addRow(new Object[]{"KH005", "Phạm Văn D", "51H-234.56", "Ford Ranger", "06/10/2026 14:30", "Chờ bàn giao"});
-        modelXe.addRow(new Object[]{"KH006", "Nguyễn Thị E", "59K-789.01", "Kia Seltos", "06/10/2026 15:00", "Chờ bàn giao"});
-        modelXe.addRow(new Object[]{"KH008", "Trần Văn F", "60C-444.55", "Hyundai Accent", "06/10/2026 16:15", "Chờ bàn giao"});
+        modelXe.setRowCount(0);
+        PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        try {
+            List<XeDaHoanThanh_DTO> list = dao.getDanhSachXeDaHoanThanh();
+            for (XeDaHoanThanh_DTO item : list) {
+                String ngayFormat = item.getNgayHoanThanh() != null ? sdf.format(item.getNgayHoanThanh()) : "";
+                modelXe.addRow(new Object[]{
+                        item.getMaPhieu(),
+                        item.getTenKhachHang(),
+                        item.getBienSo(),
+                        item.getLoaiXe(),
+                        ngayFormat,
+                        item.getTrangThai()
+                });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi tải danh sách xe hoàn thành sửa chữa: " + e.getMessage(),
+                    "Lỗi CSDL",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override

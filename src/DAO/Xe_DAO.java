@@ -65,4 +65,19 @@ public class Xe_DAO {
         }
         return ds;
     }
+
+    public boolean themXe(Xe xe) throws SQLException {
+        String sql = "INSERT INTO XE (bienSo, hangXe, dongXe, namSanXuat, maKhachHang) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, xe.getBienSo());
+            ps.setString(2, xe.getHangXe());
+            ps.setString(3, xe.getDongXe());
+            ps.setInt(4, xe.getNamSanXuat());
+            ps.setString(5, xe.getMaKhachHang());
+
+            return ps.executeUpdate() > 0;
+        }
+    }
 }
