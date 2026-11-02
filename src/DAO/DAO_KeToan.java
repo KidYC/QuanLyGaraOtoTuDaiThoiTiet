@@ -257,23 +257,56 @@ public class DAO_KeToan {
 
         String sql = """
         INSERT INTO THANH_TOAN
-            (maThanhToan, maHoaDon, ngayThanhToan,
-             soTienThanhToan, maPhuongThuc, maNhanVien, trangThai)
-        VALUES (?, ?, GETDATE(), ?, ?, ?, N'Đã thanh toán')
+            (maThanhToan, maHoaDon, soTienThanhToan,
+             maPhuongThuc, maNhanVien, trangThai)
+        VALUES (?, ?, ?, ?, ?, N'Đã thanh toán')
         """;
 
-        try (Connection conn = connectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = connectSQL.getConnection()) {
 
-            ps.setString(1, "TT" + System.currentTimeMillis());
-            ps.setString(2, maHoaDon);
-            ps.setBigDecimal(3, soTien);
-            ps.setString(4, maPhuongThuc);
-            ps.setString(5, maNhanVien);
+            conn.setAutoCommit(false);
 
-            return ps.executeUpdate() > 0;
+            try {
+                String maThanhToan = taoMaThanhToan(conn);
+
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, maThanhToan);
+                    ps.setString(2, maHoaDon);
+                    ps.setBigDecimal(3, soTien);
+                    ps.setString(4, maPhuongThuc);
+                    ps.setString(5, maNhanVien);
+
+                    ps.executeUpdate();
+                }
+
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
         }
     }
+    public String taoMaThanhToan(Connection conn) throws SQLException {
+        String sql = """
+        SELECT ISNULL(
+            MAX(TRY_CAST(SUBSTRING(maThanhToan, 3, LEN(maThanhToan)) AS INT)),
+            0
+        ) + 1 AS soTiepTheo
+        FROM THANH_TOAN
+        WHERE maThanhToan LIKE 'TT%'
+        """;
 
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
+            if (rs.next()) {
+                int soTiepTheo = rs.getInt("soTiepTheo");
+                return String.format("TT%02d", soTiepTheo);
+            }
+        }
+
+        return "TT01";
+    }
 }
