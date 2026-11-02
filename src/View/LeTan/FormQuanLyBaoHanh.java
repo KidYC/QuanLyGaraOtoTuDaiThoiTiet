@@ -245,8 +245,8 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
 
     private void xuLyQuayLai() {
         this.dispose();
-        ManHinhChiTietBanGiao UI = new ManHinhChiTietBanGiao(txtMaPhieu.getText(), txtBienSo.getText());
-        UI.setVisible(true);
+//        ManHinhChiTietBanGiao UI = new ManHinhChiTietBanGiao(txtMaPhieu.getText(), txtBienSo.getText());
+//        UI.setVisible(true);
     }
 
     private void xuLyHoanTat() {
