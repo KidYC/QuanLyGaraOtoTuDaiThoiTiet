@@ -159,7 +159,7 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         btnquaylai.addActionListener(this);
         btntimkiem.addActionListener(this);
         btnlammoi.addActionListener(this);
-        txttimkiem.addActionListener(this);   // nhấn Enter cũng tìm
+        txttimkiem.addActionListener(this);
     }
 
     @Override
@@ -263,11 +263,28 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        String ma = modelphutung.getValueAt(dong, 0).toString();
+
+        // kiểm tra phụ tùng đã có trong phiếu nào thì báo rõ và không cho xóa
+        try {
+            String dangdung = phuTungDAO.kiemTraPhuTungDangDung(ma);
+            if (!dangdung.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Không thể xóa phụ tùng " + ma + " vì đang được dùng trong:\n" + dangdung
+                                + "\nXóa sẽ làm mất thông tin phụ tùng trong các phiếu trên.",
+                        "Không thể xóa", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi kiểm tra phụ tùng: " + e.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         int chon = JOptionPane.showConfirmDialog(this,
-                "Bạn có chắc muốn xóa phụ tùng " + modelphutung.getValueAt(dong, 0) + " không?",
+                "Bạn có chắc muốn xóa phụ tùng " + ma + " không?",
                 "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (chon == JOptionPane.YES_OPTION) {
-            String ma = modelphutung.getValueAt(dong, 0).toString();
             try {
                 if (phuTungDAO.xoaPhuTung(ma)) {
                     napBang();

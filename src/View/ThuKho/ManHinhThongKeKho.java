@@ -353,7 +353,6 @@ public class ManHinhThongKeKho extends JFrame implements ActionListener {
         double tongtien = 0;
 
         if (loai.equals(CANH_BAO)) {
-            // chỉ lấy phụ tùng sắp hết / hết hàng, ít tồn nhất lên đầu
             List<Object[]> dscanhbao = new ArrayList<>();
             for (Object[] p : dsketqua) {
                 if (!trangThaiTon((int) p[4]).equals("Bình thường")) {
@@ -460,7 +459,7 @@ public class ManHinhThongKeKho extends JFrame implements ActionListener {
         }
 
         try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-            pw.print('\uFEFF');   // để Excel đọc đúng tiếng Việt
+            pw.print('\uFEFF');
             pw.println(cbloai.getSelectedItem() + "," + lbltongket.getText().replace(",", ""));
             StringBuilder dong = new StringBuilder();
             for (int c = 0; c < modelthongke.getColumnCount(); c++) {

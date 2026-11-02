@@ -103,7 +103,7 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
         ));
 
         txtmaphieu = new JTextField();
-        cbtrangthai = new JComboBox<>(new String[]{"Tất cả", "Đang kiểm kê", "Hoàn thành"});
+        cbtrangthai = new JComboBox<>(new String[]{"Tất cả", "Đang kiểm kê", "Đã hoàn thành"});
         txtngaykiemke = new JTextField();
 
         btntim = new JButton("Tìm");
@@ -161,12 +161,6 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
         btnquaylai.setForeground(Color.WHITE);
         btnquaylai.setFocusPainted(false);
 
-        btnin = new JButton("In Phiếu");
-        btnin.setPreferredSize(new Dimension(110, 35));
-        btnin.setBackground(new Color(52, 152, 219));
-        btnin.setForeground(Color.WHITE);
-        btnin.setFocusPainted(false);
-
         btnxoa = new JButton("Xóa");
         btnxoa.setPreferredSize(new Dimension(110, 35));
         btnxoa.setBackground(new Color(231, 76, 60));
@@ -199,7 +193,6 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
         btnthem.setFocusPainted(false);
 
         pSouth.add(btnquaylai);
-        pSouth.add(btnin);
         pSouth.add(btnxoa);
         pSouth.add(btnsua);
         pSouth.add(btnchitiet);
@@ -216,7 +209,6 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
         btnthem.addActionListener(this);
         btnsua.addActionListener(this);
         btnxoa.addActionListener(this);
-        btnin.addActionListener(this);
         btnxacnhan.addActionListener(this);
         btnchitiet.addActionListener(this);
         btnquaylai.addActionListener(this);
@@ -225,7 +217,7 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    xuLyXemChiTiet(); // nhấp đúp để xem chi tiết
+                    xuLyXemChiTiet();
                 }
             }
         });
@@ -244,8 +236,6 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
             xuLySua();
         } else if (o == btnxoa) {
             xuLyXoa();
-        } else if (o == btnin) {
-            xuLyIn();
         } else if (o == btnxacnhan) {
             xuLyXacNhan();
         } else if (o == btnchitiet) {

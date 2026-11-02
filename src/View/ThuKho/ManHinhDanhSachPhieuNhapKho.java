@@ -1,6 +1,8 @@
 package View.ThuKho;
 
+import DAO.NhaCungCap_DAO;
 import DAO.PhieuNhapKho_DAO;
+import Entity.NhaCungCap;
 import Entity.PhieuNhapKho;
 
 import javax.swing.*;
@@ -28,7 +30,7 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
     private JLabel lbltieude;
 
     private JTextField txtmaphieu;
-    private JTextField txtnhacungcap;
+    private JComboBox<String> cbnhacungcap;
     private JTextField txtnhanvien;
     private JTextField txtngaynhap;
     private JButton btntim;
@@ -46,6 +48,7 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
     private ArrayList<String[]> dsphieu = new ArrayList<>();
 
     private final PhieuNhapKho_DAO phieuNhapDAO = new PhieuNhapKho_DAO();
+    private final NhaCungCap_DAO nhaCungCapDAO = new NhaCungCap_DAO();
 
     private DateTimeFormatter dinhdangngay = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -90,7 +93,8 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         ));
 
         txtmaphieu = new JTextField();
-        txtnhacungcap = new JTextField();
+        cbnhacungcap = new JComboBox<>();
+        napNhaCungCap();
         txtnhanvien = new JTextField();
         txtngaynhap = new JTextField();
 
@@ -107,7 +111,7 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         pTimKiem.add(new JLabel("Mã Phiếu:"));
         pTimKiem.add(txtmaphieu);
         pTimKiem.add(new JLabel("Nhà Cung Cấp:"));
-        pTimKiem.add(txtnhacungcap);
+        pTimKiem.add(cbnhacungcap);
         pTimKiem.add(new JLabel(""));
         pTimKiem.add(new JLabel(""));
         pTimKiem.add(new JLabel("Ngày Nhập (dd/MM/yyyy):"));
@@ -131,7 +135,7 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         };
         tblphieu = new JTable(modelphieu);
         tblphieu.setRowHeight(25);
-        // nhấp đúp vào một dòng để xem chi tiết
+
         tblphieu.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -243,6 +247,19 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         }
     }
 
+
+    private void napNhaCungCap() {
+        cbnhacungcap.removeAllItems();
+        cbnhacungcap.addItem("Tất cả");
+        try {
+            for (NhaCungCap ncc : nhaCungCapDAO.getAllNhaCungCap()) {
+                cbnhacungcap.addItem(ncc.getTenNhaCungCap());
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải nhà cung cấp: " + e.getMessage());
+        }
+    }
+
     private void napBangPhieu(ArrayList<String[]> ds) {
         modelphieu.setRowCount(0);
         for (String[] p : ds) {
@@ -264,13 +281,13 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         }
 
         String ma = txtmaphieu.getText().trim().toLowerCase();
-        String ncc = txtnhacungcap.getText().trim().toLowerCase();
+        String ncc = cbnhacungcap.getSelectedItem() == null ? "Tất cả" : cbnhacungcap.getSelectedItem().toString();
         String nv = txtnhanvien.getText().trim().toLowerCase();
 
         ArrayList<String[]> ketqua = new ArrayList<>();
         for (String[] p : dsphieu) {
             if (!p[0].toLowerCase().contains(ma)) continue;
-            if (!p[2].toLowerCase().contains(ncc)) continue;
+            if (!ncc.equals("Tất cả") && !ncc.equals(p[2])) continue;
             if (!p[3].toLowerCase().contains(nv)) continue;
 
             if (ngaynhap != null) {
@@ -290,7 +307,7 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
 
     private void xuLyLamMoi() {
         txtmaphieu.setText("");
-        txtnhacungcap.setText("");
+        napNhaCungCap();
         txtnhanvien.setText("");
         txtngaynhap.setText("");
         taiDuLieu();

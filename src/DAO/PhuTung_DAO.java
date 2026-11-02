@@ -155,6 +155,34 @@ public class PhuTung_DAO {
         }
     }
 
+    // Kiểm tra phụ tùng đang được dùng ở những phiếu nào (vì có khóa ngoại nên không xóa được).
+    // Trả về chuỗi rỗng nếu phụ tùng chưa được dùng ở đâu -> xóa được.
+    public String kiemTraPhuTungDangDung(String maPhuTung) throws SQLException {
+        String sql = "SELECT "
+                + "(SELECT COUNT(DISTINCT maPhieuSuaChua) FROM CHI_TIET_PHIEU_SUA_CHUA WHERE maPhuTung = ?) AS soPhieuSua, "
+                + "(SELECT COUNT(DISTINCT maPhieuSuaChua) FROM DANH_SACH_PHU_TUNG WHERE maPhuTung = ?) AS soBaoGia, "
+                + "(SELECT COUNT(DISTINCT maPhieuNhap) FROM CHI_TIET_PHIEU_NHAP WHERE maPhuTung = ?) AS soPhieuNhap, "
+                + "(SELECT COUNT(DISTINCT maPhieuKiemKe) FROM CHI_TIET_KIEM_KE WHERE maPhuTung = ?) AS soPhieuKiemKe, "
+                + "(SELECT COUNT(*) FROM CANH_BAO_TON_KHO WHERE maPhuTung = ?) AS soCanhBao";
+        String ketqua = "";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 1; i <= 5; i++) {
+                ps.setString(i, maPhuTung);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    if (rs.getInt("soPhieuSua") > 0) ketqua += "- " + rs.getInt("soPhieuSua") + " phiếu sửa chữa / xuất kho\n";
+                    if (rs.getInt("soBaoGia") > 0) ketqua += "- " + rs.getInt("soBaoGia") + " báo giá\n";
+                    if (rs.getInt("soPhieuNhap") > 0) ketqua += "- " + rs.getInt("soPhieuNhap") + " phiếu nhập kho\n";
+                    if (rs.getInt("soPhieuKiemKe") > 0) ketqua += "- " + rs.getInt("soPhieuKiemKe") + " phiếu kiểm kê\n";
+                    if (rs.getInt("soCanhBao") > 0) ketqua += "- " + rs.getInt("soCanhBao") + " cảnh báo tồn kho\n";
+                }
+            }
+        }
+        return ketqua;
+    }
+
     public boolean xoaPhuTung (String maPhuTung) throws SQLException {
         String sql = "DELETE FROM PHU_TUNG WHERE maPhuTung = ?";
         try (Connection conn = connectSQL.getConnection();
