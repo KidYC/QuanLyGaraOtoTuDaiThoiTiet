@@ -463,9 +463,6 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         table.getTableHeader().setBackground(MAU_XANH);
         table.getTableHeader().setForeground(MAU_CHU);
     }
-
-
-
     public void laydulieu() {
         DAO_KeToan dao = new DAO_KeToan();
 

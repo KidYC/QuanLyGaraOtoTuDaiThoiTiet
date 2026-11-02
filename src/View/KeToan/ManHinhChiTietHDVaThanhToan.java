@@ -9,6 +9,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -611,6 +612,61 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
+    private void xuLyThanhToan() {
+        String maHoaDon = txtmahd.getText().trim();
+
+        if (maHoaDon.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng tìm hóa đơn trước!");
+            return;
+        }
+
+        BigDecimal soTien;
+
+        try {
+            soTien = new BigDecimal(txttongcong.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Tổng tiền không hợp lệ!");
+            return;
+        }
+
+        int xacNhan = JOptionPane.showConfirmDialog(
+                this,
+                "Xác nhận thanh toán hóa đơn " + maHoaDon
+                        + "\nTổng tiền: " + soTien,
+                "Thanh toán",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (xacNhan != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            DAO_KeToan dao = new DAO_KeToan();
+
+            boolean ketQua = dao.thanhToanHoaDon(
+                    maHoaDon,
+                    soTien,
+                    "PT01",
+                    "KT01"
+            );
+
+            if (ketQua) {
+                txttrangthai.setText("Đã thanh toán");
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Thanh toán thành công!"
+                );
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Lỗi thanh toán: " + e.getMessage()
+            );
+        }
+    }
 
 
 
@@ -628,6 +684,8 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         } else if (o == btntim) {
             timkiem();
             capNhatThongTinThanhToan();
+        }else if (o == thanhtoan) {
+            xuLyThanhToan();
         }
     }
 
