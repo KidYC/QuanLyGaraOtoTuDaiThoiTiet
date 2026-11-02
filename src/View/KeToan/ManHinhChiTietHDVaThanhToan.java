@@ -613,37 +613,85 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         );
     }
     private void xuLyThanhToan() {
-        String maHoaDon = txtmahd.getText().trim();
+        // Kiểm tra đã chọn hóa đơn trong bảng
+        int dongChon = table.getSelectedRow();
 
-        if (maHoaDon.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng tìm hóa đơn trước!");
+        if (dongChon == -1) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vui lòng tìm và chọn hóa đơn cần thanh toán!",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE
+            );
             return;
         }
 
+        // Lấy mã hóa đơn trực tiếp từ dòng được chọn
+        String maHoaDon = String.valueOf(table.getValueAt(dongChon, 1));
+
+        // Kiểm tra mã hóa đơn
+        if (maHoaDon.isEmpty() || maHoaDon.equals("null")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Không lấy được mã hóa đơn!",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        // Lấy tổng tiền
         BigDecimal soTien;
 
         try {
-            soTien = new BigDecimal(txttongcong.getText().trim());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Tổng tiền không hợp lệ!");
+            String tongTienText = txttongcong.getText()
+                    .trim()
+                    .replace(",", "");
+
+            soTien = new BigDecimal(tongTienText);
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tổng tiền không hợp lệ! Vui lòng tìm lại hóa đơn.",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE
+            );
             return;
         }
 
+        if (soTien.compareTo(BigDecimal.ZERO) <= 0) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tổng tiền phải lớn hơn 0!",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // Xác nhận thanh toán
         int xacNhan = JOptionPane.showConfirmDialog(
                 this,
-                "Xác nhận thanh toán hóa đơn " + maHoaDon
-                        + "\nTổng tiền: " + soTien,
-                "Thanh toán",
-                JOptionPane.YES_NO_OPTION
+                "Mã hóa đơn: " + maHoaDon
+                        + "\nTổng tiền: " + soTien
+                        + "\nPhương thức: PT01"
+                        + "\nPT01 : Tiền mặt"
+                        + "\nPT02 : Chuyển khoản"
+                        + "\n\nBạn có chắc chắn muốn thanh toán?",
+                "Xác nhận thanh toán",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
         );
 
         if (xacNhan != JOptionPane.YES_OPTION) {
             return;
         }
 
-        try {
-            DAO_KeToan dao = new DAO_KeToan();
+        // Gọi DAO
+        DAO_KeToan dao = new DAO_KeToan();
 
+        try {
             boolean ketQua = dao.thanhToanHoaDon(
                     maHoaDon,
                     soTien,
@@ -654,16 +702,25 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
             if (ketQua) {
                 txttrangthai.setText("Đã thanh toán");
 
+                // Khóa nút để tránh bấm lại
+                thanhtoan.setEnabled(false);
+
                 JOptionPane.showMessageDialog(
                         this,
-                        "Thanh toán thành công!"
+                        "Thanh toán hóa đơn " + maHoaDon + " thành công!",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE
                 );
+
+                laydulieu();
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Lỗi thanh toán: " + e.getMessage()
+                    "Thanh toán thất bại: " + ex.getMessage(),
+                    "Lỗi thanh toán",
+                    JOptionPane.ERROR_MESSAGE
             );
         }
     }
