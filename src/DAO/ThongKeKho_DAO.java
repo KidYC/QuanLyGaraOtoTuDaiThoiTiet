@@ -1,62 +1,123 @@
 package DAO;
 
-import DB.connectSQL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import DB.connectSQL;
 
 public class ThongKeKho_DAO {
 
-    public static class ThongKeKhoModel {
-        private String maPhuTung;
-        private String tenPhuTung;
-        private String donViTinh;
-        private int soLuongTon;
-        private double donGiaNhap;
-        private double donGiaBan;
-        private String trangThaiTon;
-
-        public ThongKeKhoModel(String maPhuTung, String tenPhuTung, String donViTinh, int soLuongTon, double donGiaNhap, double donGiaBan, String trangThaiTon) {
-            this.maPhuTung = maPhuTung;
-            this.tenPhuTung = tenPhuTung;
-            this.donViTinh = donViTinh;
-            this.soLuongTon = soLuongTon;
-            this.donGiaNhap = donGiaNhap;
-            this.donGiaBan = donGiaBan;
-            this.trangThaiTon = trangThaiTon;
-        }
-
-        public String getMaPhuTung() { return maPhuTung; }
-        public String getTenPhuTung() { return tenPhuTung; }
-        public String getDonViTinh() { return donViTinh; }
-        public int getSoLuongTon() { return soLuongTon; }
-        public double getDonGiaNhap() { return donGiaNhap; }
-        public double getDonGiaBan() { return donGiaBan; }
-        public String getTrangThaiTon() { return trangThaiTon; }
-    }
-
-    public List<ThongKeKhoModel> layDanhSachThongKeKho() throws SQLException {
-        List<ThongKeKhoModel> list = new ArrayList<>();
-        String sql = "SELECT maPhuTung, tenPhuTung, donViTinh, soLuongTon, donGiaNhap, donGiaBan, trangThaiTon FROM v_ThongKeKho";
-
-        try (Connection con = connectSQL.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
+    public List<Object[]> thongKeTonKho() throws SQLException {
+        List<Object[]> ds = new ArrayList<>();
+        String sql = "SELECT pt.maPhuTung, pt.tenPhuTung, pt.donViTinh, k.tenKho, pt.soLuongTon, pt.donGiaNhap "
+                + "FROM PHU_TUNG pt "
+                + "LEFT JOIN KHO k ON pt.maKho = k.maKho "
+                + "ORDER BY pt.maPhuTung";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                list.add(new ThongKeKhoModel(
+                ds.add(new Object[]{
                         rs.getString("maPhuTung"),
                         rs.getString("tenPhuTung"),
                         rs.getString("donViTinh"),
+                        rs.getString("tenKho"),
                         rs.getInt("soLuongTon"),
-                        rs.getDouble("donGiaNhap"),
-                        rs.getDouble("donGiaBan"),
-                        rs.getString("trangThaiTon")
-                ));
+                        rs.getDouble("donGiaNhap")
+                });
             }
         }
-        return list;
+        return ds;
+    }
+
+    public List<Object[]> thongKeTheoKho() throws SQLException {
+        List<Object[]> ds = new ArrayList<>();
+        String sql = "SELECT k.maKho, k.tenKho, COUNT(pt.maPhuTung) AS soMatHang, "
+                + "COALESCE(SUM(pt.soLuongTon), 0) AS tongTon, "
+                + "COALESCE(SUM(pt.soLuongTon * pt.donGiaNhap), 0) AS giaTriTon "
+                + "FROM KHO k "
+                + "LEFT JOIN PHU_TUNG pt ON pt.maKho = k.maKho "
+                + "GROUP BY k.maKho, k.tenKho "
+                + "ORDER BY k.maKho";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ds.add(new Object[]{
+                        rs.getString("maKho"),
+                        rs.getString("tenKho"),
+                        rs.getInt("soMatHang"),
+                        rs.getInt("tongTon"),
+                        rs.getDouble("giaTriTon")
+                });
+            }
+        }
+        return ds;
+    }
+
+    public List<Object[]> thongKeNhapKho(Timestamp tuNgay, Timestamp denNgay) throws SQLException {
+        List<Object[]> ds = new ArrayList<>();
+        String sql = "SELECT ct.maPhuTung, pt.tenPhuTung, pt.donViTinh, "
+                + "COUNT(DISTINCT pn.maPhieuNhap) AS soPhieu, "
+                + "SUM(ct.soLuongNhap) AS tongSoLuong, "
+                + "SUM(ct.soLuongNhap * ct.donGiaNhap) AS tongTien "
+                + "FROM CHI_TIET_PHIEU_NHAP ct "
+                + "JOIN PHIEU_NHAP_KHO pn ON ct.maPhieuNhap = pn.maPhieuNhap "
+                + "JOIN PHU_TUNG pt ON ct.maPhuTung = pt.maPhuTung "
+                + "WHERE pn.ngayNhap >= ? AND pn.ngayNhap < ? "
+                + "GROUP BY ct.maPhuTung, pt.tenPhuTung, pt.donViTinh "
+                + "ORDER BY tongSoLuong DESC";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setTimestamp(1, tuNgay);
+            ps.setTimestamp(2, denNgay);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(new Object[]{
+                            rs.getString("maPhuTung"),
+                            rs.getString("tenPhuTung"),
+                            rs.getString("donViTinh"),
+                            rs.getInt("soPhieu"),
+                            rs.getInt("tongSoLuong"),
+                            rs.getDouble("tongTien")
+                    });
+                }
+            }
+        }
+        return ds;
+    }
+
+    public List<Object[]> thongKeXuatKho(Timestamp tuNgay, Timestamp denNgay) throws SQLException {
+        List<Object[]> ds = new ArrayList<>();
+        String sql = "SELECT dspt.maPhuTung, pt.tenPhuTung, pt.donViTinh, "
+                + "COUNT(DISTINCT psc.maPhieuSuaChua) AS soPhieu, "
+                + "SUM(dspt.soLuong) AS tongSoLuong, "
+                + "SUM(dspt.soLuong * dspt.donGia) AS tongTien "
+                + "FROM CHI_TIET_PHIEU_SUA_CHUA dspt "
+                + "JOIN PHIEU_SUA_CHUA psc ON dspt.maPhieuSuaChua = psc.maPhieuSuaChua "
+                + "JOIN PHU_TUNG pt ON dspt.maPhuTung = pt.maPhuTung "
+                // Chỉ tính phiếu đã qua bước xuất kho: bỏ phiếu còn chờ xác nhận báo giá, chờ xuất kho, bị từ chối
+                + "WHERE psc.trangThai NOT IN (N'Chờ xác nhận báo giá', N'Chờ xuất kho', N'Từ chối', N'Từ chối xuất kho') "
+                + "AND psc.ngayLap >= ? AND psc.ngayLap < ? "
+                + "GROUP BY dspt.maPhuTung, pt.tenPhuTung, pt.donViTinh "
+                + "ORDER BY tongSoLuong DESC";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setTimestamp(1, tuNgay);
+            ps.setTimestamp(2, denNgay);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(new Object[]{
+                            rs.getString("maPhuTung"),
+                            rs.getString("tenPhuTung"),
+                            rs.getString("donViTinh"),
+                            rs.getInt("soPhieu"),
+                            rs.getInt("tongSoLuong"),
+                            rs.getDouble("tongTien")
+                    });
+                }
+            }
+        }
+        return ds;
     }
 }

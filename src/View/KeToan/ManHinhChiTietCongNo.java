@@ -10,6 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import DAO.DAO_KeToan;
 import java.sql.SQLException;
+import java.util.List;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
 public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
 
@@ -37,7 +41,6 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
     private final JLabel denngay;
     private final JTextField txtdenngay;
     private final JButton loc;
-    private final JButton xuatexcel;
     private final JPanel pCenter3;
     private final DefaultTableModel model;
     private final JTable table;
@@ -90,11 +93,12 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
 
     private static final Font FONT_NHAN_DAM =
             new Font("Segoe UI", Font.BOLD, 14);
+    private String maKH;
 
     public ManHinhChiTietCongNo(String maKH) {
 
         super("Chi tiết công nợ khách hàng");
-
+        this.maKH = maKH;
         setSize(1050, 850);
         setMinimumSize(new Dimension(900, 750));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -227,6 +231,8 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
             );
         }
 
+
+
         pCenter1.add(tenkhachhang);
         pCenter1.add(txttenkhachhang);
         pCenter1.add(biensoxe);
@@ -286,8 +292,6 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
         txtdenngay.setText("26/10/2023");
 
         loc = taoNutBoGoc("Lọc dữ liệu");
-        xuatexcel = taoNutBoGoc("Xuất Excel");
-
         // Cột 0: Từ ngày
         gbc.gridx = 0;
         gbc.weightx = 0;
@@ -317,8 +321,6 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
 
         gbc.gridx = 2;
         gbc.gridwidth = 2;
-        pCenter2.add(xuatexcel, gbc);
-
         pCenter.add(pCenter2);
         pCenter.add(Box.createVerticalStrut(18));
 
@@ -341,45 +343,12 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
                 "Ghi có (giảm)",
                 "Dư nợ cuối"
         };
-
-        Object[][] data = {
-                {
-                        "26/10/2023",
-                        "Thu tiền mặt KH",
-                        "-",
-                        "10.000.000 VNĐ",
-                        "25.000.000 VNĐ"
-                },
-                {
-                        "15/10/2023",
-                        "Sửa xe 29H-456.78",
-                        "15.000.000 VNĐ",
-                        "-",
-                        "35.000.000 VNĐ"
-                },
-                {
-                        "01/10/2023",
-                        "Sửa xe 29H-123.45",
-                        "20.000.000 VNĐ",
-                        "-",
-                        "20.000.000 VNĐ"
-                },
-                {
-                        "01/10/2023",
-                        "Số dư đầu kỳ",
-                        "-",
-                        "-",
-                        "0 VNĐ"
-                }
-        };
-
-        model = new DefaultTableModel(data, columns) {
+        model = new DefaultTableModel(columns,0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-
         table = new JTable(model);
         table.setFont(FONT_NHAN);
         table.setForeground(MAU_TEXT);
@@ -494,12 +463,94 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
 
 
         quaylai.addActionListener(this);
-
+        loc.addActionListener(this);
         chinhmau();
+        laydulieucongnokh();
     }
+    public void laydulieucongnokh() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+
+        try {
+            if (maKH == null || maKH.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Mã khách hàng đang bị null hoặc rỗng!",
+                        "Lỗi mã khách hàng",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            Date ngayBatDau = sdf.parse(txttungay.getText().trim());
+            Date ngayKetThuc = sdf.parse(txtdenngay.getText().trim());
+
+            if (ngayBatDau.after(ngayKetThuc)) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Ngày bắt đầu không được lớn hơn ngày kết thúc!",
+                        "Ngày không hợp lệ",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            java.sql.Date tuNgay =
+                    new java.sql.Date(ngayBatDau.getTime());
+
+            java.sql.Date denNgay =
+                    new java.sql.Date(ngayKetThuc.getTime());
+
+            DAO_KeToan dao = new DAO_KeToan();
+
+            System.out.println("Mã khách hàng: " + maKH);
+            System.out.println("Từ ngày: " + tuNgay);
+            System.out.println("Đến ngày: " + denNgay);
+
+            List<Object[]> danhsach =
+                    dao.laydulieucongno(maKH, tuNgay, denNgay);
+
+            System.out.println("Số dòng lấy được: " + danhsach.size());
+            System.out.println("Mã khách hàng: " + maKH);
+            System.out.println("Từ ngày: " + tuNgay);
+            System.out.println("Đến ngày: " + denNgay);
+            System.out.println("Số dòng lấy được: " + danhsach.size());
+
+            model.setRowCount(0);
+            for (Object[] dong : danhsach) {
+                model.addRow(dong);
+            }
 
 
+            model.fireTableDataChanged();
 
+            if (danhsach.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Không có giao dịch công nợ trong khoảng ngày đã chọn.",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vui lòng nhập ngày theo định dạng dd/MM/yyyy!",
+                    "Ngày không hợp lệ",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage(),
+                    "Lỗi dữ liệu",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            e.printStackTrace();
+        }
+    }
     private JLabel taoNhan(String text) {
         JLabel lbl = new JLabel(text);
         lbl.setFont(FONT_NHAN_DAM);
@@ -552,10 +603,6 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
         // Nút lọc
         loc.setBackground(MAU_XANH);
         loc.setForeground(MAU_TEXT);
-
-        // Nút xuất Excel
-        xuatexcel.setBackground(MAU_SIDEBAR_CHON);
-        xuatexcel.setForeground(MAU_TEXT);
 
         // Nút quay lại
         quaylai.setBackground(MAU_SIDEBAR);
@@ -641,6 +688,9 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
 
             UI.setVisible(true);
             dispose();
+        }
+        if (o == loc){
+            laydulieucongnokh();
         }
     }
 }
