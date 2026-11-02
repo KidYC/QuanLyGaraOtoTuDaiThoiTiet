@@ -311,6 +311,39 @@ CREATE TABLE danhsachKHno (
 );
 GO
 
+-- 26. Bảng lịch sử công nợ 
+CREATE TABLE LICH_SU_CONG_NO (
+    maGiaoDich BIGINT IDENTITY(1,1) PRIMARY KEY,
+
+    maKhachHang VARCHAR(20) NOT NULL,
+
+    maHoaDon VARCHAR(20) NULL,
+
+    ngayGiaoDich DATETIME NOT NULL
+        DEFAULT GETDATE(),
+
+    noiDung NVARCHAR(200) NOT NULL,
+
+    ghiNo DECIMAL(18,2) NOT NULL DEFAULT 0,
+
+    ghiCo DECIMAL(18,2) NOT NULL DEFAULT 0,
+
+    CONSTRAINT FK_LSCN_KHACH_HANG
+        FOREIGN KEY (maKhachHang)
+        REFERENCES KHACH_HANG(maKhachHang),
+
+    CONSTRAINT FK_LSCN_HOA_DON
+        FOREIGN KEY (maHoaDon)
+        REFERENCES HOA_DON(maHoaDon),
+
+    CONSTRAINT CK_LSCN_SoTien
+        CHECK (
+            ghiNo >= 0
+            AND ghiCo >= 0
+            AND NOT (ghiNo > 0 AND ghiCo > 0)
+        )
+);
+
 -- ==========================================================
 -- PHẦN 2: THÊM DỮ LIỆU MẪU DML
 -- ==========================================================
@@ -540,7 +573,102 @@ INSERT INTO CHI_TIET_HOA_DON (maChiTietHD, maHD, noiDung, soLuong, dongia) VALUE
                                                                                ('CTHD02', 'HD02', N'Dịch vụ và phụ tùng', 1, 1500000),
                                                                                ('CTHD03', 'HD03', N'Dịch vụ và phụ tùng', 1, 600000),
                                                                                ('CTHD04', 'HD04', N'Dịch vụ và phụ tùng', 1, 500000);
+INSERT INTO LICH_SU_CONG_NO
+(
+    maKhachHang,
+    ngayGiaoDich,
+    noiDung,
+    ghiNo,
+    ghiCo
+)
+VALUES
+(
+    'KH01',
+    '2023-10-01 00:00:00',
+    N'Số dư đầu kỳ',
+    0,
+    0
+),
+(
+    'KH01',
+    '2023-10-01 09:00:00',
+    N'Sửa xe 29H-123.45',
+    20000000,
+    0
+),
 
+(
+    'KH01',
+    '2023-10-15 10:00:00',
+    N'Sửa xe 29H-456.78',
+    15000000,
+    0
+),
+(
+    'KH01',
+    '2023-10-26 14:00:00',
+    N'Thu tiền mặt KH',
+    0,
+    10000000
+);
+USE QuanLyGaraOToTuDaiThoiTiet;
+GO
+
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+-- Khách hàng KH01
+('KH01', NULL, '2023-09-01 08:15:00', N'Phát sinh công nợ sửa chữa xe',2500000, 0),
+('KH01', NULL, '2023-09-03 10:30:00', N'Thanh toán một phần công nợ',0, 1000000),
+('KH01', NULL, '2023-09-05 14:45:00', N'Thay dầu và bảo dưỡng xe',1200000, 0),
+('KH01', NULL, '2023-09-10 09:20:00', N'Thanh toán công nợ',0, 500000),
+('KH01', NULL, '2023-09-15 16:10:00', N'Thay má phanh',1800000, 0),
+('KH01', NULL, '2023-09-20 11:05:00', N'Thanh toán một phần',0, 800000),
+('KH01', NULL, '2023-10-02 13:25:00', N'Sửa chữa hệ thống điện',2200000, 0),
+('KH01', NULL, '2023-10-12 15:40:00', N'Thanh toán công nợ',0, 700000),
+('KH01', NULL, '2023-10-20 08:50:00', N'Thay lốp xe',3000000, 0),
+('KH01', NULL, '2023-10-26 17:30:00', N'Thanh toán cuối kỳ',0, 1000000);
+GO
+USE QuanLyGaraOToTuDaiThoiTiet;
+GO
+
+-- =========================
+-- DỮ LIỆU LỊCH SỬ CÔNG NỢ KH02
+-- =========================
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+('KH02', NULL, '2023-09-02 08:25:00', N'Sửa chữa động cơ xe', 3500000, 0),
+('KH02', NULL, '2023-09-04 11:15:00', N'Thanh toán một phần công nợ', 0, 1500000),
+('KH02', NULL, '2023-09-08 14:30:00', N'Thay bình ắc quy', 1800000, 0),
+('KH02', NULL, '2023-09-12 09:40:00', N'Thanh toán công nợ', 0, 800000),
+('KH02', NULL, '2023-09-18 16:20:00', N'Sửa chữa hệ thống phanh', 2400000, 0),
+('KH02', NULL, '2023-09-22 10:10:00', N'Thanh toán một phần', 0, 1000000),
+('KH02', NULL, '2023-10-03 13:35:00', N'Bảo dưỡng định kỳ', 1500000, 0),
+('KH02', NULL, '2023-10-11 15:50:00', N'Thanh toán công nợ', 0, 1200000),
+('KH02', NULL, '2023-10-19 08:45:00', N'Thay lốp xe', 2800000, 0),
+('KH02', NULL, '2023-10-27 17:15:00', N'Thanh toán cuối kỳ', 0, 1000000);
+GO
+
+
+-- =========================
+-- DỮ LIỆU LỊCH SỬ CÔNG NỢ KH03
+-- =========================
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+('KH03', NULL, '2023-09-01 09:10:00', N'Thay dầu và lọc dầu', 900000, 0),
+('KH03', NULL, '2023-09-06 13:20:00', N'Thanh toán công nợ', 0, 400000),
+('KH03', NULL, '2023-09-09 10:45:00', N'Sửa chữa hệ thống điện', 2100000, 0),
+('KH03', NULL, '2023-09-14 15:30:00', N'Thanh toán một phần công nợ', 0, 700000),
+('KH03', NULL, '2023-09-19 08:50:00', N'Thay má phanh', 1600000, 0),
+('KH03', NULL, '2023-09-25 11:25:00', N'Thanh toán công nợ', 0, 600000),
+('KH03', NULL, '2023-10-04 14:05:00', N'Sửa chữa hệ thống làm mát', 2500000, 0),
+('KH03', NULL, '2023-10-13 09:35:00', N'Thanh toán một phần', 0, 1000000),
+('KH03', NULL, '2023-10-21 16:40:00', N'Thay lốp và cân bằng bánh xe', 3200000, 0),
+('KH03', NULL, '2023-10-28 10:55:00', N'Thanh toán cuối kỳ', 0, 1500000);
+GO
+GO
 -- ==========================================================
 -- PHẦN 3: VIEWS & PROCEDURES THỐNG KÊ DASHBOARD
 -- ==========================================================
