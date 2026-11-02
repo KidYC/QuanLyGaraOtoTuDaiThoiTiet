@@ -11,10 +11,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.util.List;
 
 public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListener {
 
     private JLabel lbltieude;
+    private JTextField txttimkiem;
+    private JButton btntimkiem;
+    private JButton btnlammoi;
 
     private JTable tblphutung;
     private DefaultTableModel modelphutung;
@@ -24,10 +29,11 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
     private JButton btnxoa;
     private JButton btnquaylai;
     private final PhuTung_DAO phuTungDAO = new PhuTung_DAO();
+    private final DecimalFormat dinhdang = new DecimalFormat("#,###");
 
     public ManHinhQuanLyDanhMucPhuTung() {
         setTitle("QUẢN LÝ DANH MỤC PHỤ TÙNG");
-        setSize(950, 480);
+        setSize(950, 530);
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -46,14 +52,52 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         lbltieude.setHorizontalAlignment(SwingConstants.CENTER);
         lbltieude.setForeground(new Color(44, 62, 80));
         lbltieude.setBorder(new EmptyBorder(15, 0, 10, 0));
-        add(lbltieude, BorderLayout.NORTH);
+
+        JPanel pNorth = new JPanel(new BorderLayout());
+        pNorth.setBackground(new Color(245, 245, 245));
+        pNorth.add(lbltieude, BorderLayout.NORTH);
+
+        JPanel pTimKiem = new JPanel(new BorderLayout(12, 0));
+        pTimKiem.setBackground(new Color(245, 245, 245));
+        pTimKiem.setBorder(new EmptyBorder(5, 20, 12, 20));
+
+        JLabel lbltimkiem = new JLabel("Tìm theo mã hoặc tên:");
+        lbltimkiem.setFont(new Font("Arial", Font.BOLD, 12));
+
+        txttimkiem = new JTextField();
+        txttimkiem.setPreferredSize(new Dimension(250, 32));
+
+        btntimkiem = new JButton("Tìm Kiếm");
+        btntimkiem.setPreferredSize(new Dimension(110, 32));
+        btntimkiem.setBackground(new Color(52, 152, 219));
+        btntimkiem.setForeground(Color.WHITE);
+        btntimkiem.setFocusPainted(false);
+
+        btnlammoi = new JButton("Làm Mới");
+        btnlammoi.setPreferredSize(new Dimension(110, 32));
+        btnlammoi.setBackground(new Color(149, 165, 166));
+        btnlammoi.setForeground(Color.WHITE);
+        btnlammoi.setFocusPainted(false);
+
+        JPanel pNut = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pNut.setBackground(new Color(245, 245, 245));
+        pNut.add(btntimkiem);
+        pNut.add(btnlammoi);
+
+        pTimKiem.add(lbltimkiem, BorderLayout.WEST);
+        pTimKiem.add(txttimkiem, BorderLayout.CENTER);
+        pTimKiem.add(pNut, BorderLayout.EAST);
+
+        pNorth.add(pTimKiem, BorderLayout.CENTER);
+
+        add(pNorth, BorderLayout.NORTH);
 
         //pCenter
         JPanel pCenter = new JPanel(new BorderLayout(15, 0));
         pCenter.setBackground(new Color(245, 245, 245));
         pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
 
-        String[] column = {"Mã Phụ Tùng", "Tên Phụ Tùng", "Đơn Vị", "Số Lượng"};
+        String[] column = {"Mã Phụ Tùng", "Tên Phụ Tùng", "Đơn Vị", "Số Lượng", "Đơn Giá Nhập", "Đơn Giá Bán"};
         Object[][] data = {};
         modelphutung = new DefaultTableModel(data, column) {
             @Override
@@ -113,6 +157,9 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         btnsua.addActionListener(this);
         btnxoa.addActionListener(this);
         btnquaylai.addActionListener(this);
+        btntimkiem.addActionListener(this);
+        btnlammoi.addActionListener(this);
+        txttimkiem.addActionListener(this);   // nhấn Enter cũng tìm
     }
 
     @Override
@@ -126,15 +173,24 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
             xuLyXoa();
         } else if (o == btnquaylai) {
             xuLyQuayLai();
+        } else if (o == btntimkiem || o == txttimkiem) {
+        xuLyTimKiem();
+        } else if (o == btnlammoi) {
+        xuLyLamMoi();
         }
     }
 
     private void napBang() {
         modelphutung.setRowCount(0);
+        String tuKhoa = txttimkiem.getText().trim();
         try {
-            for (PhuTung pt : phuTungDAO.getAllPhuTung()) {
+            List<PhuTung> ds = tuKhoa.isEmpty()
+                    ? phuTungDAO.getAllPhuTung()
+                    : phuTungDAO.timKiemPhuTung(tuKhoa);
+            for (PhuTung pt : ds) {
                 modelphutung.addRow(new Object[]{pt.getMaPhuTung(), pt.getTenPhuTung(),
-                        pt.getDonViTinh(), pt.getSoLuongTon()});
+                        pt.getDonViTinh(), pt.getSoLuongTon(),
+                        dinhdang.format(pt.getDonGiaNhap()), dinhdang.format(pt.getDonGiaBan())});
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
@@ -145,20 +201,35 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         try { return phuTungDAO.timPhuTungTheoMa(ma) != null; } catch (SQLException e) { return false; }
     }
 
-    public void themPhuTung(String ma, String ten, String donvi, int soluong) {
+
+    public boolean themPhuTung(String ma, String ten, String donvi, int soluong, String maKho,
+                               double dongianhap, double dongiaban) {
         try {
-            phuTungDAO.themPhuTung(new PhuTung(ma, ten, donvi, 0, 0, soluong, "K01"));
+            boolean ok = phuTungDAO.themPhuTung(new PhuTung(ma, ten, donvi, dongianhap, dongiaban, soluong, maKho));
             napBang();
-        } catch (SQLException e) { JOptionPane.showMessageDialog(this, e.getMessage()); }
+            return ok;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+            return false;
+        }
     }
 
-    public void capNhatPhuTung(String ma, String ten, String donvi, int soluong) {
+    public boolean capNhatPhuTung(String ma, String ten, String donvi, int soluong,
+                                  double dongianhap, double dongiaban) {
         try {
             PhuTung pt = phuTungDAO.timPhuTungTheoMa(ma);
-            pt.setTenPhuTung(ten); pt.setDonViTinh(donvi); pt.setSoLuongTon(soluong);
-            phuTungDAO.capNhatPhuTung(pt);
+            if (pt == null) return false;
+            pt.setTenPhuTung(ten);
+            pt.setDonViTinh(donvi);
+            pt.setDonGiaNhap(dongianhap);
+            pt.setDonGiaBan(dongiaban);
+            boolean ok = phuTungDAO.capNhatPhuTung(pt);
             napBang();
-        } catch (SQLException e) { JOptionPane.showMessageDialog(this, e.getMessage()); }
+            return ok;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+            return false;
+        }
     }
 
     private void xuLyThem() {
@@ -178,7 +249,9 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
                 modelphutung.getValueAt(dong, 0).toString(),
                 modelphutung.getValueAt(dong, 1).toString(),
                 modelphutung.getValueAt(dong, 2).toString(),
-                modelphutung.getValueAt(dong, 3).toString());
+                modelphutung.getValueAt(dong, 3).toString(),
+                modelphutung.getValueAt(dong, 4).toString(),
+                modelphutung.getValueAt(dong, 5).toString());
         UI.setVisible(true);
     }
 
@@ -209,6 +282,20 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
 
     private void xuLyQuayLai() {
         this.dispose();
+    }
+
+    private void xuLyTimKiem() {
+        napBang();
+        if (modelphutung.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Không tìm thấy phụ tùng phù hợp!",
+                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void xuLyLamMoi() {
+        txttimkiem.setText("");
+        napBang();
     }
 
     public static void main(String[] args) {

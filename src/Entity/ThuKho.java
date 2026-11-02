@@ -16,6 +16,13 @@ public class ThuKho {
     }
 
 
+    // Dùng cho các phiếu nhập / kiểm kê chỉ cần mã, tên, sđt thủ kho
+    public ThuKho(String maNhanVien, String hoTen, String soDienThoai) {
+        this.maNhanVien = maNhanVien;
+        this.hoTen = hoTen;
+        this.soDienThoai = soDienThoai;
+    }
+
     public ThuKho(String maNhanVien, String hoTen, String soDienThoai, String diaChi, Date ngayVaoLam, String trangThai) {
         this.maNhanVien = maNhanVien;
         this.hoTen = hoTen;

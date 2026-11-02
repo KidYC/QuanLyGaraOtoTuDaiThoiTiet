@@ -1,5 +1,8 @@
 package View.ThuKho;
 
+import DAO.Kho_DAO;
+import Entity.Kho;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -7,6 +10,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 
 public class FormThongTinPhuTung extends JDialog implements ActionListener {
@@ -18,6 +22,8 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
     private String tengoc = "";
     private String donvigoc = "";
     private String soluonggoc = "";
+    private String dongianhapgoc = "";
+    private String dongiabangoc = "";
 
     private JLabel lbltieude;
 
@@ -25,6 +31,9 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
     private JTextField txttenphutung;
     private JTextField txtdonvi;
     private JTextField txtsoluong;
+    private JTextField txtdongianhap;
+    private JTextField txtdongiaban;
+    private JComboBox<String> cbkho;
 
     private JButton btnquaylai;
     private JButton btnlammoi;
@@ -37,7 +46,8 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         khoiTao();
     }
 
-    public FormThongTinPhuTung(ManHinhQuanLyDanhMucPhuTung cha, String ma, String ten, String donvi, String soluong) {
+    public FormThongTinPhuTung(ManHinhQuanLyDanhMucPhuTung cha, String ma, String ten, String donvi, String soluong,
+                               String dongianhap, String dongiaban) {
         super(cha, "SỬA PHỤ TÙNG", true);
         this.cha = cha;
         this.chedosua = true;
@@ -45,11 +55,13 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         this.tengoc = ten;
         this.donvigoc = donvi;
         this.soluonggoc = soluong;
+        this.dongianhapgoc = dongianhap;
+        this.dongiabangoc = dongiaban;
         khoiTao();
     }
 
     private void khoiTao() {
-        setSize(520, 380);
+        setSize(580, 470);
         setLocationRelativeTo(cha);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -71,7 +83,7 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         add(lbltieude, BorderLayout.NORTH);
 
         //pCenter
-        JPanel pThongTin = new JPanel(new GridLayout(4, 2, 10, 10));
+        JPanel pThongTin = new JPanel(new GridLayout(7, 2, 10, 10));
         pThongTin.setBackground(Color.WHITE);
         pThongTin.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(189, 195, 199)),
@@ -85,6 +97,16 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         txttenphutung = new JTextField();
         txtdonvi = new JTextField();
         txtsoluong = new JTextField();
+        txtdongianhap = new JTextField();
+        txtdongiaban = new JTextField();
+        cbkho = new JComboBox<>();
+        try {
+            for (Kho k : new Kho_DAO().getAllKho()) {
+                cbkho.addItem(k.getMaKho() + " - " + k.getTenKho());
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải danh sách kho: " + e.getMessage());
+        }
 
         pThongTin.add(new JLabel("Mã Phụ Tùng:"));
         pThongTin.add(txtmaphutung);
@@ -94,6 +116,12 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         pThongTin.add(txtdonvi);
         pThongTin.add(new JLabel("Số Lượng:"));
         pThongTin.add(txtsoluong);
+        pThongTin.add(new JLabel("Đơn Giá Nhập:"));
+        pThongTin.add(txtdongianhap);
+        pThongTin.add(new JLabel("Đơn Giá Bán:"));
+        pThongTin.add(txtdongiaban);
+        pThongTin.add(new JLabel("Kho"));
+        pThongTin.add(cbkho);
 
         JPanel pGiua = new JPanel(new BorderLayout());
         pGiua.setBackground(new Color(245, 245, 245));
@@ -154,9 +182,14 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         txtmaphutung.setText(magoc);
         txttenphutung.setText(tengoc);
         txtdonvi.setText(donvigoc);
-        txtsoluong.setText(soluonggoc);
+        txtsoluong.setText(chedosua ? soluonggoc : "0");
+        txtdongianhap.setText(dongianhapgoc);
+        txtdongiaban.setText(dongiabangoc);
+        txtsoluong.setEditable(false);
+        txtsoluong.setBackground(new Color(236, 240, 241));
 
         txtmaphutung.setEditable(!chedosua);
+        cbkho.setEnabled(!chedosua);
         txtmaphutung.setBackground(chedosua ? new Color(236, 240, 241) : Color.WHITE);
     }
 
@@ -184,9 +217,25 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
             return;
         }
 
+        double dongianhap;
+        double dongiaban;
+        try {
+            dongianhap = Double.parseDouble(txtdongianhap.getText().replace(",", "").trim());
+            dongiaban = Double.parseDouble(txtdongiaban.getText().replace(",", "").trim());
+            if (dongianhap < 0 || dongiaban <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Đơn giá nhập phải là số không âm, đơn giá bán phải là số lớn hơn 0!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            txtdongiaban.requestFocus();
+            return;
+        }
+
         if (chedosua) {
-            cha.capNhatPhuTung(ma, ten, donvi, soluong);
-            JOptionPane.showMessageDialog(this, "Cập nhật phụ tùng thành công!");
+            if (cha.capNhatPhuTung(ma, ten, donvi, soluong, dongianhap, dongiaban)) {
+                JOptionPane.showMessageDialog(this, "Cập nhật phụ tùng thành công!");
+                this.dispose();
+            }
         } else {
             if (cha.tonTaiMa(ma)) {
                 JOptionPane.showMessageDialog(this,
@@ -195,13 +244,28 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
                 txtmaphutung.requestFocus();
                 return;
             }
-            cha.themPhuTung(ma, ten, donvi, soluong);
-            JOptionPane.showMessageDialog(this, "Thêm phụ tùng thành công!");
+            if (cbkho.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Chưa có kho nào trong hệ thống!",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String maKho = cbkho.getSelectedItem().toString().split(" - ")[0];
+            if (cha.themPhuTung(ma, ten, donvi, soluong, maKho, dongianhap, dongiaban)) {
+                JOptionPane.showMessageDialog(this, "Thêm phụ tùng thành công!");
+                int chon = JOptionPane.showConfirmDialog(this,
+                        "Bạn có muốn lập phiếu nhập kho cho phụ tùng này không?",
+                        "Nhập kho", JOptionPane.YES_NO_OPTION);
+                this.dispose();
+                if (chon == JOptionPane.YES_OPTION) {
+                    new ManHinhLapPhieuNhapKho().setVisible(true);
+                }
+                this.dispose();
+            }
         }
-        this.dispose();
     }
 
-    private void xuLyQuayLai() {
-        this.dispose();
+        private void xuLyQuayLai () {
+            this.dispose();
+        }
     }
-}

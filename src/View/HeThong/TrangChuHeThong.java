@@ -170,10 +170,8 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         NHAP_KHO("Danh sách phiếu nhập kho", NhomChucNang.KHO, "Tra cứu các phiếu nhập kho", VaiTro.THU_KHO),
         LAP_PHIEU_NHAP_KHO("Lập phiếu nhập kho", NhomChucNang.KHO, "Tạo phiếu nhập phụ tùng", VaiTro.THU_KHO),
         XUAT_KHO("Danh sách yêu cầu xuất kho", NhomChucNang.KHO, "Tra cứu yêu cầu xuất phụ tùng", VaiTro.THU_KHO),
-        LAP_PHIEU_XUAT_KHO("Lập phiếu xuất kho", NhomChucNang.KHO, "Tạo phiếu xuất phụ tùng", VaiTro.THU_KHO),
         KIEM_KE("Danh sách phiếu kiểm kê", NhomChucNang.KHO, "Tra cứu phiếu kiểm kê kho", VaiTro.THU_KHO),
         LAP_PHIEU_KIEM_KE("Lập phiếu kiểm kê", NhomChucNang.KHO, "Tạo phiếu kiểm kê kho", VaiTro.THU_KHO),
-        CANH_BAO_TON("Cảnh báo tồn kho", NhomChucNang.KHO, "Ngưỡng tồn tối thiểu và tối đa", VaiTro.THU_KHO),
 
         CHAN_DOAN("Chẩn đoán xe", NhomChucNang.SUA_CHUA, "Kiểm tra và chẩn đoán lỗi xe", VaiTro.KY_THUAT),
         PHIEU_SUA_CHUA("Phiếu sửa chữa", NhomChucNang.SUA_CHUA, "Lập phiếu, công việc và phụ tùng", VaiTro.KY_THUAT),
@@ -444,10 +442,8 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case NHAP_KHO:              hienThi(new ManHinhDanhSachPhieuNhapKho()); return true;
             case LAP_PHIEU_NHAP_KHO:    hienThi(new ManHinhLapPhieuNhapKho()); return true;
             case XUAT_KHO:              hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
-            case LAP_PHIEU_XUAT_KHO:    hienThi(new ManHinhLapPhieuXuatKho()); return true;
             case KIEM_KE:               hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
             case LAP_PHIEU_KIEM_KE:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
-            case CANH_BAO_TON:          hienThi(new ManHinhCanhBaoTonKho()); return true;
 
             case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
             case PHIEU_SUA_CHUA:        hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
@@ -897,7 +893,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             pnlHangThe.add(new TheThongKe("Số HĐ tháng này", String.valueOf(soHoaDonThang), new Color(34, 197, 94),
                     () -> moManHinhNghiepVu(ChucNang.HOA_DON_THANH_TOAN, null)));
             pnlHangThe.add(new TheThongKe("Phụ tùng sắp hết", String.valueOf(soPhuTungSapHet), new Color(220, 38, 38),
-                    () -> moManHinhNghiepVu(ChucNang.CANH_BAO_TON, null)));
+                    () -> moManHinhNghiepVu(ChucNang.THONG_KE_KHO, null)));
 
             if (xemDoanhThu) {
                 pnlHangThe.add(new TheThongKe("Doanh thu tháng này", df.format(doanhThuThang) + " đ", new Color(219, 234, 254),
