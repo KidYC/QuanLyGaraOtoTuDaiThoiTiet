@@ -263,25 +263,62 @@ public class PhieuSuaChua_DAO {
         return String.format("%s%02d", prefix, nextId);
     }
 
-    public boolean luuBaoGiaSuaChua(String maPhieuTiepNhan, String bienSo, List<ChiTietBaoGia_DTO> danhSachChiTiet) {
+    public boolean luuBaoGiaSuaChua(String maPhieuSuaChua, String bienSo, List<ChiTietBaoGia_DTO> danhSachChiTiet) {
         Connection conn = null;
         try {
             conn = connectSQL.getConnection();
             conn.setAutoCommit(false);
 
-
-            String maPhieuSC = getMaPhieuSuaChuaTuDong();
-
-
-            String sqlPhieuSC = "INSERT INTO PHIEU_SUA_CHUA (maPhieuSuaChua, trangThai, bienSo, maPhieuTiepNhan, ngayLap) VALUES (?, N'Chờ xác nhận', ?, ?, GETDATE())";
-            try (PreparedStatement ps1 = conn.prepareStatement(sqlPhieuSC)) {
-                ps1.setString(1, maPhieuSC);
-                ps1.setString(2, bienSo);
-                ps1.setString(3, maPhieuTiepNhan);
-                ps1.executeUpdate();
+            // 1. Kiểm tra xem phiếu sửa chữa đã tồn tại chưa, nếu chưa thì INSERT, có rồi thì UPDATE trạng thái
+            String sqlCheck = "SELECT COUNT(*) FROM PHIEU_SUA_CHUA WHERE maPhieuSuaChua = ?";
+            boolean daTonTai = false;
+            try (PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
+                psCheck.setString(1, maPhieuSuaChua);
+                try (ResultSet rs = psCheck.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        daTonTai = true;
+                    }
+                }
             }
 
+            if (!daTonTai) {
+                // Lấy maPhieuTiepNhan tương ứng từ biển số xe trong PHIEU_TIEP_NHAN
+                String maPTN = null;
+                String sqlGetPTN = "SELECT TOP 1 maPhieuTiepNhan FROM PHIEU_TIEP_NHAN WHERE bienSo = ? ORDER BY ngayTiepNhan DESC";
+                try (PreparedStatement psPTN = conn.prepareStatement(sqlGetPTN)) {
+                    psPTN.setString(1, bienSo);
+                    try (ResultSet rs = psPTN.executeQuery()) {
+                        if (rs.next()) {
+                            maPTN = rs.getString(1);
+                        }
+                    }
+                }
 
+                String sqlPhieuSC = "INSERT INTO PHIEU_SUA_CHUA (maPhieuSuaChua, trangThai, bienSo, maPhieuTiepNhan, ngayLap) VALUES (?, N'Chờ xác nhận báo giá', ?, ?, GETDATE())";
+                try (PreparedStatement ps1 = conn.prepareStatement(sqlPhieuSC)) {
+                    ps1.setString(1, maPhieuSuaChua);
+                    ps1.setString(2, bienSo);
+                    ps1.setString(3, maPTN);
+                    ps1.executeUpdate();
+                }
+            } else {
+                String sqlUpdateSC = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Chờ xác nhận báo giá' WHERE maPhieuSuaChua = ?";
+                try (PreparedStatement psUp = conn.prepareStatement(sqlUpdateSC)) {
+                    psUp.setString(1, maPhieuSuaChua);
+                    psUp.executeUpdate();
+                }
+            }
+
+            // 2. Xóa chi tiết cũ trước khi lưu chi tiết báo giá mới
+            try (PreparedStatement psDelDV = conn.prepareStatement("DELETE FROM CHI_TIET_DICH_VU WHERE maPhieuSuaChua = ?");
+                 PreparedStatement psDelPT = conn.prepareStatement("DELETE FROM DANH_SACH_PHU_TUNG WHERE maPhieuSuaChua = ?")) {
+                psDelDV.setString(1, maPhieuSuaChua);
+                psDelPT.setString(1, maPhieuSuaChua);
+                psDelDV.executeUpdate();
+                psDelPT.executeUpdate();
+            }
+
+            // 3. Chèn lại các hạng mục Dịch vụ và Phụ tùng
             String sqlDichVu = "INSERT INTO CHI_TIET_DICH_VU (maPhieuSuaChua, maDichVu, soLuong, donGia) VALUES (?, ?, ?, ?)";
             String sqlPhuTung = "INSERT INTO DANH_SACH_PHU_TUNG (maPhieuSuaChua, maPhuTung, soLuongPhuTung, donGiaBan) VALUES (?, ?, ?, ?)";
 
@@ -290,13 +327,13 @@ public class PhieuSuaChua_DAO {
 
                 for (ChiTietBaoGia_DTO ct : danhSachChiTiet) {
                     if (ct.getLoai().equalsIgnoreCase("Dịch vụ")) {
-                        psDV.setString(1, maPhieuSC);
+                        psDV.setString(1, maPhieuSuaChua);
                         psDV.setString(2, ct.getMaHangMuc());
                         psDV.setInt(3, ct.getSoLuong());
                         psDV.setDouble(4, ct.getDonGia());
                         psDV.addBatch();
                     } else if (ct.getLoai().equalsIgnoreCase("Phụ tùng")) {
-                        psPT.setString(1, maPhieuSC);
+                        psPT.setString(1, maPhieuSuaChua);
                         psPT.setString(2, ct.getMaHangMuc());
                         psPT.setInt(3, ct.getSoLuong());
                         psPT.setDouble(4, ct.getDonGia());
@@ -307,14 +344,7 @@ public class PhieuSuaChua_DAO {
                 psPT.executeBatch();
             }
 
-
-            String sqlUpdatePTN = "UPDATE PHIEU_TIEP_NHAN SET trangThai = N'Chờ xác nhận' WHERE maPhieuTiepNhan = ?";
-            try (PreparedStatement ps3 = conn.prepareStatement(sqlUpdatePTN)) {
-                ps3.setString(1, maPhieuTiepNhan);
-                ps3.executeUpdate();
-            }
-
-            conn.commit(); // Hoàn tất Transaction
+            conn.commit();
             return true;
 
         } catch (SQLException e) {

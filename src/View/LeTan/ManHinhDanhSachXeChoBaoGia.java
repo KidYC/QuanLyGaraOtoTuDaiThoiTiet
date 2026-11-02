@@ -139,8 +139,6 @@ public class ManHinhDanhSachXeChoBaoGia extends JFrame implements ActionListener
 
     private void xuLyQuayLai() {
         this.dispose();
-        TrangChuHeThong Home = new TrangChuHeThong();
-        Home.setVisible(true);
     }
 
     private void xuLyLapBaoGia() {
