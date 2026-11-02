@@ -676,8 +676,6 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
                 "Mã hóa đơn: " + maHoaDon
                         + "\nTổng tiền: " + soTien
                         + "\nPhương thức: PT01"
-                        + "\nPT01 : Tiền mặt"
-                        + "\nPT02 : Chuyển khoản"
                         + "\n\nBạn có chắc chắn muốn thanh toán?",
                 "Xác nhận thanh toán",
                 JOptionPane.YES_NO_OPTION,
