@@ -343,6 +343,26 @@ CREATE TABLE LICH_SU_CONG_NO (
                                              AND NOT (ghiNo > 0 AND ghiCo > 0)
                                          )
 );
+CREATE TABLE CA_LAM_VIEC (
+maCa VARCHAR(20) PRIMARY KEY,
+maNhanVien VARCHAR(20) NOT NULL,
+thoiGianMoCa DATETIME NOT NULL DEFAULT GETDATE(),
+thoiGianDongCa DATETIME NULL,
+tienDauCa DECIMAL(18, 2) NOT NULL,
+tienCuoiCa DECIMAL(18, 2) NULL,
+chenhLech DECIMAL(18, 2) NULL,
+trangThai NVARCHAR(30) NOT NULL DEFAULT N'Đang mở',
+ghiChu NVARCHAR(500) NULL,
+CONSTRAINT FK_CA_LAM_VIEC_KE_TOAN
+FOREIGN KEY (maNhanVien)
+REFERENCES KE_TOAN(maNhanVien),
+CONSTRAINT CK_CA_LAM_VIEC_TIEN
+CHECK (
+tienDauCa >= 0
+AND (tienCuoiCa IS NULL OR tienCuoiCa >= 0)
+)
+);
+GO
 
 -- ==========================================================
 -- PHẦN 2: THÊM DỮ LIỆU MẪU DML
