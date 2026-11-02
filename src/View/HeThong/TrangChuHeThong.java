@@ -54,6 +54,7 @@ import View.KyThuatVien.LapPhieuSuaChua;
 import View.HeThong.QuanLyNhanVien;
 import View.KeToan.ManHinhChiTietHDVaThanhToan;
 import View.KeToan.ManHinhDanhSachKHNo;
+import View.KeToan.ManHinhDanhSachPhieuSuaChuaDaHoanThanh;
 import View.KeToan.ManHinhQuanLyCa;
 import View.LeTan.*;
 import View.ThuKho.*;
@@ -179,6 +180,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         KIEM_TRA_CHAT_LUONG("Kiểm tra chất lượng", NhomChucNang.SUA_CHUA, "Kiểm tra xe sau khi sửa chữa", VaiTro.KY_THUAT),
 
         HOA_DON_THANH_TOAN("Hóa đơn", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
+        DANH_SACH_PHIEU_HOAN_THANH("Danh sách phiếu hoàn thành", NhomChucNang.THANH_TOAN, "Tra cứu các phiếu sửa chữa đã hoàn thành", VaiTro.KE_TOAN),
         CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
         CA_THU_NGAN("Quản lý ca thu ngân", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
 
@@ -432,35 +434,36 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
 
     static boolean moManHinhNghiepVu(ChucNang cn, String maNV) {
         switch (cn) {
-            case QUAN_LY_KHACH_HANG:    hienThi(new ManHinhQuanLyKhachHang()); return true;
-            case QUAN_LY_XE:            hienThi(new DanhSachXeKhachHang("001", "Minh Lo", "0123456789")); return true;
-            case TIEP_NHAN_XE:          hienThi(new ManHinhLapPhieuTiepNhan()); return true;
-            case LAP_BAO_GIA:           hienThi(new ManHinhLapBaoGia()); return true;
-            case BAN_GIAO_XE:           hienThi(new ManHinhChiTietBanGiao()); return true;
+            case QUAN_LY_KHACH_HANG:          hienThi(new ManHinhQuanLyKhachHang()); return true;
+            case QUAN_LY_XE:                  hienThi(new DanhSachXeKhachHang("001", "Minh Lo", "0123456789")); return true;
+            case TIEP_NHAN_XE:                hienThi(new ManHinhLapPhieuTiepNhan()); return true;
+            case LAP_BAO_GIA:                 hienThi(new ManHinhLapBaoGia()); return true;
+            case BAN_GIAO_XE:                 hienThi(new ManHinhChiTietBanGiao()); return true;
 
-            case DANH_MUC_PHU_TUNG:     hienThi(new ManHinhQuanLyDanhMucPhuTung()); return true;
-            case NHAP_KHO:              hienThi(new ManHinhDanhSachPhieuNhapKho()); return true;
-            case LAP_PHIEU_NHAP_KHO:    hienThi(new ManHinhLapPhieuNhapKho()); return true;
-            case XUAT_KHO:              hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
-            case KIEM_KE:               hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
-            case LAP_PHIEU_KIEM_KE:     hienThi(new ManHinhLapPhieuKiemKe()); return true;
+            case DANH_MUC_PHU_TUNG:           hienThi(new ManHinhQuanLyDanhMucPhuTung()); return true;
+            case NHAP_KHO:                    hienThi(new ManHinhDanhSachPhieuNhapKho()); return true;
+            case LAP_PHIEU_NHAP_KHO:          hienThi(new ManHinhLapPhieuNhapKho()); return true;
+            case XUAT_KHO:                    hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
+            case KIEM_KE:                     hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
+            case LAP_PHIEU_KIEM_KE:           hienThi(new ManHinhLapPhieuKiemKe()); return true;
 
-            case CHAN_DOAN:             hienThi(new ChiTietKiemTraChanDoan()); return true;
-            case PHIEU_SUA_CHUA:        hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
-            case THUC_HIEN_SUA_CHUA:    hienThi(new CapNhatTienDoSuaChua()); return true;
-            case KIEM_TRA_CHAT_LUONG:   hienThi(new KiemTraChatLuong()); return true;
+            case CHAN_DOAN:                   hienThi(new ChiTietKiemTraChanDoan()); return true;
+            case PHIEU_SUA_CHUA:              hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
+            case THUC_HIEN_SUA_CHUA:          hienThi(new CapNhatTienDoSuaChua()); return true;
+            case KIEM_TRA_CHAT_LUONG:         hienThi(new KiemTraChatLuong()); return true;
 
-            case HOA_DON_THANH_TOAN:    hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
-            case CONG_NO:               hienThi(new ManHinhDanhSachKHNo()); return true;
-            case CA_THU_NGAN:           hienThi(new ManHinhQuanLyCa()); return true;
+            case HOA_DON_THANH_TOAN:          hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
+            case DANH_SACH_PHIEU_HOAN_THANH:  hienThi(new ManHinhDanhSachPhieuSuaChuaDaHoanThanh()); return true;
+            case CONG_NO:                     hienThi(new ManHinhDanhSachKHNo()); return true;
+            case CA_THU_NGAN:                 hienThi(new ManHinhQuanLyCa()); return true;
 
-            case THONG_KE_DOANH_THU:    hienThi(new ManHinhThongKeDoanhThu()); return true;
-            case THONG_KE_SUA_CHUA:     hienThi(new ManHinhThongKeSuaChua()); return true;
-            case THONG_KE_KHO:          hienThi(new ManHinhThongKeKho()); return true;
+            case THONG_KE_DOANH_THU:          hienThi(new ManHinhThongKeDoanhThu()); return true;
+            case THONG_KE_SUA_CHUA:           hienThi(new ManHinhThongKeSuaChua()); return true;
+            case THONG_KE_KHO:                hienThi(new ManHinhThongKeKho()); return true;
 
-            case QUAN_LY_NHAN_VIEN:     hienThi(new QuanLyNhanVien()); return true;
+            case QUAN_LY_NHAN_VIEN:           hienThi(new QuanLyNhanVien()); return true;
 
-            default:                    return false;
+            default:                          return false;
         }
     }
 

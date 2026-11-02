@@ -8,9 +8,8 @@ import Entity.DanhSachPhuTung;
 
 public class DanhSachPhuTung_DAO {
 
-    // Sửa lại tên bảng thành CHI_TIET_PHIEU_SUA_CHUA và đúng tên cột trong CSDL của bạn
     public boolean themDanhSachPhuTung(DanhSachPhuTung dspt) throws SQLException {
-        String sql = "INSERT INTO CHI_TIET_PHIEU_SUA_CHUA (maPhieuSuaChua, maPhuTung, soLuong, donGia) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO DANH_SACH_PHU_TUNG (maPhieuSuaChua, maPhuTung, soLuongPhuTung, donGiaBan) VALUES (?, ?, ?, ?)";
         try (Connection conn = connectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, dspt.getMaPhieuSuaChua());
@@ -21,10 +20,9 @@ public class DanhSachPhuTung_DAO {
         }
     }
 
-    // Lấy danh sách phụ tùng theo mã phiếu từ bảng CHI_TIET_PHIEU_SUA_CHUA
     public List<DanhSachPhuTung> getDSPhuTungByMaPhieu(String maPhieuSC) throws SQLException {
         List<DanhSachPhuTung> list = new ArrayList<>();
-        String sql = "SELECT * FROM CHI_TIET_PHIEU_SUA_CHUA WHERE maPhieuSuaChua = ?";
+        String sql = "SELECT * FROM DANH_SACH_PHU_TUNG WHERE maPhieuSuaChua = ?";
         try (Connection conn = connectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maPhieuSC);
@@ -33,9 +31,32 @@ public class DanhSachPhuTung_DAO {
                     list.add(new DanhSachPhuTung(
                             rs.getString("maPhieuSuaChua"),
                             rs.getString("maPhuTung"),
-                            rs.getInt("soLuong"), // Tên cột trong CSDL là soLuong
-                            rs.getDouble("donGia") // Tên cột trong CSDL là donGia
+                            rs.getInt("soLuongPhuTung"),
+                            rs.getDouble("donGiaBan")
                     ));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<Object[]> getDSPhuTungBaoGiaByMaPhieu(String maPhieuSC) throws SQLException {
+        List<Object[]> list = new ArrayList<>();
+        String sql = "SELECT ds.maPhuTung, pt.tenPhuTung, ds.soLuongPhuTung, ds.donGiaBan " +
+                "FROM DANH_SACH_PHU_TUNG ds " +
+                "JOIN PHU_TUNG pt ON ds.maPhuTung = pt.maPhuTung " +
+                "WHERE ds.maPhieuSuaChua = ?";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maPhieuSC);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Object[]{
+                            rs.getString("maPhuTung"),
+                            rs.getString("tenPhuTung"),
+                            rs.getInt("soLuongPhuTung"),
+                            rs.getDouble("donGiaBan")
+                    });
                 }
             }
         }

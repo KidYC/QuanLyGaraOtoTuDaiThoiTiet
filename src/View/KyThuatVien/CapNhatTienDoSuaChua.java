@@ -460,28 +460,43 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, List
             return;
         }
 
-        String trangThaiMoi = cmbTrangThai.getSelectedItem().toString();
+        String trangThaiChon = cmbTrangThai.getSelectedItem().toString();
         int tienDoMoi = prgBar.getValue();
         String ghiChuMoi = txaGhiChu.getText().trim();
+
+        // LOGIC CHUYỂN ĐỔI TRẠNG THÁI CHUẨN KHI HOÀN THÀNH
+        String trangThaiLuuCSDL = trangThaiChon;
+        if (trangThaiChon.equalsIgnoreCase("Hoàn thành") || tienDoMoi == 100) {
+            trangThaiLuuCSDL = "Chờ kiểm tra chất lượng";
+            tienDoMoi = 100; // Đảm bảo tự động đẩy thanh tiến độ lên 100%
+        }
 
         java.sql.Date ngayDuKienMoi = new java.sql.Date(
                 ngayDuKienChooser.getDate().getTime()
         );
 
         try {
+            // Truyền trangThaiLuuCSDL xuống DAO
             boolean ok = phieuSuaChuaDAO.capNhatTienDoVaTrangThai(
                     maLenh,
-                    trangThaiMoi,
+                    trangThaiLuuCSDL,
                     tienDoMoi,
                     ghiChuMoi,
                     ngayDuKienMoi
             );
 
             if (ok) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Cập nhật tiến độ thành công!"
-                );
+                if (trangThaiLuuCSDL.equals("Chờ kiểm tra chất lượng")) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Đã hoàn tất thi công! Lệnh " + maLenh + " đã chuyển sang trạng thái 'Chờ kiểm tra chất lượng'."
+                    );
+                } else {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Cập nhật tiến độ thành công!"
+                    );
+                }
 
                 loadDanhSachLenh();
 
