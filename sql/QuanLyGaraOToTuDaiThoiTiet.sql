@@ -311,17 +311,50 @@ CREATE TABLE danhsachKHno (
 );
 GO
 
+-- 26. Bảng lịch sử công nợ
+CREATE TABLE LICH_SU_CONG_NO (
+                                 maGiaoDich BIGINT IDENTITY(1,1) PRIMARY KEY,
+
+                                 maKhachHang VARCHAR(20) NOT NULL,
+
+                                 maHoaDon VARCHAR(20) NULL,
+
+                                 ngayGiaoDich DATETIME NOT NULL
+                                                              DEFAULT GETDATE(),
+
+                                 noiDung NVARCHAR(200) NOT NULL,
+
+                                 ghiNo DECIMAL(18,2) NOT NULL DEFAULT 0,
+
+                                 ghiCo DECIMAL(18,2) NOT NULL DEFAULT 0,
+
+                                 CONSTRAINT FK_LSCN_KHACH_HANG
+                                     FOREIGN KEY (maKhachHang)
+                                         REFERENCES KHACH_HANG(maKhachHang),
+
+                                 CONSTRAINT FK_LSCN_HOA_DON
+                                     FOREIGN KEY (maHoaDon)
+                                         REFERENCES HOA_DON(maHoaDon),
+
+                                 CONSTRAINT CK_LSCN_SoTien
+                                     CHECK (
+                                         ghiNo >= 0
+                                             AND ghiCo >= 0
+                                             AND NOT (ghiNo > 0 AND ghiCo > 0)
+                                         )
+);
+
 -- ==========================================================
 -- PHẦN 2: THÊM DỮ LIỆU MẪU DML
 -- ==========================================================
 
 -- Khách Hàng & Nợ
 INSERT INTO KHACH_HANG (maKhachHang, hoTen, soDienThoai, diaChi, email, bienSo) VALUES
-('KH01', N'Nguyễn Văn A', '0901234567', N'123 Nguyễn Trãi, Q1', 'nguyenvanA@gmail.com', '51G-123.45'),
-('KH02', N'Trần Thị B', '0912345678', N'456 Lê Văn Việt, TP. Thủ Đức', 'tranthiB@gmail.com', '60B-987.65'),
-('KH03', N'Lê Văn C', '0987654321', N'789 CMT8, Q3', 'levanC@gmail.com', '51K-555.88'),
-('KH04', N'Phạm Minh Dung', '0984444444', N'12 Hoàng Văn Thụ, Tân Bình', 'dung.pham@gmail.com', '51A-888.88'),
-('KH05', N'Đặng Quốc Hùng', '0985555555', N'88 Cộng Hòa, Tân Bình', 'hung.dang@gmail.com', '51K-999.99');
+                                                                                    ('KH01', N'Nguyễn Văn A', '0901234567', N'123 Nguyễn Trãi, Q1', 'nguyenvanA@gmail.com', '51G-123.45'),
+                                                                                    ('KH02', N'Trần Thị B', '0912345678', N'456 Lê Văn Việt, TP. Thủ Đức', 'tranthiB@gmail.com', '60B-987.65'),
+                                                                                    ('KH03', N'Lê Văn C', '0987654321', N'789 CMT8, Q3', 'levanC@gmail.com', '51K-555.88'),
+                                                                                    ('KH04', N'Phạm Minh Dung', '0984444444', N'12 Hoàng Văn Thụ, Tân Bình', 'dung.pham@gmail.com', '51A-888.88'),
+                                                                                    ('KH05', N'Đặng Quốc Hùng', '0985555555', N'88 Cộng Hòa, Tân Bình', 'hung.dang@gmail.com', '51K-999.99');
 
 INSERT INTO danhsachKHno (maKhachHang, hoTen, soDienThoai, hanMucNo, tongNo, trangThai) VALUES
                                                                                             ('KH01', N'Nguyễn Văn A', '0901234567', 100000000, 30000000, N'Chưa vượt mức'),
@@ -400,7 +433,68 @@ INSERT INTO PHU_TUNG (maPhuTung, tenPhuTung, donViTinh, donGiaNhap, donGiaBan, s
                                                                                                       ('PT03', N'Lọc gió điều hòa', N'Cái', 120000, 200000, 30, 'KHO02'),
                                                                                                       ('PT04', N'Bơm cao áp', N'Cái', 4500000, 6200000, 50, 'KHO01');
 
--- Phiếu Tiếp Nhận & Phiếu Sửa Chữa
+-- Phiếu Tiếp Nhận
+INSERT INTO PHIEU_TIEP_NHAN
+(maPhieuTiepNhan, ngayTiepNhan, tinhTrangXe, yeuCauKH, trangThai, bienSo)
+VALUES
+    ('PTN01', '2026-02-15 08:30:00', N'Dầu động cơ đổi màu, xe đến hạn bảo dưỡng', N'Bảo dưỡng định kỳ và kiểm tra tổng quát', N'Đã chuyển sửa chữa', '51G-123.45'),
+    ('PTN02', '2026-03-20 09:00:00', N'Má phanh trước bị mòn', N'Kiểm tra và thay má phanh trước', N'Đã chuyển sửa chữa', '60B-987.65'),
+    ('PTN03', '2026-05-15 08:30:00', N'Động cơ rung giật, đèn Check Engine sáng', N'Kiểm tra nguyên nhân động cơ rung giật', N'Đã chuyển sửa chữa', '51A-888.88'),
+    ('PTN04', '2026-08-20 09:00:00', N'Xe hao xăng, vận hành kém', N'Kiểm tra và vệ sinh kim phun', N'Đã chuyển sửa chữa', '51K-999.99'),
+    ('PTN05', '2026-09-15 08:00:00', N'Điều hòa làm mát yếu', N'Kiểm tra hệ thống điều hòa', N'Đã chuyển sửa chữa', '51K-555.88'),
+    ('PTN06', '2026-10-24 10:45:00', N'Dây curoa có dấu hiệu rạn nứt', N'Kiểm tra hệ thống truyền động và sạc', N'Đang sửa chữa', '51G-123.45'),
+    ('PTN07', '2026-10-28 08:30:00', N'Cần kiểm tra hệ thống gầm', N'Kiểm tra và bảo dưỡng hệ thống treo', N'Đang sửa chữa', '51A-888.88');
+GO
+
+-- Phiếu Nhập Kho
+INSERT INTO PHIEU_NHAP_KHO
+    (maPhieuNhap, ngayNhap, tongTienNhap, maNhanVien, maNhaCungCap)
+VALUES
+('PNK01', '2026-01-10 08:30:00', 19500000, 'TK01', 'NCC01'),
+('PNK02', '2026-04-12 09:15:00', 24300000, 'TK02', 'NCC02');
+GO
+
+-- Chi Tiết Phiếu Nhập Kho
+INSERT INTO CHI_TIET_PHIEU_NHAP
+    (maPhieuNhap, maPhuTung, soLuongNhap, donGiaNhap, thanhTien)
+VALUES
+('PNK01', 'PT01', 20, 800000, 16000000),
+('PNK01', 'PT02', 10, 350000, 3500000),
+('PNK02', 'PT03', 15, 120000, 1800000),
+('PNK02', 'PT04', 5, 4500000, 22500000);
+GO
+
+-- Cảnh Báo Tồn Kho
+INSERT INTO CANH_BAO_TON_KHO
+    (maCanhBao, maPhuTung, ngayCanhBao, loaiCanhBao, trangThaiDaXem)
+VALUES
+('CBTK01', 'PT02', '2026-10-25 08:00:00', N'Kiểm tra mức tồn kho', 0),
+('CBTK02', 'PT04', '2026-10-28 08:00:00', N'Đối chiếu số lượng tồn kho', 1);
+GO
+
+-- Phiếu Kiểm Kê
+INSERT INTO PHIEU_KIEM_KE
+    (maPhieuKiemKe, ngayKiemKe, trangThai, maNhanVien)
+VALUES
+('PKK01', '2026-10-25 08:00:00', N'Đã hoàn thành', 'TK01'),
+('PKK02', '2026-10-30 08:00:00', N'Đã hoàn thành', 'TK02');
+GO
+
+-- Chi Tiết Kiểm Kê
+INSERT INTO CHI_TIET_KIEM_KE
+    (maPhieuKiemKe, maPhuTung, soLuongHeThong, soLuongThucTe, chenhLech, lyDoChenhLech)
+VALUES
+('PKK01', 'PT01', 45, 45, 0, N'Không có chênh lệch'),
+('PKK01', 'PT02', 15, 14, -1, N'Thiếu 1 bộ khi kiểm kê'),
+('PKK01', 'PT03', 30, 30, 0, N'Không có chênh lệch'),
+('PKK01', 'PT04', 50, 50, 0, N'Không có chênh lệch'),
+('PKK02', 'PT01', 45, 45, 0, N'Không có chênh lệch'),
+('PKK02', 'PT02', 15, 15, 0, N'Đã đối chiếu lại'),
+('PKK02', 'PT03', 30, 29, -1, N'Thiếu 1 cái khi kiểm kê'),
+('PKK02', 'PT04', 50, 50, 0, N'Không có chênh lệch');
+GO
+
+-- Phiếu Sửa Chữa
 INSERT INTO PHIEU_SUA_CHUA (
     maPhieuSuaChua,
     ngayLap,
@@ -475,7 +569,7 @@ VALUES
     (
         'PSC05', '2026-09-15 08:30:00', '2026-09-15 10:00:00',
         '2026-09-16 17:00:00', N'Hoàn thành',
-        '51F-555.55', 'KTV01', 'PTN05',
+        '51K-555.88', 'KTV01', 'PTN05',
         N'Điều hòa làm mát yếu, nhiệt độ trong cabin không đạt yêu cầu.',
         N'Hệ thống điều hòa thiếu gas, lọc gió điều hòa bám nhiều bụi bẩn.',
         N'Kiểm tra rò rỉ gas, nạp gas điều hòa và thay lọc gió cabin.',
@@ -540,7 +634,102 @@ INSERT INTO CHI_TIET_HOA_DON (maChiTietHD, maHD, noiDung, soLuong, dongia) VALUE
                                                                                ('CTHD02', 'HD02', N'Dịch vụ và phụ tùng', 1, 1500000),
                                                                                ('CTHD03', 'HD03', N'Dịch vụ và phụ tùng', 1, 600000),
                                                                                ('CTHD04', 'HD04', N'Dịch vụ và phụ tùng', 1, 500000);
+INSERT INTO LICH_SU_CONG_NO
+(
+    maKhachHang,
+    ngayGiaoDich,
+    noiDung,
+    ghiNo,
+    ghiCo
+)
+VALUES
+    (
+        'KH01',
+        '2023-10-01 00:00:00',
+        N'Số dư đầu kỳ',
+        0,
+        0
+    ),
+    (
+        'KH01',
+        '2023-10-01 09:00:00',
+        N'Sửa xe 29H-123.45',
+        20000000,
+        0
+    ),
 
+    (
+        'KH01',
+        '2023-10-15 10:00:00',
+        N'Sửa xe 29H-456.78',
+        15000000,
+        0
+    ),
+    (
+        'KH01',
+        '2023-10-26 14:00:00',
+        N'Thu tiền mặt KH',
+        0,
+        10000000
+    );
+USE QuanLyGaraOToTuDaiThoiTiet;
+GO
+
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+-- Khách hàng KH01
+('KH01', NULL, '2023-09-01 08:15:00', N'Phát sinh công nợ sửa chữa xe',2500000, 0),
+('KH01', NULL, '2023-09-03 10:30:00', N'Thanh toán một phần công nợ',0, 1000000),
+('KH01', NULL, '2023-09-05 14:45:00', N'Thay dầu và bảo dưỡng xe',1200000, 0),
+('KH01', NULL, '2023-09-10 09:20:00', N'Thanh toán công nợ',0, 500000),
+('KH01', NULL, '2023-09-15 16:10:00', N'Thay má phanh',1800000, 0),
+('KH01', NULL, '2023-09-20 11:05:00', N'Thanh toán một phần',0, 800000),
+('KH01', NULL, '2023-10-02 13:25:00', N'Sửa chữa hệ thống điện',2200000, 0),
+('KH01', NULL, '2023-10-12 15:40:00', N'Thanh toán công nợ',0, 700000),
+('KH01', NULL, '2023-10-20 08:50:00', N'Thay lốp xe',3000000, 0),
+('KH01', NULL, '2023-10-26 17:30:00', N'Thanh toán cuối kỳ',0, 1000000);
+GO
+USE QuanLyGaraOToTuDaiThoiTiet;
+GO
+
+-- =========================
+-- DỮ LIỆU LỊCH SỬ CÔNG NỢ KH02
+-- =========================
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+('KH02', NULL, '2023-09-02 08:25:00', N'Sửa chữa động cơ xe', 3500000, 0),
+('KH02', NULL, '2023-09-04 11:15:00', N'Thanh toán một phần công nợ', 0, 1500000),
+('KH02', NULL, '2023-09-08 14:30:00', N'Thay bình ắc quy', 1800000, 0),
+('KH02', NULL, '2023-09-12 09:40:00', N'Thanh toán công nợ', 0, 800000),
+('KH02', NULL, '2023-09-18 16:20:00', N'Sửa chữa hệ thống phanh', 2400000, 0),
+('KH02', NULL, '2023-09-22 10:10:00', N'Thanh toán một phần', 0, 1000000),
+('KH02', NULL, '2023-10-03 13:35:00', N'Bảo dưỡng định kỳ', 1500000, 0),
+('KH02', NULL, '2023-10-11 15:50:00', N'Thanh toán công nợ', 0, 1200000),
+('KH02', NULL, '2023-10-19 08:45:00', N'Thay lốp xe', 2800000, 0),
+('KH02', NULL, '2023-10-27 17:15:00', N'Thanh toán cuối kỳ', 0, 1000000);
+GO
+
+
+-- =========================
+-- DỮ LIỆU LỊCH SỬ CÔNG NỢ KH03
+-- =========================
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+('KH03', NULL, '2023-09-01 09:10:00', N'Thay dầu và lọc dầu', 900000, 0),
+('KH03', NULL, '2023-09-06 13:20:00', N'Thanh toán công nợ', 0, 400000),
+('KH03', NULL, '2023-09-09 10:45:00', N'Sửa chữa hệ thống điện', 2100000, 0),
+('KH03', NULL, '2023-09-14 15:30:00', N'Thanh toán một phần công nợ', 0, 700000),
+('KH03', NULL, '2023-09-19 08:50:00', N'Thay má phanh', 1600000, 0),
+('KH03', NULL, '2023-09-25 11:25:00', N'Thanh toán công nợ', 0, 600000),
+('KH03', NULL, '2023-10-04 14:05:00', N'Sửa chữa hệ thống làm mát', 2500000, 0),
+('KH03', NULL, '2023-10-13 09:35:00', N'Thanh toán một phần', 0, 1000000),
+('KH03', NULL, '2023-10-21 16:40:00', N'Thay lốp và cân bằng bánh xe', 3200000, 0),
+('KH03', NULL, '2023-10-28 10:55:00', N'Thanh toán cuối kỳ', 0, 1500000);
+GO
+GO
 -- ==========================================================
 -- PHẦN 3: VIEWS & PROCEDURES THỐNG KÊ DASHBOARD
 -- ==========================================================
