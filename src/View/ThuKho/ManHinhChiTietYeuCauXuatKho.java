@@ -232,7 +232,7 @@ public class ManHinhChiTietYeuCauXuatKho extends JFrame implements ActionListene
     }
 
     public static void main(String[] args) {
-        ManHinhChiTietYeuCauXuatKho form = new ManHinhChiTietYeuCauXuatKho("PSC05", "31/10/2026", "KTV03", "51K-555.88", "Chờ xuất kho");
+        ManHinhChiTietYeuCauXuatKho form = new ManHinhChiTietYeuCauXuatKho("", "", "", "", "");
         form.setVisible(true);
     }
 }

@@ -95,18 +95,22 @@ public class PhieuNhapKho_DAO {
         return ds;
     }
 
-    // 3. Sinh mã phiếu nhập mới: PN001, PN002, ...
+    // 3. Sinh mã phiếu nhập mới theo dạng của nhóm: PNK01, PNK02, ...
+    // Lấy phần số của mọi mã (PNK02 -> 2, PN001 -> 1) rồi tìm số lớn nhất, nên không bị lỗi khi có mã cũ.
     public String sinhMaPhieuNhap() throws SQLException {
-        String sql = "SELECT MAX(maPhieuNhap) FROM PHIEU_NHAP_KHO";
+        String sql = "SELECT maPhieuNhap FROM PHIEU_NHAP_KHO";
+        int max = 0;
         try (Connection conn = connectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            if (rs.next() && rs.getString(1) != null) {
-                int so = Integer.parseInt(rs.getString(1).substring(2));
-                return String.format("PN%03d", so + 1);
+            while (rs.next()) {
+                String so = rs.getString(1).replaceAll("[^0-9]", ""); // chỉ giữ chữ số
+                if (!so.isEmpty() && Integer.parseInt(so) > max) {
+                    max = Integer.parseInt(so);
+                }
             }
         }
-        return "PN001";
+        return String.format("PNK%02d", max + 1);
     }
 
     // 4. CREATE: Lập phiếu nhập -> lưu phiếu, lưu chi tiết, cộng tồn kho (1 transaction)

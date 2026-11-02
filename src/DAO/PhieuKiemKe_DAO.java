@@ -82,24 +82,22 @@ public class PhieuKiemKe_DAO {
         return ds;
     }
 
-    // Sinh mã mới: KK01, KK02, ... Lấy số lớn nhất theo giá trị số (không so chuỗi)
-    // để sau KK99 ra KK100 chứ không bị trùng.
+    // Sinh mã mới theo dạng của nhóm: PKK01, PKK02, ... Lấy số lớn nhất theo giá trị số
+    // (PKK02 -> 2, KK05 -> 5) để sau PKK99 ra PKK100 chứ không bị trùng.
     public String sinhMaPhieuKiemKe() throws SQLException {
-        String sql = "SELECT maPhieuKiemKe FROM PHIEU_KIEM_KE WHERE maPhieuKiemKe LIKE 'KK%'";
+        String sql = "SELECT maPhieuKiemKe FROM PHIEU_KIEM_KE";
         int max = 0;
         try (Connection conn = connectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                try {
-                    int so = Integer.parseInt(rs.getString(1).substring(2).trim());
-                    if (so > max) max = so;
-                } catch (NumberFormatException e) {
-                    // bỏ qua mã không đúng dạng KK + số
+                String so = rs.getString(1).replaceAll("[^0-9]", ""); // chỉ giữ chữ số
+                if (!so.isEmpty() && Integer.parseInt(so) > max) {
+                    max = Integer.parseInt(so);
                 }
             }
         }
-        return String.format("KK%02d", max + 1);
+        return String.format("PKK%02d", max + 1);
     }
 
     public boolean taoPhieuKiemKe(PhieuKiemKe pk, List<ChiTietKiemKe> dsChiTiet) throws SQLException {
@@ -198,7 +196,7 @@ public class PhieuKiemKe_DAO {
         try {
             conn.setAutoCommit(false);
 
-            String sql = "UPDATE PHIEU_KIEM_KE SET trangThai = N'Hoàn thành' WHERE maPhieuKiemKe = ? AND trangThai = N'Đang kiểm kê'";
+            String sql = "UPDATE PHIEU_KIEM_KE SET trangThai = N'Đã hoàn thành' WHERE maPhieuKiemKe = ? AND trangThai = N'Đang kiểm kê'";
             int soDong;
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, maPhieuKiemKe);

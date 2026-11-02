@@ -81,7 +81,6 @@ public class ManHinhChiTietPhieuKiemKe extends JFrame implements ActionListener 
         txtnguoikiemke = new JTextField();
         txttrangthai = new JTextField();
 
-        // các ô chỉ để xem, không cho sửa
         JTextField[] cacO = {txtmaphieu, txtngaykiemke, txtnguoikiemke, txttrangthai};
         for (JTextField o : cacO) {
             o.setEditable(false);
@@ -109,7 +108,7 @@ public class ManHinhChiTietPhieuKiemKe extends JFrame implements ActionListener 
         tblchitiet = new JTable(modelchitiet);
         tblchitiet.setRowHeight(25);
 
-        // chênh lệch âm (thiếu hàng) tô đỏ, dương (dư hàng) tô xanh
+
         tblchitiet.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
@@ -220,7 +219,7 @@ public class ManHinhChiTietPhieuKiemKe extends JFrame implements ActionListener 
     }
 
     public static void main(String[] args) {
-        ManHinhChiTietPhieuKiemKe form = new ManHinhChiTietPhieuKiemKe("KK001");
+        ManHinhChiTietPhieuKiemKe form = new ManHinhChiTietPhieuKiemKe("KK01");
         form.setVisible(true);
     }
 }
