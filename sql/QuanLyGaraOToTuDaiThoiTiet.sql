@@ -443,7 +443,7 @@ VALUES
     ('PTN04', '2026-08-20 09:00:00', N'Xe hao xăng, vận hành kém', N'Kiểm tra và vệ sinh kim phun', N'Đã chuyển sửa chữa', '51K-999.99'),
     ('PTN05', '2026-09-15 08:00:00', N'Điều hòa làm mát yếu', N'Kiểm tra hệ thống điều hòa', N'Đã chuyển sửa chữa', '51K-555.88'),
     ('PTN06', '2026-10-24 10:45:00', N'Dây curoa có dấu hiệu rạn nứt', N'Kiểm tra hệ thống truyền động và sạc', N'Đang sửa chữa', '51G-123.45'),
-    ('PTN07', '2026-10-28 08:30:00', N'Cần kiểm tra hệ thống gầm', N'Kiểm tra và bảo dưỡng hệ thống treo', N'Đang sửa chữa', '51A-888.88');
+    ('PTN07', '2026-10-28 08:30:00', N'Cần kiểm tra hệ thống gầm', N'Kiểm tra và bảo dưỡng hệ thống treo', N'Đang xử lý', '51A-888.88');
 GO
 
 -- Phiếu Nhập Kho
