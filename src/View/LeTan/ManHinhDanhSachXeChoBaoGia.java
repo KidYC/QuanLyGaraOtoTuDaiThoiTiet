@@ -1,5 +1,7 @@
 package View.LeTan;
 
+import DAO.PhieuTiepNhan_DAO;
+import Entity.PhieuTiepNhan_DTO;
 import View.HeThong.TrangChuHeThong;
 
 import javax.swing.*;
@@ -9,6 +11,9 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class ManHinhDanhSachXeChoBaoGia extends JFrame implements ActionListener {
 
@@ -98,9 +103,28 @@ public class ManHinhDanhSachXeChoBaoGia extends JFrame implements ActionListener
     }
 
     private void loadData() {
-        modelXe.addRow(new Object[]{"KH001", "Nguyễn Văn A", "51F-123.45", "Toyota Vios", "06/10/2026 08:30", "Chờ báo giá"});
-        modelXe.addRow(new Object[]{"KH002", "Trần Thị B", "59G-987.65", "Honda CR-V", "06/10/2026 09:15", "Chờ báo giá"});
-        modelXe.addRow(new Object[]{"KH003", "Lê Văn C", "60A-111.22", "Mazda 3", "06/10/2026 10:00", "Chờ báo giá"});
+        modelXe.setRowCount(0);
+        PhieuTiepNhan_DAO ptnDao = new PhieuTiepNhan_DAO();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        try {
+            List<PhieuTiepNhan_DTO> listPhieu = ptnDao.getDanhSachXeChoBaoGia();
+
+            for (PhieuTiepNhan_DTO phieu : listPhieu) {
+                String ngayFormat = sdf.format(phieu.getNgayTiepNhan());
+                modelXe.addRow(new Object[]{
+                        phieu.getMaPhieuTiepNhan(),
+                        phieu.getTenKhachHang(),
+                        phieu.getBienSo(),
+                        phieu.getLoaiXe(),
+                        ngayFormat,
+                        phieu.getTrangThai()
+                });
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu xe chờ báo giá từ CSDL: " + ex.getMessage(), "Lỗi Cơ Sở Dữ Liệu", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override

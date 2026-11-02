@@ -153,6 +153,112 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
         btnThemXeMoi.addActionListener(this);
         btnTaoPhieuTiepNhan.addActionListener(this);
         btnQuayLai.addActionListener(this);
+
+        loadDataXe();
+    }
+
+    private void loadDataXe(){
+        tableModel.setRowCount(0);
+        try {
+            Xe_DAO dao = new Xe_DAO();
+            if (maKH != null && !maKH.isEmpty()) {
+                List<Xe> list = dao.getXeByMaKH(maKH);
+                for (Xe xe : list) {
+                    tableModel.addRow(new Object[]{xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getNamSanXuat()});
+                }
+            } else {
+                List<Xe> list = dao.getAllXe();
+                for (Xe xe : list) {
+                    tableModel.addRow(new Object[]{xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getNamSanXuat(), xe.getMaKhachHang()});
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu xe: " + e.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    public void XuLyThemXeMoi(){
+        JDialog dialog = new JDialog(this, "Thêm Xe Cho Khách Hàng", true);
+        dialog.setSize(420, 320);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout(10, 10));
+
+        JPanel pForm = new JPanel(new GridLayout(5, 2, 10, 10));
+        pForm.setBorder(new EmptyBorder(15, 20, 15, 20));
+
+        JTextField txtBienSo = new JTextField();
+        JTextField txtHangXe = new JTextField();
+        JTextField txtDongXe = new JTextField();
+        JTextField txtNamSX = new JTextField();
+        JTextField txtMaKHForm = new JTextField(this.maKH);
+
+        if (maKH != null && !maKH.isEmpty()) {
+            txtMaKHForm.setEditable(false);
+        }
+
+        pForm.add(new JLabel("Biển Số Xe:"));
+        pForm.add(txtBienSo);
+        pForm.add(new JLabel("Hãng Xe:"));
+        pForm.add(txtHangXe);
+        pForm.add(new JLabel("Dòng Xe:"));
+        pForm.add(txtDongXe);
+        pForm.add(new JLabel("Năm Sản Xuất:"));
+        pForm.add(txtNamSX);
+        pForm.add(new JLabel("Mã Khách Hàng:"));
+        pForm.add(txtMaKHForm);
+
+        dialog.add(pForm, BorderLayout.CENTER);
+
+        JPanel pButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JButton btnLuu = new JButton("Lưu Xe");
+        JButton btnHuy = new JButton("Hủy");
+
+        btnLuu.setBackground(new Color(46, 204, 113));
+        btnLuu.setForeground(Color.WHITE);
+        btnHuy.setBackground(new Color(149, 165, 166));
+        btnHuy.setForeground(Color.WHITE);
+
+        pButtons.add(btnHuy);
+        pButtons.add(btnLuu);
+        dialog.add(pButtons, BorderLayout.SOUTH);
+
+        btnHuy.addActionListener(e -> dialog.dispose());
+
+        btnLuu.addActionListener(e -> {
+            String bienSoStr = txtBienSo.getText().trim();
+            String hangXeStr = txtHangXe.getText().trim();
+            String dongXeStr = txtDongXe.getText().trim();
+            String namSXStr = txtNamSX.getText().trim();
+            String maKHStr = txtMaKHForm.getText().trim();
+
+            if (bienSoStr.isEmpty() || hangXeStr.isEmpty() || dongXeStr.isEmpty() || maKHStr.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Vui lòng nhập đầy đủ các trường thông tin!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int namSanXuat = 0;
+            try {
+                namSanXuat = Integer.parseInt(namSXStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Năm sản xuất phải là số nguyên hợp lệ (VD: 2022)!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Xe xeMoi = new Xe(bienSoStr, hangXeStr, dongXeStr, namSanXuat, maKHStr);
+            try {
+                Xe_DAO dao = new Xe_DAO();
+                if (dao.themXe(xeMoi)) {
+                    JOptionPane.showMessageDialog(dialog, "Thêm xe mới thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    dialog.dispose();
+                    loadDataXe();
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Không thể thêm xe mới!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(dialog, "Lỗi CSDL (Kiểm tra xem Biển số đã tồn tại hoặc Mã KH có hợp lệ hay không):\n" + ex.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
 
@@ -170,8 +276,10 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
                 return;
             }
 
-            String bienSo = tableModelXe.getValueAt(selectedRow, 1).toString();
-            String hangXe = tableModelXe.getValueAt(selectedRow, 2).toString();
+            String bienSo = table.getValueAt(selectedRow, 0).toString();
+            String hangXe = table.getValueAt(selectedRow, 1).toString();
+            String dongXe = table.getValueAt(selectedRow, 2).toString();
+            String loaiXe = hangXe + " " + dongXe;
 
             ManHinhLapPhieuTiepNhan formPhieu = new ManHinhLapPhieuTiepNhan(hoTen, soDienThoai, bienSo, hangXe);
             formPhieu.setVisible(true);
@@ -184,7 +292,7 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
                     JOptionPane.INFORMATION_MESSAGE);
 
         } else if (source == btnThemXeMoi) {
-            JOptionPane.showMessageDialog(this, "Mở Form thêm xe mới cho khách hàng: " + hoTen);
+            XuLyThemXeMoi();
         } else if (source == btnQuayLai) {
             ManHinhQuanLyKhachHang UI = new ManHinhQuanLyKhachHang();
             UI.setVisible(true);

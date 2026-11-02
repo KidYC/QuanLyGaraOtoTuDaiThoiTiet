@@ -32,6 +32,7 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
     private JButton btnQuayLai;
 
     private final KhachHang_DAO khachHangDAO = new KhachHang_DAO();
+    private JButton btnXemChiTietXe;
 
     public ManHinhQuanLyKhachHang() {
         setTitle("QUẢN LÝ KHÁCH HÀNG");
@@ -119,11 +120,13 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         btnThemKH = taoButton("Thêm Khách Hàng", new Color(46, 204, 113), 160, 38);
         btnSuaKH = taoButton("Sửa Khách Hàng", new Color(52, 152, 219), 160, 38);
         btnXoaKH = taoButton("Xóa Khách Hàng", new Color(231, 76, 60), 160, 38);
+        btnXemChiTietXe = taoButton("Xem Chi Tiết Xe", new Color(241, 196, 15), 150, 38);
         btnQuayLai = taoButton("Quay Lại", new Color(108, 122, 137), 120, 38);
 
         pChucNang.add(btnThemKH);
         pChucNang.add(btnSuaKH);
         pChucNang.add(btnXoaKH);
+        pChucNang.add(btnXemChiTietXe);
         pChucNang.add(btnQuayLai);
 
         pSouth.add(pTimKiem);
@@ -149,6 +152,7 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         btnThemKH.addActionListener(this);
         btnSuaKH.addActionListener(this);
         btnXoaKH.addActionListener(this);
+        btnXemChiTietXe.addActionListener(this);
         btnQuayLai.addActionListener(this);
         table.addMouseListener(this);
     }
@@ -183,14 +187,28 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
             moDialogSua();
         } else if (source == btnXoaKH) {
             xuLyXoa();
+        } else if (source == btnXemChiTietXe){
+            xuLyXemChiTietXe();
         } else if (source == btnQuayLai) {
-//            TrangChuHeThong Home = new TrangChuHeThong();
-//            Home.setVisible(true);
             this.dispose();
         }
     }
 
-    // 1. CHỨC NĂNG THÊM KHÁCH HÀNG
+    private void xuLyXemChiTietXe() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một khách hàng trong bảng để xem danh sách xe!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int modelRow = table.convertRowIndexToModel(selectedRow);
+        String maKH = tableModel.getValueAt(modelRow, 0).toString();
+        String hoTen = tableModel.getValueAt(modelRow, 1).toString();
+        String sdt = tableModel.getValueAt(modelRow, 2).toString();
+
+        moUIDanhSachXeKhachHang(maKH, hoTen, sdt);
+    }
+
     private void moDialogThem() {
         JDialog dlg = new JDialog(this, "Thêm Khách Hàng Mới", true);
         dlg.setSize(420, 320);
@@ -250,7 +268,6 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         dlg.setVisible(true);
     }
 
-    // 2. CHỨC NĂNG SỬA KHÁCH HÀNG
     private void moDialogSua() {
         int row = table.getSelectedRow();
         if (row == -1) {
@@ -327,7 +344,6 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         dlg.setVisible(true);
     }
 
-    // 3. CHỨC NĂNG XÓA KHÁCH HÀNG
     private void xuLyXoa() {
         int row = table.getSelectedRow();
         if (row == -1) {
@@ -359,7 +375,6 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         }
     }
 
-    // 4. CHỨC NĂNG TÌM KIẾM TỰ ĐỘNG
     private void xuLyTimKiem() {
         txtTimKH.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -380,7 +395,6 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
         }
     }
 
-    // 5. CHỨC NĂNG LÀM MỚI
     private void xuLyLamMoi() {
         txtTimKH.setText("");
         rowSorter.setRowFilter(null);
@@ -388,16 +402,9 @@ public class ManHinhQuanLyKhachHang extends JFrame implements ActionListener, Mo
     }
 
     private void moUIDanhSachXeKhachHang(String maKH, String hoTen, String sdt) {
-        int opt = JOptionPane.showConfirmDialog(this,
-                "Mở danh sách xe của khách hàng:\nMã KH: " + maKH + "\nHọ tên: " + hoTen + "\nSĐT: " + sdt,
-                "Xác nhận",
-                JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
-        if (opt == JOptionPane.YES_OPTION) {
-            DanhSachXeKhachHang UI = new DanhSachXeKhachHang(maKH, hoTen, sdt);
-            UI.setVisible(true);
-            this.dispose();
-        }
+        DanhSachXeKhachHang UI = new DanhSachXeKhachHang(maKH, hoTen, sdt);
+        UI.setVisible(true);
+        this.dispose();
     }
 
     public static void main(String[] args) {
