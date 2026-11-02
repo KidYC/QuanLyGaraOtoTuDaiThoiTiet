@@ -86,7 +86,7 @@ public class ManHinhChiTietPhieuNhapKho extends JFrame implements ActionListener
         txtnhacungcap = new JTextField();
         txtnhanvien = new JTextField();
 
-        // các ô chỉ để xem, không cho sửa
+
         JTextField[] cacO = {txtmaphieu, txtngaynhap, txtnhacungcap, txtnhanvien};
         for (JTextField o : cacO) {
             o.setEditable(false);
@@ -185,7 +185,7 @@ public class ManHinhChiTietPhieuNhapKho extends JFrame implements ActionListener
     }
 
     public static void main(String[] args) {
-        ManHinhChiTietPhieuNhapKho form = new ManHinhChiTietPhieuNhapKho("PN001", "25/10/2026", "CTY Phụ Tùng Ô Tô Sài Gòn", "Nguyễn Quang Huy");
+        ManHinhChiTietPhieuNhapKho form = new ManHinhChiTietPhieuNhapKho("", "", "", "");
         form.setVisible(true);
     }
 }

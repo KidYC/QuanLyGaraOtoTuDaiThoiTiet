@@ -299,19 +299,21 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
             dsPhieuSuaChua = new ArrayList<>();
 
             for (PhieuSuaChua psc : dsTatCa) {
-                String bienSo = psc.getBienSo() == null ? "" : psc.getBienSo().toLowerCase();
-                String maPhieu = psc.getMaPhieuSuaChua() == null ? "" : psc.getMaPhieuSuaChua().toLowerCase();
-                String maKtv = psc.getMaNhanVien() == null ? "" : psc.getMaNhanVien().toLowerCase();
-                String trangThai = psc.getTrangThai() == null ? "" : psc.getTrangThai().toLowerCase();
+                if (psc.getTrangThai() != null && psc.getTrangThai().equalsIgnoreCase("Chờ kiểm tra chất lượng")) {
 
-                if (bienSo.contains(tuKhoa) || maPhieu.contains(tuKhoa) || maKtv.contains(tuKhoa) || trangThai.contains(tuKhoa)) {
-                    dsPhieuSuaChua.add(psc);
-                    tableModelXeKCS.addRow(new Object[]{
-                            psc.getBienSo(),
-                            psc.getMaPhieuSuaChua(),
-                            psc.getMaNhanVien(),
-                            psc.getTrangThai()
-                    });
+                    String bienSo = psc.getBienSo() == null ? "" : psc.getBienSo().toLowerCase();
+                    String maPhieu = psc.getMaPhieuSuaChua() == null ? "" : psc.getMaPhieuSuaChua().toLowerCase();
+                    String maKtv = psc.getMaNhanVien() == null ? "" : psc.getMaNhanVien().toLowerCase();
+
+                    if (tuKhoa.isEmpty() || bienSo.contains(tuKhoa) || maPhieu.contains(tuKhoa) || maKtv.contains(tuKhoa)) {
+                        dsPhieuSuaChua.add(psc);
+                        tableModelXeKCS.addRow(new Object[]{
+                                psc.getBienSo(),
+                                psc.getMaPhieuSuaChua(),
+                                psc.getMaNhanVien(),
+                                psc.getTrangThai()
+                        });
+                    }
                 }
             }
         } catch (SQLException ex) {

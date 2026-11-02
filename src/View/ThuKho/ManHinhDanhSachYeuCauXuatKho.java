@@ -43,7 +43,6 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
 
     private List<PhieuSuaChua> dsPhieuFull = new ArrayList<>();
 
-
     // các trạng thái dưới đây là phiếu chưa tới kho nên không hiện trong danh sách của thủ kho.
     private final String[] TRANG_THAI_CHUA_TOI_KHO = {"Đang lập vật tư", "Chờ xác nhận báo giá", "Chờ báo giá", "Từ chối"};
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -185,7 +184,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    xuLyXemChiTiet(); // nhấp đúp để xem chi tiết
+                    xuLyXemChiTiet();
                 }
             }
         });
@@ -291,7 +290,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         if (!ngay.isEmpty()) {
             try {
                 sdf.setLenient(false);
-                ngay = sdf.format(sdf.parse(ngay));   // chuẩn hóa, ví dụ 1/10/2026 -> 01/10/2026
+                ngay = sdf.format(sdf.parse(ngay));
             } catch (java.text.ParseException ex) {
                 JOptionPane.showMessageDialog(this,
                         "Ngày phải nhập đúng dạng dd/MM/yyyy (ví dụ 01/10/2026)!",

@@ -292,7 +292,7 @@ public class ManHinhLapPhieuKiemKe extends JFrame implements ActionListener {
         btnquaylai.addActionListener(this);
         btnlammoi.addActionListener(this);
         cbphutung.addActionListener(this);
-        txtslthucte.addActionListener(this); // nhấn Enter để tính chênh lệch
+        txtslthucte.addActionListener(this);
         btnthemdong.addActionListener(this);
         btnxoadong.addActionListener(this);
 
@@ -346,7 +346,6 @@ public class ManHinhLapPhieuKiemKe extends JFrame implements ActionListener {
         }
     }
 
-    // Thêm phụ tùng đang nhập vào bảng (phụ tùng đã có trong bảng thì cập nhật lại dòng đó)
     private void xuLyThemDong() {
         if (dsphutung.isEmpty() || cbphutung.getSelectedIndex() < 0) {
             JOptionPane.showMessageDialog(this,
