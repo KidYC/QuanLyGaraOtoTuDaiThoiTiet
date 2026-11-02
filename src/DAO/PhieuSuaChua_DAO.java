@@ -544,4 +544,16 @@ public class PhieuSuaChua_DAO {
             return ps.executeUpdate() > 0;
         }
     }
+    public boolean capNhatTrangThaiPhieu(String maPhieuSuaChua, String trangThaiMoi) {
+        String sql = "UPDATE PHIEU_SUA_CHUA SET trangThai = ? WHERE maPhieuSuaChua = ?";
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, trangThaiMoi);
+            ps.setString(2, maPhieuSuaChua);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

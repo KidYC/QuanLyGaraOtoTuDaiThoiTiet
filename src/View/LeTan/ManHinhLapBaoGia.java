@@ -333,7 +333,7 @@ public class ManHinhLapBaoGia extends JFrame implements ActionListener {
         }
 
         int opt = JOptionPane.showConfirmDialog(this,
-                "Lưu Báo giá này vào CSDL và chuyển trạng thái Chờ Xác Nhận từ khách hàng?",
+                "Lưu Báo giá này vào CSDL và chuyển trạng thái phiếu sang 'Chờ xuất kho'?",
                 "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
         if (opt == JOptionPane.YES_OPTION) {
@@ -349,15 +349,29 @@ public class ManHinhLapBaoGia extends JFrame implements ActionListener {
             }
 
             PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
-            boolean success = dao.luuBaoGiaSuaChua(txtMaPhieu.getText(), txtBienSo.getText(), danhSachChiTiet);
 
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Đã lưu thành công vào Cơ Sở Dữ Liệu!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                ManHinhXacNhanPhuongAn formXacNhan = new ManHinhXacNhanPhuongAn();
-                formXacNhan.setVisible(true);
-                this.dispose();
+
+            boolean successBaoGia = dao.luuBaoGiaSuaChua(txtMaPhieu.getText().trim(), txtBienSo.getText().trim(), danhSachChiTiet);
+
+            if (successBaoGia) {
+                boolean successTrangThai = dao.capNhatTrangThaiPhieu(txtMaPhieu.getText().trim(), "Chờ xuất kho");
+
+                if (successTrangThai) {
+                    JOptionPane.showMessageDialog(this,
+                            "Đã chuyển báo giá cho khách hàng xác nhận!\nTrạng thái phiếu: 'Chờ xuất kho'.",
+                            "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    this.dispose();
+                    ManHinhDanhSachXeChoBaoGia formDanhSach = new ManHinhDanhSachXeChoBaoGia();
+                    formDanhSach.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Lưu báo giá thành công nhưng không thể cập nhật trạng thái!",
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             } else {
-                JOptionPane.showMessageDialog(this, "Có lỗi xảy ra khi lưu vào cơ sở dữ liệu. Vui lòng thử lại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Lưu báo giá thất bại. Vui lòng kiểm tra lại!",
+                        "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
