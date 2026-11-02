@@ -2,6 +2,7 @@ package DAO;
 
 import DB.connectSQL;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,20 +14,14 @@ public class DAO_KeToan {
      public List<Object[]> layDanhSachPhieuSuaChuaDaHoanThanh() throws SQLException{
          List<Object[]> danhSach = new ArrayList<>();
         String sql = """
-                select PSC.maPhieuSuaChua,
-                PSC.bienSo,
-                KH.hoTen AS tenKhachHang,
-                KH.soDienThoai,
-                KTV.hoTen AS tenKyThuatVien,
-                CTPSC.donGia,
-                PSC.trangThai 
+                select PSC.maPhieuSuaChua,PSC.bienSo,KH.soDienThoai,KTV.hoTen,(CTHD.soLuong*CTHD.donGia)as tongtien,PSC.trangThai
                 from PHIEU_SUA_CHUA PSC
-                join KHACH_HANG KH
-                on PSC.bienSo = KH.bienSo
-                join KY_THUAT_VIEN KTV
-                on KTV.maKTV=PSC.maKTV
-                join CHI_TIET_PHIEU_SUA_CHUA CTPSC 
-                on CTPSC.maPhieuSuaChua = PSC.maPhieuSuaChua""" ;
+                join KHACH_HANG KH on KH.bienSo=PSC.bienSo
+                join KY_THUAT_VIEN KTV on KTV.maKTV= PSC.maKTV
+                join HOA_DON HD on HD.maPhieuSuaChua=PSC.maPhieuSuaChua
+                join CHI_TIET_HOA_DON CTHD on CTHD.maHD = HD.maHoaDon
+                where PSC.trangThai = N'Hoàn thành'
+                """;
         try (
                 Connection conn = connectSQL.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
@@ -36,10 +31,9 @@ public class DAO_KeToan {
                 Object[] dong = {
                         rs.getString("maPhieuSuaChua"),
                         rs.getString("bienSo"),
-                        rs.getString("tenKhachHang"),
                         rs.getString("soDienThoai"),
-                        rs.getString("tenKyThuatVien"),
-                        rs.getBigDecimal("donGia"),
+                        rs.getString("hoTen"),
+                        rs.getBigDecimal("tongtien"),
                         rs.getString("trangThai")
                 };
                 danhSach.add(dong);
@@ -50,23 +44,23 @@ public class DAO_KeToan {
      public List<Object[]> laydulieuchitiethoadonvathanhtoan() throws SQLException{
          List<Object[]> danhsach = new ArrayList<>();
          String sql = """
-                 select HD.maHoaDon,
+                 SELECT
+                 HD.maHoaDon,
                  PSC.maPhieuSuaChua,
-                 BS.bienSo,
-                 PT.maPhuTung,
+                 PSC.bienSo,
+                 CTPSC.maPhuTung,
                  PT.tenPhuTung,
                  CTPSC.soLuong,
-                 PT.donGiaBan,
-                 PT.donGiaBan * CTPSC.soLuong as thanhtien
-                 from HOA_DON HD
-                 join PHIEU_SUA_CHUA PSC
-                 on HD.maPhieuSuaChua=PSC.maPhieuSuaChua
-                 join XE BS
-                 on PSC.bienSo = BS.bienSo
-                 join CHI_TIET_PHIEU_SUA_CHUA CTPSC
-                 on CTPSC.maPhieuSuaChua=PSC.maPhieuSuaChua
-                 join PHU_TUNG PT
-                 on CTPSC.maPhuTung=PT.maPhuTung
+                 CTPSC.donGia AS donGia,
+                 CTPSC.soLuong * CTPSC.donGia AS thanhTien
+                 FROM HOA_DON HD
+                 INNER JOIN PHIEU_SUA_CHUA PSC
+                 ON HD.maPhieuSuaChua = PSC.maPhieuSuaChua
+                 INNER JOIN CHI_TIET_PHIEU_SUA_CHUA CTPSC
+                 ON PSC.maPhieuSuaChua = CTPSC.maPhieuSuaChua
+                 INNER JOIN PHU_TUNG PT
+                 ON CTPSC.maPhuTung = PT.maPhuTung
+                 ORDER BY HD.maHoaDon
                  """;
          try(
                  Connection conn = connectSQL.getConnection();
@@ -81,8 +75,8 @@ public class DAO_KeToan {
                          rs.getString("maPhuTung"),
                          rs.getString("tenPhuTung"),
                          rs.getString("soLuong"),
-                         rs.getBigDecimal("donGiaBan"),
-                         rs.getBigDecimal("thanhtien")
+                         rs.getBigDecimal("donGia"),
+                         rs.getBigDecimal("thanhTien")
                  };
                  danhsach.add(dong);
              }
@@ -253,6 +247,32 @@ public class DAO_KeToan {
              }
          }
         return null;
+    }
+    public boolean thanhToanHoaDon(
+            String maHoaDon,
+            BigDecimal soTien,
+            String maPhuongThuc,
+            String maNhanVien
+    ) throws SQLException {
+
+        String sql = """
+        INSERT INTO THANH_TOAN
+            (maThanhToan, maHoaDon, ngayThanhToan,
+             soTienThanhToan, maPhuongThuc, maNhanVien, trangThai)
+        VALUES (?, ?, GETDATE(), ?, ?, ?, N'Đã thanh toán')
+        """;
+
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "TT" + System.currentTimeMillis());
+            ps.setString(2, maHoaDon);
+            ps.setBigDecimal(3, soTien);
+            ps.setString(4, maPhuongThuc);
+            ps.setString(5, maNhanVien);
+
+            return ps.executeUpdate() > 0;
+        }
     }
 
 

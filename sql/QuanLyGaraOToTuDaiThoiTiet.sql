@@ -177,6 +177,9 @@ CREATE TABLE PHIEU_SUA_CHUA (
                                 FOREIGN KEY (maPhieuTiepNhan) REFERENCES PHIEU_TIEP_NHAN(maPhieuTiepNhan)
 );
 GO
+select * from KHACH_HANG
+select * from danhsachKHno
+
 
 -- 15. Bảng Chi Tiết Vật Tư Sửa Chữa
 CREATE TABLE CHI_TIET_PHIEU_SUA_CHUA (
@@ -343,26 +346,60 @@ CREATE TABLE LICH_SU_CONG_NO (
                                              AND NOT (ghiNo > 0 AND ghiCo > 0)
                                          )
 );
+-- 27 Bang ca lam viec
 CREATE TABLE CA_LAM_VIEC (
-maCa VARCHAR(20) PRIMARY KEY,
-maNhanVien VARCHAR(20) NOT NULL,
-thoiGianMoCa DATETIME NOT NULL DEFAULT GETDATE(),
-thoiGianDongCa DATETIME NULL,
-tienDauCa DECIMAL(18, 2) NOT NULL,
-tienCuoiCa DECIMAL(18, 2) NULL,
-chenhLech DECIMAL(18, 2) NULL,
-trangThai NVARCHAR(30) NOT NULL DEFAULT N'Đang mở',
-ghiChu NVARCHAR(500) NULL,
-CONSTRAINT FK_CA_LAM_VIEC_KE_TOAN
-FOREIGN KEY (maNhanVien)
-REFERENCES KE_TOAN(maNhanVien),
-CONSTRAINT CK_CA_LAM_VIEC_TIEN
-CHECK (
-tienDauCa >= 0
-AND (tienCuoiCa IS NULL OR tienCuoiCa >= 0)
-)
+                             maCa VARCHAR(20) PRIMARY KEY,
+                             maNhanVien VARCHAR(20) NOT NULL,
+                             thoiGianMoCa DATETIME NOT NULL DEFAULT GETDATE(),
+                             thoiGianDongCa DATETIME NULL,
+                             tienDauCa DECIMAL(18, 2) NOT NULL,
+                             tienCuoiCa DECIMAL(18, 2) NULL,
+                             chenhLech DECIMAL(18, 2) NULL,
+                             trangThai NVARCHAR(30) NOT NULL DEFAULT N'Đang mở',
+                             ghiChu NVARCHAR(500) NULL,
+
+                             CONSTRAINT FK_CA_LAM_VIEC_KE_TOAN
+                                 FOREIGN KEY (maNhanVien)
+                                     REFERENCES KE_TOAN(maNhanVien),
+
+                             CONSTRAINT CK_CA_LAM_VIEC_TIEN
+                                 CHECK (
+                                     tienDauCa >= 0
+                                         AND (tienCuoiCa IS NULL OR tienCuoiCa >= 0)
+                                     )
 );
 GO
+-- 28 Bang thanh toan
+CREATE TABLE THANH_TOAN (
+                            maThanhToan VARCHAR(20) PRIMARY KEY,
+                            maHoaDon VARCHAR(20) NOT NULL,
+                            ngayThanhToan DATETIME NOT NULL DEFAULT GETDATE(),
+                            soTienThanhToan DECIMAL(18,2) NOT NULL,
+                            maPhuongThuc VARCHAR(20) NOT NULL,
+                            maNhanVien VARCHAR(20) NOT NULL,
+                            trangThai NVARCHAR(30) NOT NULL DEFAULT N'Đã thanh toán',
+                            ghiChu NVARCHAR(500),
+
+                            CONSTRAINT FK_THANH_TOAN_HOA_DON
+                                FOREIGN KEY (maHoaDon)
+                                    REFERENCES HOA_DON(maHoaDon),
+
+                            CONSTRAINT FK_THANH_TOAN_PHUONG_THUC
+                                FOREIGN KEY (maPhuongThuc)
+                                    REFERENCES PHUONG_THUC_THANH_TOAN(maPhuongThuc),
+
+                            CONSTRAINT FK_THANH_TOAN_KE_TOAN
+                                FOREIGN KEY (maNhanVien)
+                                    REFERENCES KE_TOAN(maNhanVien),
+
+                            CONSTRAINT UQ_THANH_TOAN_HOA_DON
+                                UNIQUE (maHoaDon),
+
+                            CONSTRAINT CK_THANH_TOAN_SO_TIEN
+                                CHECK (soTienThanhToan >= 0)
+);
+GO
+
 
 -- ==========================================================
 -- PHẦN 2: THÊM DỮ LIỆU MẪU DML
@@ -710,6 +747,7 @@ VALUES
 ('KH01', NULL, '2023-10-20 08:50:00', N'Thay lốp xe',3000000, 0),
 ('KH01', NULL, '2023-10-26 17:30:00', N'Thanh toán cuối kỳ',0, 1000000);
 GO
+
 USE QuanLyGaraOToTuDaiThoiTiet;
 GO
 
@@ -749,13 +787,44 @@ VALUES
 ('KH03', NULL, '2023-10-21 16:40:00', N'Thay lốp và cân bằng bánh xe', 3200000, 0),
 ('KH03', NULL, '2023-10-28 10:55:00', N'Thanh toán cuối kỳ', 0, 1500000);
 GO
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+-- Khách hàng KH01
+('KH04', NULL, '2023-09-01 08:15:00', N'Phát sinh công nợ sửa chữa xe',25000000, 0),
+('KH04', NULL, '2023-09-03 10:30:00', N'Thanh toán một phần công nợ',0, 10000000),
+('KH04', NULL, '2023-09-05 14:45:00', N'Thay dầu và bảo dưỡng xe',12000000, 0),
+('KH04', NULL, '2023-09-10 09:20:00', N'Thanh toán công nợ',0, 5000000),
+('KH04', NULL, '2023-09-15 16:10:00', N'Thay má phanh',18000000, 0),
+('KH04', NULL, '2023-09-20 11:05:00', N'Thanh toán một phần',0, 8000000),
+('KH04', NULL, '2023-10-02 13:25:00', N'Sửa chữa hệ thống điện',22000000, 0),
+('KH04', NULL, '2023-10-12 15:40:00', N'Thanh toán công nợ',0, 7000000),
+('KH04', NULL, '2023-10-20 08:50:00', N'Thay lốp xe',30000000, 0),
+('KH04', NULL, '2023-10-26 17:30:00', N'Thanh toán cuối kỳ',0, 10000000);
 GO
+INSERT INTO LICH_SU_CONG_NO
+    (maKhachHang, maHoaDon, ngayGiaoDich, noiDung, ghiNo, ghiCo)
+VALUES
+-- Khách hàng KH01
+('KH05', NULL, '2023-09-01 08:15:00', N'Phát sinh công nợ sửa chữa xe',250000, 0),
+('KH05', NULL, '2023-09-03 10:30:00', N'Thanh toán một phần công nợ',0, 100000),
+('KH05', NULL, '2023-09-05 14:45:00', N'Thay dầu và bảo dưỡng xe',120000, 0),
+('KH05', NULL, '2023-09-10 09:20:00', N'Thanh toán công nợ',0, 50000),
+('KH05', NULL, '2023-09-15 16:10:00', N'Thay má phanh',180000, 0),
+('KH05', NULL, '2023-09-20 11:05:00', N'Thanh toán một phần',0, 80000),
+('KH05', NULL, '2023-10-02 13:25:00', N'Sửa chữa hệ thống điện',220000, 0),
+('KH05', NULL, '2023-10-12 15:40:00', N'Thanh toán công nợ',0, 70000),
+('KH05', NULL, '2023-10-20 08:50:00', N'Thay lốp xe',300000, 0),
+('KH05', NULL, '2023-10-26 17:30:00', N'Thanh toán cuối kỳ',0, 100000);
+insert into danhsachKHno values
+                             ('KH04','Phạm Minh Dung','0984444444',10000000000,5000000,N'Chưa vượt mức'),
+                             ('KH05','Đặng Quốc Hùng','0985555555',20000000000,70000000,N'Chưa vượt mức')
 -- ==========================================================
 -- PHẦN 3: VIEWS & PROCEDURES THỐNG KÊ DASHBOARD
 -- ==========================================================
 
 -- View Thống kê sửa chữa
-IF OBJECT_ID('v_ThongKeSuaChua', 'V') IS NOT NULL DROP VIEW v_ThongKeSuaChua;
+    IF OBJECT_ID('v_ThongKeSuaChua', 'V') IS NOT NULL DROP VIEW v_ThongKeSuaChua;
 GO
 CREATE VIEW v_ThongKeSuaChua AS
 SELECT
@@ -850,5 +919,4 @@ GROUP BY Thang.Thang
 ORDER BY Thang.Thang;
 END;
 GO
-
 PRINT N'Khởi tạo CSDL thành công';

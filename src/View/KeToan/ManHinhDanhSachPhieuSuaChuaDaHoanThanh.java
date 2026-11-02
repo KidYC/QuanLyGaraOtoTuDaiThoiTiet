@@ -1,4 +1,3 @@
-
 package View.KeToan;
 
 import javax.swing.*;
@@ -14,15 +13,12 @@ import java.util.List;
 public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         extends JFrame implements ActionListener {
 
-    // Bảng màu thống nhất
     private static final Color MAU_NEN = new Color(244, 246, 248);
-    private static final Color MAU_MENU = new Color(226, 232, 240);
     private static final Color MAU_XANH = new Color(186, 230, 253);
     private static final Color MAU_XANH_PHU = new Color(219, 234, 254);
     private static final Color MAU_CHU = new Color(17, 24, 39);
     private static final Color MAU_PHU = new Color(107, 114, 128);
     private static final Color MAU_VIEN = new Color(226, 232, 240);
-    private static final Color MAU_DO = new Color(254, 226, 226);
     private static final Color MAU_TRANG = Color.WHITE;
 
     private static final Font FONT_TIEU_DE =
@@ -37,8 +33,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
     private final JPanel pCenter;
     private final JPanel pNorth;
     private final JLabel lbltieude;
-    private final JPanel pWest;
-    private final JLabel lblmenu;
     private final JPanel card;
     private final JLabel trangthai;
     private final JLabel timkiem;
@@ -48,14 +42,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
     private final JTable table;
     private final JScrollPane scroll;
     private final JButton btnTim;
-    private final JLabel khoangtrong;
-
-    private JButton trangchu;
-    private JButton qlca;
-    private JButton dsphieusuachua;
-    private JButton quanlycongno;
-    private JButton baocaodoanhthu;
-    private JButton quaylai;
 
     public ManHinhDanhSachPhieuSuaChuaDaHoanThanh() {
         super("Danh sách phiếu sửa chữa đã hoàn thành");
@@ -93,48 +79,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         pNorth.add(lblMoTa);
 
         add(pNorth, BorderLayout.NORTH);
-
-        pWest = new JPanel();
-        pWest.setLayout(new BoxLayout(pWest, BoxLayout.Y_AXIS));
-        pWest.setBackground(MAU_MENU);
-        pWest.setPreferredSize(new Dimension(220, 0));
-        pWest.setBorder(
-                BorderFactory.createEmptyBorder(22, 12, 20, 12)
-        );
-
-        lblmenu = new JLabel("MENU CHÍNH");
-        lblmenu.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        lblmenu.setForeground(MAU_CHU);
-        lblmenu.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        trangchu = taoNutBoGoc("Trang chủ kế toán", MAU_XANH);
-        qlca = taoNutBoGoc("Quản lý ca", MAU_XANH);
-        quanlycongno = taoNutBoGoc("Quản lý công nợ", MAU_XANH);
-        baocaodoanhthu = taoNutBoGoc("Báo cáo doanh thu", MAU_XANH);
-        quaylai = taoNutBoGoc(
-                "Quay lại trang chủ", MAU_XANH_PHU
-        );
-
-        JButton[] cacNutMenu = {
-                trangchu, qlca, quanlycongno,
-                baocaodoanhthu, quaylai
-        };
-
-        pWest.add(lblmenu);
-        pWest.add(Box.createVerticalStrut(28));
-
-        for (JButton nut : cacNutMenu) {
-            nut.setAlignmentX(Component.CENTER_ALIGNMENT);
-            nut.setMaximumSize(new Dimension(196, 44));
-            nut.setPreferredSize(new Dimension(196, 44));
-            nut.setMinimumSize(new Dimension(170, 40));
-
-            pWest.add(nut);
-            pWest.add(Box.createVerticalStrut(14));
-        }
-
-        pWest.add(Box.createVerticalGlue());
-        add(pWest, BorderLayout.WEST);
 
         pCenter = new JPanel();
         pCenter.setLayout(new BorderLayout(0, 18));
@@ -183,8 +127,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
 
         btnTim = taoNutBoGoc("Tìm kiếm", MAU_XANH);
         btnTim.setPreferredSize(new Dimension(130, 40));
-
-        khoangtrong = new JLabel("");
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -246,9 +188,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         table.setShowVerticalLines(false);
         table.setShowHorizontalLines(true);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        table.setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION
-        );
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         table.getTableHeader().setFont(FONT_DAM);
         table.getTableHeader().setBackground(MAU_XANH);
@@ -272,21 +212,11 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
                 new DefaultTableCellRenderer();
         canGiua.setHorizontalAlignment(SwingConstants.CENTER);
 
-        table.getColumnModel()
-                .getColumn(0)
-                .setCellRenderer(canGiua);
-        table.getColumnModel()
-                .getColumn(1)
-                .setCellRenderer(canGiua);
-        table.getColumnModel()
-                .getColumn(2)
-                .setCellRenderer(canGiua);
-        table.getColumnModel()
-                .getColumn(4)
-                .setCellRenderer(canGiua);
-        table.getColumnModel()
-                .getColumn(7)
-                .setCellRenderer(canGiua);
+        table.getColumnModel().getColumn(0).setCellRenderer(canGiua);
+        table.getColumnModel().getColumn(1).setCellRenderer(canGiua);
+        table.getColumnModel().getColumn(2).setCellRenderer(canGiua);
+        table.getColumnModel().getColumn(4).setCellRenderer(canGiua);
+        table.getColumnModel().getColumn(7).setCellRenderer(canGiua);
 
         DefaultTableCellRenderer canPhai =
                 new DefaultTableCellRenderer();
@@ -294,9 +224,8 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         canPhai.setBorder(
                 BorderFactory.createEmptyBorder(0, 0, 0, 12)
         );
-        table.getColumnModel()
-                .getColumn(6)
-                .setCellRenderer(canPhai);
+
+        table.getColumnModel().getColumn(6).setCellRenderer(canPhai);
 
         scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(MAU_VIEN));
@@ -318,11 +247,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
 
         add(pCenter, BorderLayout.CENTER);
 
-        trangchu.addActionListener(this);
-        qlca.addActionListener(this);
-        quanlycongno.addActionListener(this);
-        baocaodoanhthu.addActionListener(this);
-        quaylai.addActionListener(this);
         btnTim.addActionListener(this);
 
         chinhmau();
@@ -341,6 +265,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
                 );
 
                 Color mau = getBackground();
+
                 if (getModel().isPressed()) {
                     mau = mau.darker();
                 } else if (getModel().isRollover()) {
@@ -372,22 +297,20 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         return btn;
     }
 
-
     private void chinhmau() {
         getContentPane().setBackground(MAU_NEN);
         pNorth.setBackground(MAU_NEN);
-        pWest.setBackground(MAU_MENU);
         pCenter.setBackground(MAU_NEN);
         card.setBackground(MAU_TRANG);
 
         lbltieude.setForeground(MAU_CHU);
-        lblmenu.setForeground(MAU_CHU);
         timkiem.setForeground(MAU_CHU);
         trangthai.setForeground(MAU_CHU);
 
         table.getTableHeader().setBackground(MAU_XANH);
         table.getTableHeader().setForeground(MAU_CHU);
     }
+
 
     public void laydulieu() {
         DAO_KeToan dao = new DAO_KeToan();
@@ -407,12 +330,13 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
                         dong[2],
                         dong[3],
                         dong[4],
-                        dong[5],
-                        dong[6]
+                        dong[5]
                 });
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
+
             JOptionPane.showMessageDialog(
                     this,
                     "Lỗi lấy dữ liệu từ SQL: " + e.getMessage(),
@@ -422,14 +346,13 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         }
     }
 
-
     public void TimKiem() {
         String maphieu = txttimkiem.getText().trim();
 
         if (maphieu.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Vui lòng nhập thông tin tìm kiếm"
+                    "Vui lòng nhập mã phiếu sửa chữa"
             );
             return;
         }
@@ -454,42 +377,20 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         );
     }
 
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
 
-        if (o == trangchu) {
-            ManHinhTrangChuKeToan ui =
-                    new ManHinhTrangChuKeToan();
-            ui.setVisible(true);
-            dispose();
-
-        } else if (o == qlca) {
-            ManHinhQuanLyCa ui = new ManHinhQuanLyCa();
-            ui.setVisible(true);
-            dispose();
-
-        } else if (o == quanlycongno) {
-            ManHinhDanhSachKHNo ui =
-                    new ManHinhDanhSachKHNo();
-            ui.setVisible(true);
-            dispose();
-
-        } else if (o == quaylai) {
-            ManHinhTrangChuKeToan ui =
-                    new ManHinhTrangChuKeToan();
-            ui.setVisible(true);
-            dispose();
-
-        } else if (o == btnTim) {
+        if (o == btnTim) {
             TimKiem();
         }
     }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             ManHinhDanhSachPhieuSuaChuaDaHoanThanh ui =
                     new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
+
             ui.setVisible(true);
         });
     }
