@@ -9,6 +9,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import DAO.DAO_KeToan;
+import Entity.DanhSachKHNo;
+import Entity.LichSuCongNo;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.text.SimpleDateFormat;
@@ -187,32 +190,33 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
         // Lấy dữ liệu từ DAO
         try {
             DAO_KeToan dao = new DAO_KeToan();
-            Object[] kh = dao.layThongTinKhachHangNo(maKH);
+            DanhSachKHNo kh = dao.layThongTinKhachHangNo(maKH);
 
             if (kh != null) {
                 txttenkhachhang.setText(
-                        kh[2] == null ? "" : String.valueOf(kh[2])
+                        kh.getHoTen() == null ? "" : kh.getHoTen()
                 );
 
                 txtbiensoxe.setText(
-                        kh[1] == null ? "" : String.valueOf(kh[1])
+                        kh.getBienSo() == null ? "" : kh.getBienSo()
                 );
 
                 txtsdt.setText(
-                        kh[3] == null ? "" : String.valueOf(kh[3])
+                        kh.getSoDienThoai() == null ? "" : kh.getSoDienThoai()
                 );
 
                 txtdiachi.setText(
-                        kh[4] == null ? "" : String.valueOf(kh[4])
+                        kh.getDiaChi() == null ? "" : kh.getDiaChi()
                 );
 
                 txthanmuc.setText(
-                        kh[5] == null ? "" : String.valueOf(kh[5])
+                        kh.getHanMucNo() == null ? "" : kh.getHanMucNo().toString()
                 );
 
                 txttongno.setText(
-                        kh[6] == null ? "" : String.valueOf(kh[6])
+                        kh.getTongNo() == null ? "" : kh.getTongNo().toString()
                 );
+
             } else {
                 JOptionPane.showMessageDialog(
                         this,
@@ -503,28 +507,24 @@ public class ManHinhChiTietCongNo extends JFrame implements ActionListener {
 
             DAO_KeToan dao = new DAO_KeToan();
 
-            System.out.println("Mã khách hàng: " + maKH);
-            System.out.println("Từ ngày: " + tuNgay);
-            System.out.println("Đến ngày: " + denNgay);
-
-            List<Object[]> danhsach =
+            List<LichSuCongNo> danhSach =
                     dao.laydulieucongno(maKH, tuNgay, denNgay);
 
-            System.out.println("Số dòng lấy được: " + danhsach.size());
-            System.out.println("Mã khách hàng: " + maKH);
-            System.out.println("Từ ngày: " + tuNgay);
-            System.out.println("Đến ngày: " + denNgay);
-            System.out.println("Số dòng lấy được: " + danhsach.size());
-
             model.setRowCount(0);
-            for (Object[] dong : danhsach) {
-                model.addRow(dong);
-            }
 
+            for (LichSuCongNo dong : danhSach) {
+                model.addRow(new Object[]{
+                        dong.getNgayGiaoDich(),
+                        dong.getNoiDung(),
+                        dong.getGhiNo(),
+                        dong.getGhiCo(),
+                        dong.getDuNoCuoi()
+                });
+            }
 
             model.fireTableDataChanged();
 
-            if (danhsach.isEmpty()) {
+            if (danhSach.isEmpty()) {
                 JOptionPane.showMessageDialog(
                         this,
                         "Không có giao dịch công nợ trong khoảng ngày đã chọn.",
