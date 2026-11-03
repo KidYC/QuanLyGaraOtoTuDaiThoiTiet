@@ -177,8 +177,6 @@ CREATE TABLE PHIEU_SUA_CHUA (
                                 FOREIGN KEY (maPhieuTiepNhan) REFERENCES PHIEU_TIEP_NHAN(maPhieuTiepNhan)
 );
 GO
-select * from KHACH_HANG
-select * from danhsachKHno
 
 
 -- 15. Bảng Chi Tiết Vật Tư Sửa Chữa
@@ -392,9 +390,6 @@ CREATE TABLE THANH_TOAN (
                                 FOREIGN KEY (maNhanVien)
                                     REFERENCES KE_TOAN(maNhanVien),
 
-                            CONSTRAINT UQ_THANH_TOAN_HOA_DON
-                                UNIQUE (maHoaDon),
-
                             CONSTRAINT CK_THANH_TOAN_SO_TIEN
                                 CHECK (soTienThanhToan >= 0)
 );
@@ -457,6 +452,13 @@ INSERT INTO TAI_KHOAN (maTaiKhoan, tenDangNhap, matKhau, loaiTaiKhoan, maNhanVie
                                                                                        ('ACC07', 'nam2203', '123456', N'Kỹ thuật viên', 'KTV02'),
                                                                                        ('ACC08', 'long2203', '123456', N'Kỹ thuật viên', 'KTV03');
 
+-- Ca Làm Việc
+INSERT INTO CA_LAM_VIEC
+(maCa, maNhanVien, thoiGianMoCa, thoiGianDongCa, tienDauCa, tienCuoiCa, chenhLech, trangThai, ghiChu)
+VALUES
+    ('CA01', 'KT01', '2026-10-30 07:30:00', '2026-10-30 17:30:00', 2000000, 5450000, 0, N'Đã đóng', N'Ca làm việc mẫu của kế toán Nguyễn Văn Minh'),
+    ('CA02', 'KT02', '2026-10-31 07:30:00', NULL, 1500000, NULL, NULL, N'Đang mở', N'Ca làm việc đang mở');
+
 -- Phương Thức Thanh Toán
 INSERT INTO PHUONG_THUC_THANH_TOAN (maPhuongThuc, tenPhuongThuc) VALUES
                                                                      ('PT01', N'Tiền mặt'),
@@ -472,7 +474,14 @@ INSERT INTO DICH_VU (maDichVu, tenDichVu, donGiaHienTai, moTa, thoiGianBaoHanh) 
                                                                                     ('DV05', N'Thay nhớt động cơ', 100000, N'Công thay nhớt và lọc nhớt', 0),
                                                                                     ('DV06', N'Thay lọc gió động cơ', 50000, N'Thay thế lọc gió chính hãng', 1),
                                                                                     ('DV07', N'Đảo lốp và cân bằng động', 200000, N'Cân bằng mâm và vị trí lốp', 3),
-                                                                                    ('DV08', N'Kiểm tra điện lạnh', 150000, N'Kiểm tra gas và lốc lạnh', 1);
+                                                                                    ('DV08', N'Kiểm tra điện lạnh', 150000, N'Kiểm tra gas và lốc lạnh', 1),
+                                                                                    ('DV09', N'Rửa xe ô tô cơ bản', 100000, N'Rửa ngoại thất, vệ sinh kính và lau khô xe', 0),
+                                                                                    ('DV10', N'Rửa xe ô tô cao cấp', 180000, N'Rửa ngoại thất, vệ sinh nội thất cơ bản và chăm sóc lốp', 0),
+                                                                                    ('DV11', N'Vệ sinh nội thất ô tô', 450000, N'Hút bụi, vệ sinh taplo, ghế và các bề mặt nội thất', 0),
+                                                                                    ('DV12', N'Đánh bóng thân xe', 1200000, N'Làm sạch và đánh bóng bề mặt sơn xe', 0),
+                                                                                    ('DV13', N'Kiểm tra tổng quát', 200000, N'Kiểm tra động cơ, phanh, lốp, hệ thống điện và gầm xe', 0),
+                                                                                    ('DV14', N'Vệ sinh hệ thống điều hòa', 350000, N'Vệ sinh lọc gió và các bộ phận hệ thống điều hòa', 0),
+                                                                                    ('DV15', N'Bảo dưỡng hệ thống phanh', 300000, N'Kiểm tra, vệ sinh và điều chỉnh hệ thống phanh', 3);
 
 -- Kho & Nhà Cung Cấp
 INSERT INTO KHO (maKho, tenKho, diaChi) VALUES
@@ -488,7 +497,18 @@ INSERT INTO PHU_TUNG (maPhuTung, tenPhuTung, donViTinh, donGiaNhap, donGiaBan, s
                                                                                                       ('PT01', N'Nhớt động cơ Castrol 4L', N'Bình', 800000, 1000000, 45, 'KHO01'),
                                                                                                       ('PT02', N'Má phanh trước', N'Bộ', 350000, 500000, 15, 'KHO01'),
                                                                                                       ('PT03', N'Lọc gió điều hòa', N'Cái', 120000, 200000, 30, 'KHO02'),
-                                                                                                      ('PT04', N'Bơm cao áp', N'Cái', 4500000, 6200000, 50, 'KHO01');
+                                                                                                      ('PT04', N'Bơm cao áp', N'Cái', 4500000, 6200000, 50, 'KHO01'),
+                                                                                                      ('PT05', N'Lọc gió động cơ', N'Cái', 150000, 220000, 30, 'KHO01'),
+                                                                                                      ('PT06', N'Bugi đánh lửa ô tô', N'Cái', 100000, 160000, 40, 'KHO02'),
+                                                                                                      ('PT07', N'Bình ắc quy ô tô 12V', N'Bình', 1200000, 1550000, 20, 'KHO01'),
+                                                                                                      ('PT08', N'Dây curoa cam', N'Sợi', 450000, 600000, 18, 'KHO02'),
+                                                                                                      ('PT09', N'Giảm xóc trước ô tô', N'Cái', 850000, 1100000, 12, 'KHO01'),
+                                                                                                      ('PT10', N'Đĩa phanh trước', N'Cái', 500000, 680000, 20, 'KHO02'),
+                                                                                                      ('PT11', N'Bộ ly hợp ô tô', N'Bộ', 1800000, 2400000, 10, 'KHO01'),
+                                                                                                      ('PT12', N'Máy phát điện ô tô', N'Cái', 2200000, 2900000, 8, 'KHO02'),
+                                                                                                      ('PT13', N'Máy khởi động ô tô', N'Cái', 1800000, 2500000, 10, 'KHO01'),
+                                                                                                      ('PT14', N'Két nước làm mát ô tô', N'Cái', 1500000, 2000000, 15, 'KHO02'),
+                                                                                                      ('PT15', N'Bơm nước làm mát động cơ', N'Cái', 550000, 750000, 25, 'KHO01');
 
 -- Phiếu Tiếp Nhận
 INSERT INTO PHIEU_TIEP_NHAN
@@ -685,6 +705,16 @@ INSERT INTO HOA_DON (maHoaDon, ngayLap, maPhuongThuc, maPhieuSuaChua, maNhanVien
                                                                                       ('HD02', '2026-03-20 12:00:00', 'PT02', 'PSC02', 'KT01'),
                                                                                       ('HD03', '2026-05-15 14:00:00', 'PT01', 'PSC03', 'KT01'),
                                                                                       ('HD04', '2026-08-20 15:00:00', 'PT02', 'PSC04', 'KT01');
+
+-- Thanh Toán
+INSERT INTO THANH_TOAN
+(maThanhToan, maHoaDon, ngayThanhToan, soTienThanhToan, maPhuongThuc, maNhanVien, trangThai, ghiChu)
+VALUES
+    ('TT01', 'HD01', '2026-02-15 11:45:00', 1350000, 'PT01', 'KT01', N'Đã thanh toán', N'Thanh toán tiền mặt'),
+    ('TT02', 'HD02', '2026-03-20 12:00:00', 1500000, 'PT02', 'KT01', N'Đã thanh toán', N'Thanh toán chuyển khoản'),
+    ('TT03', 'HD03', '2026-05-15 14:00:00', 600000, 'PT01', 'KT01', N'Đã thanh toán', N'Thanh toán tiền mặt'),
+    ('TT04', 'HD04', '2026-08-20 15:00:00', 500000, 'PT02', 'KT01', N'Đã thanh toán', N'Thanh toán chuyển khoản');
+
 
 INSERT INTO CHI_TIET_HOA_DON (maChiTietHD, maHD, noiDung, soLuong, dongia) VALUES
                                                                                ('CTHD01', 'HD01', N'Dịch vụ và phụ tùng', 1, 1350000),
