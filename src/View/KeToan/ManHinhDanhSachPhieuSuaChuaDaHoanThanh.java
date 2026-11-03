@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import DAO.DAO_KeToan;
+import Entity.PhieuSuaChuaDaHoanThanh;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -46,7 +48,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
     public ManHinhDanhSachPhieuSuaChuaDaHoanThanh() {
         super("Danh sách phiếu sửa chữa đã hoàn thành");
 
-        setSize(1200, 750);
+        setSize(1010, 750);
         setMinimumSize(new Dimension(950, 600));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -163,7 +165,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
                 "STT",
                 "Mã Phiếu",
                 "Biển Số Xe",
-                "Tên Khách Hàng",
                 "Số Điện Thoại",
                 "Kỹ Thuật Viên",
                 "Tổng Tiền",
@@ -199,7 +200,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         table.getTableHeader().setReorderingAllowed(false);
 
         int[] doRongCot = {
-                55, 120, 125, 190, 145, 175, 130, 130
+                55, 120, 125, 190, 145, 175, 130
         };
 
         for (int i = 0; i < doRongCot.length; i++) {
@@ -215,8 +216,9 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         table.getColumnModel().getColumn(0).setCellRenderer(canGiua);
         table.getColumnModel().getColumn(1).setCellRenderer(canGiua);
         table.getColumnModel().getColumn(2).setCellRenderer(canGiua);
+        table.getColumnModel().getColumn(3).setCellRenderer(canGiua);
         table.getColumnModel().getColumn(4).setCellRenderer(canGiua);
-        table.getColumnModel().getColumn(7).setCellRenderer(canGiua);
+        table.getColumnModel().getColumn(6).setCellRenderer(canGiua);
 
         DefaultTableCellRenderer canPhai =
                 new DefaultTableCellRenderer();
@@ -316,21 +318,21 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         DAO_KeToan dao = new DAO_KeToan();
 
         try {
-            List<Object[]> danhSach =
+            List<PhieuSuaChuaDaHoanThanh> danhSach =
                     dao.layDanhSachPhieuSuaChuaDaHoanThanh();
 
             model.setRowCount(0);
             int i = 1;
 
-            for (Object[] dong : danhSach) {
+            for (PhieuSuaChuaDaHoanThanh dong : danhSach) {
                 model.addRow(new Object[]{
                         i++,
-                        dong[0],
-                        dong[1],
-                        dong[2],
-                        dong[3],
-                        dong[4],
-                        dong[5]
+                        dong.getMaPhieuSuaChua(),
+                        dong.getBienSo(),
+                        dong.getSoDienThoai(),
+                        dong.getHoTenKTV(),
+                        dong.getTongTien(),
+                        dong.getTrangThai()
                 });
             }
 

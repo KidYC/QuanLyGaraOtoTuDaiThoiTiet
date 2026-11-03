@@ -2,6 +2,8 @@
 package View.KeToan;
 
 import DAO.DAO_KeToan;
+import Entity.ChiTietHoaDon;
+import Entity.ThongTinThanhToan;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -494,20 +496,27 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         try {
             DAO_KeToan dao = new DAO_KeToan();
 
-            Object[] ketQua = dao.laythongtinthanhtoan();
+            ThongTinThanhToan ketQua = dao.laythongtinthanhtoan();
 
             if (ketQua != null) {
                 txttongtienphutung.setText(
-                        String.valueOf(ketQua[0])
+                        ketQua.getTongTienPhuTung() == null
+                                ? "0"
+                                : ketQua.getTongTienPhuTung().toString()
                 );
 
                 txttongtiendichvu.setText(
-                        String.valueOf(ketQua[1])
+                        ketQua.getTongTienDichVu() == null
+                                ? "0"
+                                : ketQua.getTongTienDichVu().toString()
                 );
 
                 txttongcong.setText(
-                        String.valueOf(ketQua[2])
+                        ketQua.getTongCong() == null
+                                ? "0"
+                                : ketQua.getTongCong().toString()
                 );
+
             } else {
                 txttongtienphutung.setText("0");
                 txttongtiendichvu.setText("0");
@@ -517,8 +526,11 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Lỗi lấy thông tin thanh toán: " + e.getMessage()
+                    "Lỗi lấy thông tin thanh toán: " + e.getMessage(),
+                    "Lỗi dữ liệu",
+                    JOptionPane.ERROR_MESSAGE
             );
+            e.printStackTrace();
         }
     }
 
@@ -526,33 +538,34 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         DAO_KeToan dao = new DAO_KeToan();
 
         try {
-            List<Object[]> danhSach =
+            List<ChiTietHoaDon> danhSach =
                     dao.laydulieuchitiethoadonvathanhtoan();
 
             model.setRowCount(0);
             int stt = 1;
 
-            for (Object[] dong : danhSach) {
+            for (ChiTietHoaDon dong : danhSach) {
                 model.addRow(new Object[]{
                         stt++,
-                        dong[0],
-                        dong[1],
-                        dong[2],
-                        dong[3],
-                        dong[4],
-                        dong[5],
-                        dong[6],
-                        dong[7]
+                        dong.getMaHoaDon(),
+                        dong.getMaPhieuSuaChua(),
+                        dong.getBienSo(),
+                        dong.getMaPhuTung(),
+                        dong.getTenPhuTung(),
+                        dong.getSoLuong(),
+                        dong.getDonGia(),
+                        dong.getThanhTien()
                 });
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage(),
+                    "Lỗi lấy dữ liệu: " + e.getMessage(),
                     "Lỗi dữ liệu",
                     JOptionPane.ERROR_MESSAGE
             );
+            e.printStackTrace();
         }
     }
 

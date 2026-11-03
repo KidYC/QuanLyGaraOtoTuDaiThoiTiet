@@ -2,6 +2,7 @@
 package View.KeToan;
 
 import DAO.DAO_KeToan;
+import Entity.DanhSachKHNo;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -467,29 +468,32 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
         DAO_KeToan dao = new DAO_KeToan();
 
         try {
-            List<Object[]> danhsach = dao.laydulieuKHno();
-            model.setRowCount(0);
+            List<DanhSachKHNo> danhSach = dao.laydulieuKHno();
 
+            model.setRowCount(0);
             int i = 1;
 
-            for (Object[] dong : danhsach) {
+            for (DanhSachKHNo dong : danhSach) {
                 model.addRow(new Object[]{
                         i++,
-                        dong[0],
-                        dong[1],
-                        dong[2],
-                        dong[3],
-                        dong[4],
-                        dong[5],
-                        dong[6]
+                        dong.getMaKhachHang(),
+                        dong.getHoTen(),
+                        dong.getSoDienThoai(),
+                        dong.getBienSo(),
+                        dong.getHanMucNo(),
+                        dong.getTongNo(),
+                        dong.getTrangThai()
                 });
             }
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage()
+                    "Lỗi lấy dữ liệu từ SQL: " + e.getMessage(),
+                    "Lỗi dữ liệu",
+                    JOptionPane.ERROR_MESSAGE
             );
+            e.printStackTrace();
         }
     }
 
