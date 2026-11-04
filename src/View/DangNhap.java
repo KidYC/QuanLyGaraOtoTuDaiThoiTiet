@@ -197,8 +197,21 @@ public class DangNhap extends JFrame {
                 return;
             }
             String maNV = taiKhoan.getMaNhanVien();
-            if (maNV == null || maNV.trim().isEmpty() || "NULL".equalsIgnoreCase(maNV)) maNV = taiKhoan.getMaTaiKhoan();
+
+            // XỬ LÝ ĐẶC BIỆT CHO TÀI KHOẢN ADMIN:
+            // Nếu là admin đăng nhập (dựa vào tên đăng nhập hoặc loại tài khoản), ta tự động gán maNV = "ADMIN"
+            if ("admin".equalsIgnoreCase(taiKhoan.getTenDangNhap()) ||
+                    (taiKhoan.getLoaiTaiKhoan() != null && taiKhoan.getLoaiTaiKhoan().equalsIgnoreCase("admin"))) {
+                maNV = "ADMIN";
+            }
+
+            // Dự phòng nếu mã nhân viên trống
+            if (maNV == null || maNV.trim().isEmpty() || "NULL".equalsIgnoreCase(maNV)) {
+                maNV = taiKhoan.getMaTaiKhoan();
+            }
+
             dispose();
+            // Truyền mã NV thật (hoặc "ADMIN") cùng họ tên và vai trò sang trang chủ
             new TrangChuHeThong(maNV, taiKhoan.getHoTen(), vaiTro).setVisible(true);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Không thể kết nối hoặc truy vấn cơ sở dữ liệu.\n" + ex.getMessage(), "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);

@@ -327,19 +327,28 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
         if (row != -1 && row < dsPhieuSuaChua.size()) {
             PhieuSuaChua psc = dsPhieuSuaChua.get(row);
             txtMaPhieu.setText(psc.getMaPhieuSuaChua());
-            txtBienSo.setText(psc.getBienSo());
+
+            // Nếu psc.getBienSo() trả về đối tượng Xe, hãy dùng psc.getBienSo().getBienSo()
+            // Nếu trả về String thì giữ nguyên psc.getBienSo()
+            txtBienSo.setText(psc.getBienSo() != null ? psc.getBienSo().toString() : "");
+
             txtKtvThucHien.setText(psc.getMaNhanVien());
             txaGhiChu.setText(psc.getGhiChuKCS() != null ? psc.getGhiChuKCS() : "");
+
             if ("Không đạt".equals(psc.getKetQuaKCS())) {
                 radKhongDat.setSelected(true);
             } else {
                 radDat.setSelected(true);
             }
-            try {
-                Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
 
-                if (xe != null) {
-                    KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
+            try {
+                // Lấy biển số dạng String từ psc.getBienSo() tùy theo cấu trúc entity của bạn
+                String bienSoStr = (psc.getBienSo() != null) ? psc.getBienSo().toString() : "";
+                Xe xe = xeDAO.getXeByBienSo(bienSoStr);
+
+                if (xe != null && xe.getMaKhachHang() != null) {
+                    // SỬA Ở ĐÂY: Lấy mã chuỗi từ đối tượng KhachHang bên trong xe
+                    KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang());
                     txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
                 } else {
                     txtKhachHang.setText("");

@@ -415,13 +415,12 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, List
                     Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
 
                     if (xe != null) {
-                        KhachHang kh = khachHangDAO.getKhachHangByMa(
-                                xe.getMaKhachHang()
-                        );
+                        KhachHang kh = null;
+                        if (xe.getMaKhachHang() != null) {
+                            kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang());
+                        }
 
-                        txtKhachHang.setText(
-                                kh != null ? kh.getHoTen() : ""
-                        );
+                        txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
                     } else {
                         txtKhachHang.setText("");
                     }

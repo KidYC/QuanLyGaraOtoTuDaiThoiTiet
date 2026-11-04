@@ -8,9 +8,9 @@ public class PhieuSuaChua {
     private Date ngayDuKienHoanThanh;
     private Date ngayIn;
     private String trangThai;
-    private String bienSo;
-    private String maNhanVien;
-    private String maPhieuTiepNhan;
+    private Xe xe;
+    private KyThuatVien kyThuatVien; // Thay NhanVien thành KyThuatVien
+    private PhieuTiepNhan phieuTiepNhan;
     private String loiPhatHien;
     private String nguyenNhan;
     private String deXuatSuaChua;
@@ -22,22 +22,21 @@ public class PhieuSuaChua {
 
     public PhieuSuaChua() {}
 
-    public PhieuSuaChua(String maPhieuSuaChua, Date ngayLap, Date ngayIn, String trangThai, String bienSo, String maNhanVien, String maPhieuTiepNhan) {
-        this(maPhieuSuaChua, ngayLap, ngayIn, trangThai, bienSo, maNhanVien, maPhieuTiepNhan, null, null, null);
+    public PhieuSuaChua(String maPhieuSuaChua, Date ngayLap, Date ngayIn, String trangThai, Xe xe, KyThuatVien kyThuatVien, PhieuTiepNhan phieuTiepNhan) {
+        this(maPhieuSuaChua, ngayLap, ngayIn, trangThai, xe, kyThuatVien, phieuTiepNhan, null, null, null);
     }
 
-    public PhieuSuaChua(String maPhieuSuaChua, Date ngayLap, Date ngayIn, String trangThai, String bienSo, String maNhanVien, String maPhieuTiepNhan, String loiPhatHien, String nguyenNhan, String deXuatSuaChua) {
+    public PhieuSuaChua(String maPhieuSuaChua, Date ngayLap, Date ngayIn, String trangThai, Xe xe, KyThuatVien kyThuatVien, PhieuTiepNhan phieuTiepNhan, String loiPhatHien, String nguyenNhan, String deXuatSuaChua) {
         this.maPhieuSuaChua = maPhieuSuaChua;
         this.ngayLap = ngayLap;
         this.ngayIn = ngayIn;
         this.trangThai = trangThai;
-        this.bienSo = bienSo;
-        this.maNhanVien = maNhanVien;
-        this.maPhieuTiepNhan = maPhieuTiepNhan;
+        this.xe = xe;
+        this.kyThuatVien = kyThuatVien;
+        this.phieuTiepNhan = phieuTiepNhan;
         this.loiPhatHien = loiPhatHien;
         this.nguyenNhan = nguyenNhan;
         this.deXuatSuaChua = deXuatSuaChua;
-
     }
 
     public String getMaPhieuSuaChua() {
@@ -80,28 +79,28 @@ public class PhieuSuaChua {
         this.trangThai = trangThai;
     }
 
-    public String getBienSo() {
-        return bienSo;
+    public Xe getXe() {
+        return xe;
     }
 
-    public void setBienSo(String bienSo) {
-        this.bienSo = bienSo;
+    public void setXe(Xe xe) {
+        this.xe = xe;
     }
 
-    public String getMaNhanVien() {
-        return maNhanVien;
+    public KyThuatVien getKyThuatVien() {
+        return kyThuatVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
-        this.maNhanVien = maNhanVien;
+    public void setKyThuatVien(KyThuatVien kyThuatVien) {
+        this.kyThuatVien = kyThuatVien;
     }
 
-    public String getMaPhieuTiepNhan() {
-        return maPhieuTiepNhan;
+    public PhieuTiepNhan getPhieuTiepNhan() {
+        return phieuTiepNhan;
     }
 
-    public void setMaPhieuTiepNhan(String maPhieuTiepNhan) {
-        this.maPhieuTiepNhan = maPhieuTiepNhan;
+    public void setPhieuTiepNhan(PhieuTiepNhan phieuTiepNhan) {
+        this.phieuTiepNhan = phieuTiepNhan;
     }
 
     public String getLoiPhatHien() {
@@ -127,6 +126,7 @@ public class PhieuSuaChua {
     public void setDeXuatSuaChua(String deXuatSuaChua) {
         this.deXuatSuaChua = deXuatSuaChua;
     }
+
     public int getTienDo() {
         return tienDo;
     }
@@ -142,6 +142,7 @@ public class PhieuSuaChua {
     public void setGhiChu(String ghiChu) {
         this.ghiChu = ghiChu;
     }
+
     public String getKetQuaKCS() {
         return ketQuaKCS;
     }
@@ -164,5 +165,18 @@ public class PhieuSuaChua {
 
     public void setNgayKiemTraKCS(Date ngayKiemTraKCS) {
         this.ngayKiemTraKCS = ngayKiemTraKCS;
+    }
+
+    // --- Các phương thức hỗ trợ tương thích ngược (Helper Methods) ---
+    public String getBienSo() {
+        return (this.xe != null) ? this.xe.getBienSo() : "";
+    }
+
+    public String getMaNhanVien() {
+        return (this.kyThuatVien != null) ? this.kyThuatVien.getMaKTV(): ""; // Hoặc getMaKTV() tùy vào getter của class KyThuatVien
+    }
+
+    public String getMaPhieuTiepNhan() {
+        return (this.phieuTiepNhan != null) ? this.phieuTiepNhan.getMaPhieuTiepNhan() : "";
     }
 }

@@ -9,14 +9,24 @@ import Entity.*;
 public class PhieuSuaChua_DAO {
 
     private PhieuSuaChua docPhieuSuaChua(ResultSet rs) throws SQLException {
+        // Khởi tạo các đối tượng liên kết từ dữ liệu truy vấn
+        Xe xe = new Xe();
+        xe.setBienSo(rs.getString("bienSo"));
+
+        KyThuatVien ktv = new KyThuatVien();
+        ktv.setMaKTV(rs.getString("maKTV"));
+
+        PhieuTiepNhan ptn = new PhieuTiepNhan();
+        ptn.setMaPhieuTiepNhan(rs.getString("maPhieuTiepNhan"));
+
         PhieuSuaChua psc = new PhieuSuaChua(
                 rs.getString("maPhieuSuaChua"),
                 rs.getDate("ngayLap"),
                 rs.getDate("ngayIn"),
                 rs.getString("trangThai"),
-                rs.getString("bienSo"),
-                rs.getString("maKTV"),
-                rs.getString("maPhieuTiepNhan"),
+                xe,
+                ktv,
+                ptn,
                 rs.getString("loiPhatHien"),
                 rs.getString("nguyenNhan"),
                 rs.getString("deXuatSuaChua")
@@ -75,8 +85,9 @@ public class PhieuSuaChua_DAO {
 
         try (Connection conn = connectSQL.getConnection()) {
             try (PreparedStatement psKTV = conn.prepareStatement(sqlCheckKTV)) {
-                psKTV.setString(1, psc.getMaNhanVien());
-                psKTV.setString(2, psc.getMaNhanVien());
+                String maKTV = (psc.getKyThuatVien() != null) ? psc.getKyThuatVien().getMaKTV() : "";
+                psKTV.setString(1, maKTV);
+                psKTV.setString(2, maKTV);
                 psKTV.executeUpdate();
             }
 
@@ -162,7 +173,6 @@ public class PhieuSuaChua_DAO {
         try {
             conn.setAutoCommit(false);
 
-
             String sqlUpdate = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Đang sửa chữa' WHERE maPhieuSuaChua = ? AND trangThai = N'Chờ xuất kho'";
             int soDong;
             try (PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
@@ -244,6 +254,7 @@ public class PhieuSuaChua_DAO {
             return ps.executeUpdate() > 0;
         }
     }
+
     public String getMaPhieuSuaChuaTuDong() throws SQLException {
         String prefix = "PSC";
         int nextId = 1;
@@ -269,7 +280,6 @@ public class PhieuSuaChua_DAO {
             conn = connectSQL.getConnection();
             conn.setAutoCommit(false);
 
-            // 1. Kiểm tra xem phiếu sửa chữa đã tồn tại chưa, nếu chưa thì INSERT, có rồi thì UPDATE trạng thái
             String sqlCheck = "SELECT COUNT(*) FROM PHIEU_SUA_CHUA WHERE maPhieuSuaChua = ?";
             boolean daTonTai = false;
             try (PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
@@ -282,7 +292,6 @@ public class PhieuSuaChua_DAO {
             }
 
             if (!daTonTai) {
-                // Lấy maPhieuTiepNhan tương ứng từ biển số xe trong PHIEU_TIEP_NHAN
                 String maPTN = null;
                 String sqlGetPTN = "SELECT TOP 1 maPhieuTiepNhan FROM PHIEU_TIEP_NHAN WHERE bienSo = ? ORDER BY ngayTiepNhan DESC";
                 try (PreparedStatement psPTN = conn.prepareStatement(sqlGetPTN)) {
@@ -309,7 +318,6 @@ public class PhieuSuaChua_DAO {
                 }
             }
 
-            // 2. Xóa chi tiết cũ trước khi lưu chi tiết báo giá mới
             try (PreparedStatement psDelDV = conn.prepareStatement("DELETE FROM CHI_TIET_DICH_VU WHERE maPhieuSuaChua = ?");
                  PreparedStatement psDelPT = conn.prepareStatement("DELETE FROM DANH_SACH_PHU_TUNG WHERE maPhieuSuaChua = ?")) {
                 psDelDV.setString(1, maPhieuSuaChua);
@@ -318,7 +326,6 @@ public class PhieuSuaChua_DAO {
                 psDelPT.executeUpdate();
             }
 
-            // 3. Chèn lại các hạng mục Dịch vụ và Phụ tùng
             String sqlDichVu = "INSERT INTO CHI_TIET_DICH_VU (maPhieuSuaChua, maDichVu, soLuong, donGia) VALUES (?, ?, ?, ?)";
             String sqlPhuTung = "INSERT INTO DANH_SACH_PHU_TUNG (maPhieuSuaChua, maPhuTung, soLuongPhuTung, donGiaBan) VALUES (?, ?, ?, ?)";
 
@@ -387,6 +394,7 @@ public class PhieuSuaChua_DAO {
         }
         return list;
     }
+
     public List<ChiTietBaoGia_DTO> getChiTietBaoGiaByMaPhieu(String maPhieuSuaChua) throws SQLException {
         List<ChiTietBaoGia_DTO> list = new ArrayList<>();
 
@@ -423,6 +431,7 @@ public class PhieuSuaChua_DAO {
         }
         return list;
     }
+
     public boolean xoaHangMucBaoGia(String maPhieuSuaChua, String loai, String maHangMuc) throws SQLException {
         String sql = "";
         if (loai.equalsIgnoreCase("Dịch vụ")) {
@@ -444,7 +453,6 @@ public class PhieuSuaChua_DAO {
     public List<ChiTietBaoHanh_DTO> getChiTietBaoHanhByMaPhieu(String maPhieuSuaChua) throws SQLException {
         List<ChiTietBaoHanh_DTO> list = new ArrayList<>();
 
-        // Chỉ lấy những dịch vụ có thời gian bảo hành > 0
         String sql = "SELECT ctdv.maDichVu AS maHangMuc, dv.tenDichVu AS tenHangMuc, " +
                 "dv.thoiGianBaoHanh, p.ngayLap " +
                 "FROM CHI_TIET_DICH_VU ctdv " +
@@ -461,9 +469,8 @@ public class PhieuSuaChua_DAO {
                 while (rs.next()) {
                     String ma = rs.getString("maHangMuc");
                     String ten = rs.getString("tenHangMuc");
-                    int thoiGianBaoHanh = rs.getInt("thoiGianBaoHanh"); // Tính theo tháng
+                    int thoiGianBaoHanh = rs.getInt("thoiGianBaoHanh");
 
-                    // Tính ngày hết hạn bảo hành = Ngày lập phiếu + số tháng bảo hành
                     java.sql.Timestamp ngayLap = rs.getTimestamp("ngayLap");
                     java.util.Calendar cal = java.util.Calendar.getInstance();
                     if (ngayLap != null) {
@@ -472,7 +479,6 @@ public class PhieuSuaChua_DAO {
                     cal.add(java.util.Calendar.MONTH, thoiGianBaoHanh);
                     java.util.Date ngayHetHan = cal.getTime();
 
-                    // Kiểm tra trạng thái hiệu lực
                     String trangThai = "Đang hiệu lực";
                     if (ngayHetHan.before(new java.util.Date())) {
                         trangThai = "Hết hạn";
@@ -499,6 +505,7 @@ public class PhieuSuaChua_DAO {
         ps.setString(1, maPhieuSuaChua);
         return ps.executeQuery();
     }
+
     public List<Entity.ChiTietBanGiao_DTO> getChiTietBanGiaoByMaPhieu(String maPhieuSuaChua) throws SQLException {
         List<Entity.ChiTietBanGiao_DTO> list = new ArrayList<>();
 
@@ -535,7 +542,6 @@ public class PhieuSuaChua_DAO {
         return list;
     }
 
-    // Cập nhật trạng thái phiếu sửa chữa thành "Đã bàn giao"
     public boolean capNhatTrangThaiDaBanGiao(String maPhieuSuaChua) throws SQLException {
         String sql = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Đã bàn giao' WHERE maPhieuSuaChua = ?";
         try (Connection conn = connectSQL.getConnection();
@@ -544,6 +550,7 @@ public class PhieuSuaChua_DAO {
             return ps.executeUpdate() > 0;
         }
     }
+
     public boolean capNhatTrangThaiPhieu(String maPhieuSuaChua, String trangThaiMoi) {
         String sql = "UPDATE PHIEU_SUA_CHUA SET trangThai = ? WHERE maPhieuSuaChua = ?";
         try (Connection conn = connectSQL.getConnection();
@@ -556,6 +563,7 @@ public class PhieuSuaChua_DAO {
             return false;
         }
     }
+
     public boolean capNhatTrangThaiHoanThanh(String maPhieuSuaChua) throws SQLException {
         String sql = "UPDATE PHIEU_SUA_CHUA SET trangThai = N'Hoàn thành' WHERE maPhieuSuaChua = ?";
         try (Connection conn = connectSQL.getConnection();

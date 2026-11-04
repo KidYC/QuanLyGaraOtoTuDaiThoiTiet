@@ -1,6 +1,7 @@
 package View.LeTan;
 
 import DAO.Xe_DAO;
+import Entity.KhachHang;
 import Entity.Xe;
 
 import javax.swing.*;
@@ -92,7 +93,13 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
                         new String[]{"Biển Số Xe", "Hãng Xe","Dòng Xe", "Năm Sản Xuất"}, 0);
                 for(Xe xe: list){
                     tableModel.addRow(
-                            new Object[]{xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getNamSanXuat()}
+                            new Object[]{
+                                    xe.getBienSo(),
+                                    xe.getHangXe(),
+                                    xe.getDongXe(),
+                                    xe.getNamSanXuat(),
+                                    (xe.getMaKhachHang() != null ? xe.getMaKhachHang().getMaKhachHang() : "")
+                            }
                     );
                 }
             }
@@ -161,15 +168,27 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
         tableModel.setRowCount(0);
         try {
             Xe_DAO dao = new Xe_DAO();
-            if (maKH != null && !maKH.isEmpty()) {
+            if (maKH != null && !maKH.trim().isEmpty()) {
+                // SỬA Ở ĐÂY: Gọi đúng hàm lấy xe theo Mã KH thay vì lấy tất cả
                 List<Xe> list = dao.getXeByMaKH(maKH);
                 for (Xe xe : list) {
-                    tableModel.addRow(new Object[]{xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getNamSanXuat()});
+                    tableModel.addRow(new Object[]{
+                            xe.getBienSo(),
+                            xe.getHangXe(),
+                            xe.getDongXe(),
+                            xe.getNamSanXuat()
+                    });
                 }
             } else {
                 List<Xe> list = dao.getAllXe();
                 for (Xe xe : list) {
-                    tableModel.addRow(new Object[]{xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getNamSanXuat(), xe.getMaKhachHang()});
+                    tableModel.addRow(new Object[]{
+                            xe.getBienSo(),
+                            xe.getHangXe(),
+                            xe.getDongXe(),
+                            xe.getNamSanXuat(),
+                            (xe.getMaKhachHang() != null ? xe.getMaKhachHang().getMaKhachHang() : "")
+                    });
                 }
             }
         } catch (SQLException e) {
@@ -243,7 +262,10 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
                 return;
             }
 
-            Xe xeMoi = new Xe(bienSoStr, hangXeStr, dongXeStr, namSanXuat, maKHStr);
+            KhachHang kh = new Entity.KhachHang();
+            kh.setMaKhachHang(maKHStr);
+
+            Xe xeMoi = new Xe(bienSoStr, hangXeStr, dongXeStr, namSanXuat, kh);
             try {
                 Xe_DAO dao = new Xe_DAO();
                 if (dao.themXe(xeMoi)) {

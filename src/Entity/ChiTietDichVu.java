@@ -1,43 +1,57 @@
-
 package Entity;
 
 public class ChiTietDichVu {
-    private String maPhieuSuaChua;
-    private String maDichVu;
+    private PhieuSuaChua phieuSuaChua;
+    private DichVu dichVu;
     private int soLuong;
     private double donGia;
 
     public ChiTietDichVu() {}
-    public ChiTietDichVu(String maPhieuSuaChua, String maDichVu, int soLuong, double donGia) {
-        this.maPhieuSuaChua = maPhieuSuaChua;
-        this.maDichVu = maDichVu;
+
+    public ChiTietDichVu(PhieuSuaChua phieuSuaChua, DichVu dichVu, int soLuong, double donGia) {
+        this.phieuSuaChua = phieuSuaChua;
+        this.dichVu = dichVu;
         this.soLuong = soLuong;
         this.donGia = donGia;
     }
 
+    public PhieuSuaChua getPhieuSuaChua() {
+        return phieuSuaChua;
+    }
 
-    public String getMaPhieuSuaChua() {
-        return maPhieuSuaChua;
+    public void setPhieuSuaChua(PhieuSuaChua phieuSuaChua) {
+        this.phieuSuaChua = phieuSuaChua;
     }
-    public void setMaPhieuSuaChua(String maPhieuSuaChua) {
-        this.maPhieuSuaChua = maPhieuSuaChua;
+
+    public DichVu getDichVu() {
+        return dichVu;
     }
-    public String getMaDichVu() {
-        return maDichVu;
+
+    public void setDichVu(DichVu dichVu) {
+        this.dichVu = dichVu;
     }
-    public void setMaDichVu(String maDichVu) {
-        this.maDichVu = maDichVu;
-    }
+
     public int getSoLuong() {
         return soLuong;
     }
+
     public void setSoLuong(int soLuong) {
         this.soLuong = soLuong;
     }
+
     public double getDonGia() {
         return donGia;
     }
+
     public void setDonGia(double donGia) {
         this.donGia = donGia;
+    }
+
+    public String getMaPhieuSuaChua() {
+        return (this.phieuSuaChua != null) ? this.phieuSuaChua.getMaPhieuSuaChua() : "";
+    }
+
+    public String getMaDichVu() {
+        return (this.dichVu != null) ? this.dichVu.getMaDichVu() : "";
     }
 }

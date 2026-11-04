@@ -181,13 +181,13 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
     }
 
     private void xuLyLuuPhieu() {
-        String bienSo = txtBienSo.getText().trim();
+        String bienSoStr = txtBienSo.getText().trim();
         String tinhTrang = txtTinhTrangXe.getText().trim();
         String yeuCau = txtYeuCauKhach.getText().trim();
         String trangThai = cboTrangThai.getSelectedItem().toString();
         String maPhieu = txtMaPhieu.getText();
 
-        if (bienSo.isEmpty()) {
+        if (bienSoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Vui lòng nhập Biển số xe!",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
@@ -196,13 +196,18 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
 
         java.sql.Date ngayTiepNhan = new java.sql.Date(System.currentTimeMillis());
 
+        // Khởi tạo đối tượng Xe theo cấu trúc OOP mới
+        Entity.Xe xe = new Entity.Xe();
+        xe.setBienSo(bienSoStr);
+
+        // Truyền đối tượng Xe thay vì chuỗi String vào PhieuTiepNhan
         PhieuTiepNhan ptn = new PhieuTiepNhan(
                 maPhieu,
                 ngayTiepNhan,
                 tinhTrang,
                 yeuCau,
                 trangThai,
-                bienSo
+                xe
         );
 
         PhieuTiepNhan_DAO dao = new PhieuTiepNhan_DAO();
@@ -219,8 +224,6 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
                     UI.setVisible(true);
                     this.dispose();
                 } else {
-//                    TrangChuHeThong Home = new TrangChuHeThong();
-//                    Home.setVisible(true);
                     this.dispose();
                 }
             } else {

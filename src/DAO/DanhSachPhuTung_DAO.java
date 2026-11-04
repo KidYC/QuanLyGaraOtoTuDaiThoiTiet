@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import DB.connectSQL;
 import Entity.DanhSachPhuTung;
+import Entity.PhieuSuaChua;
+import Entity.PhuTung;
 
 public class DanhSachPhuTung_DAO {
 
@@ -28,9 +30,15 @@ public class DanhSachPhuTung_DAO {
             ps.setString(1, maPhieuSC);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    PhieuSuaChua psc = new PhieuSuaChua();
+                    psc.setMaPhieuSuaChua(rs.getString("maPhieuSuaChua"));
+
+                    PhuTung pt = new PhuTung();
+                    pt.setMaPhuTung(rs.getString("maPhuTung"));
+
                     list.add(new DanhSachPhuTung(
-                            rs.getString("maPhieuSuaChua"),
-                            rs.getString("maPhuTung"),
+                            psc,
+                            pt,
                             rs.getInt("soLuongPhuTung"),
                             rs.getDouble("donGiaBan")
                     ));

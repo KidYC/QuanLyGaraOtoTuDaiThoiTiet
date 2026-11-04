@@ -6,8 +6,9 @@ import java.util.List;
 import DB.connectSQL;
 import Entity.PhieuTiepNhan;
 import Entity.PhieuTiepNhan_DTO;
-public class PhieuTiepNhan_DAO {
+import Entity.Xe;
 
+public class PhieuTiepNhan_DAO {
 
     public List<PhieuTiepNhan> getAllPhieuTiepNhan() throws SQLException {
         List<PhieuTiepNhan> ds = new ArrayList<>();
@@ -16,13 +17,16 @@ public class PhieuTiepNhan_DAO {
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
+                Xe xe = new Xe();
+                xe.setBienSo(rs.getString("bienSo"));
+
                 ds.add(new PhieuTiepNhan(
                         rs.getString("maPhieuTiepNhan"),
                         rs.getDate("ngayTiepNhan"),
                         rs.getString("tinhTrangXe"),
                         rs.getString("yeuCauKH"),
                         rs.getString("trangThai"),
-                        rs.getString("bienSo")
+                        xe
                 ));
             }
         }
@@ -40,7 +44,6 @@ public class PhieuTiepNhan_DAO {
         }
     }
 
-    // Hàm cập nhật trạng thái cho Phiếu Tiếp Nhận
     public boolean capNhatTrangThai(String maPhieuTN, String trangThaiMoi) throws SQLException {
         String sql = "UPDATE PHIEU_TIEP_NHAN SET trangThai = ? WHERE maPhieuTiepNhan = ?";
 
@@ -68,13 +71,12 @@ public class PhieuTiepNhan_DAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // 2. Map dữ liệu trả về vào DTO (dùng tên cột của bảng PHIEU_SUA_CHUA)
                 PhieuTiepNhan_DTO dto = new PhieuTiepNhan_DTO(
-                        rs.getString("maPhieuSuaChua"), // Lấy mã phiếu sửa chữa thay vì phiếu tiếp nhận
+                        rs.getString("maPhieuSuaChua"),
                         rs.getString("hoTen"),
                         rs.getString("bienSo"),
                         rs.getString("loaiXe"),
-                        rs.getTimestamp("ngayLap"),     // Lấy ngày lập phiếu sửa chữa
+                        rs.getTimestamp("ngayLap"),
                         rs.getString("trangThai")
                 );
                 list.add(dto);
@@ -91,7 +93,7 @@ public class PhieuTiepNhan_DAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, ptn.getMaPhieuTiepNhan());
-            ps.setDate(2, ptn.getNgayTiepNhan()); // Sử dụng setDate tương ứng java.sql.Date
+            ps.setDate(2, ptn.getNgayTiepNhan());
             ps.setString(3, ptn.getTinhTrangXe());
             ps.setString(4, ptn.getYeuCauKH());
             ps.setString(5, ptn.getTrangThai());
@@ -122,6 +124,4 @@ public class PhieuTiepNhan_DAO {
         }
         return String.format("%s%02d", prefix, nextId);
     }
-
-
 }

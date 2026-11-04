@@ -188,8 +188,8 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         THONG_KE_SUA_CHUA("Sửa chữa", NhomChucNang.THONG_KE, "Thống kê xe và phiếu sửa chữa", VaiTro.KY_THUAT),
         THONG_KE_KHO("Kho", NhomChucNang.THONG_KE, "Tồn kho và nhập xuất theo thời gian", VaiTro.THU_KHO),
 
-        QUAN_LY_NHAN_VIEN("Quản lý nhân viên", NhomChucNang.HE_THONG, "Quản lý hồ sơ nhân sự", VaiTro.ADMIN);
-
+        QUAN_LY_NHAN_VIEN("Quản lý nhân viên", NhomChucNang.HE_THONG, "Quản lý hồ sơ nhân sự", VaiTro.ADMIN),
+        QUAN_LY_DICH_VU("Quản lý dịch vụ", NhomChucNang.HE_THONG, "Quản lý dịch vụ hệ thống hỗ trợ", VaiTro.ADMIN);
         private final String ten;
         private final NhomChucNang nhom;
         private final String moTa;
@@ -447,7 +447,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case KIEM_KE:                     hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;
             case LAP_PHIEU_KIEM_KE:           hienThi(new ManHinhLapPhieuKiemKe()); return true;
 
-            case CHAN_DOAN:                   hienThi(new ChiTietKiemTraChanDoan()); return true;
+            case CHAN_DOAN:                   hienThi(new ChiTietKiemTraChanDoan(maNV)); return true;
             case PHIEU_SUA_CHUA:              hienThi((maNV != null && !maNV.trim().isEmpty()) ? new LapPhieuSuaChua(maNV) : new LapPhieuSuaChua()); return true;
             case THUC_HIEN_SUA_CHUA:          hienThi(new CapNhatTienDoSuaChua()); return true;
             case KIEM_TRA_CHAT_LUONG:         hienThi(new KiemTraChatLuong()); return true;
@@ -462,6 +462,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case THONG_KE_KHO:                hienThi(new ManHinhThongKeKho()); return true;
 
             case QUAN_LY_NHAN_VIEN:           hienThi(new QuanLyNhanVien()); return true;
+            case QUAN_LY_DICH_VU:           hienThi(new QuanLyDichVu()); return true;
 
             default:                          return false;
         }
