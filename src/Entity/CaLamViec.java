@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class CaLamViec {
     private String maCa;
-    private String maNhanVien;
+    private KeToan maNhanVien;
     private LocalDateTime thoiGianMoCa;
     private LocalDateTime thoiGianDongCa;
     private BigDecimal tienDauCa;
@@ -18,7 +18,7 @@ public class CaLamViec {
     public CaLamViec() {
     }
 
-    public CaLamViec(String maCa, String maNhanVien,
+    public CaLamViec(String maCa, KeToan maNhanVien,
                      LocalDateTime thoiGianMoCa,
                      LocalDateTime thoiGianDongCa,
                      BigDecimal tienDauCa, BigDecimal tienCuoiCa,
@@ -43,11 +43,11 @@ public class CaLamViec {
         this.maCa = maCa;
     }
 
-    public String getMaNhanVien() {
+    public KeToan getMaNhanVien() {
         return maNhanVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
+    public void setMaNhanVien(KeToan maNhanVien) {
         this.maNhanVien = maNhanVien;
     }
 

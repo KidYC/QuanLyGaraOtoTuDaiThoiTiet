@@ -52,8 +52,12 @@ public class DAO_KeToan {
             while (rs.next()) {
                 PhieuSuaChuaDaHoanThanh p = new PhieuSuaChuaDaHoanThanh();
 
-                p.setMaPhieuSuaChua(rs.getString("maPhieuSuaChua"));
-                p.setBienSo(rs.getString("bienSo"));
+                PhieuSuaChua psc = new PhieuSuaChua();
+                psc.setMaPhieuSuaChua(rs.getString("maPhieuSuaChua"));
+                p.setMaPhieuSuaChua(psc);
+                Xe xe = new Xe();
+                xe.setBienSo(rs.getString("bienSo"));
+                p.setBienSo(xe);
                 p.setSoDienThoai(rs.getString("soDienThoai"));
                 p.setHoTenKTV(rs.getString("hoTen"));
                 p.setTongTien(rs.getBigDecimal("tongTien"));
@@ -101,10 +105,21 @@ public class DAO_KeToan {
             while (rs.next()) {
                 ChiTietHoaDon ct = new ChiTietHoaDon();
 
-                ct.setMaHoaDon(rs.getString("maHoaDon"));
-                ct.setMaPhieuSuaChua(rs.getString("maPhieuSuaChua"));
-                ct.setBienSo(rs.getString("bienSo"));
-                ct.setMaPhuTung(rs.getString("maPhuTung"));
+                HoaDon hd = new HoaDon();
+                hd.setMaHoaDon(rs.getString("maHoaDon"));
+                ct.setMaHoaDon(hd);
+
+                PhieuSuaChua psc = new PhieuSuaChua();
+                psc.setMaPhieuSuaChua(rs.getString("maPhieuSuaChua"));
+                ct.setMaPhieuSuaChua(psc);
+
+                Xe xe = new Xe();
+                xe.setBienSo(rs.getString("bienSo"));
+                ct.setBienSo(xe);
+
+                PhuTung pt = new PhuTung();
+                pt.setMaPhuTung(rs.getString("maPhuTung"));
+                ct.setMaPhuTung(pt);
                 ct.setTenPhuTung(rs.getString("tenPhuTung"));
                 ct.setSoLuong(rs.getInt("soLuong"));
                 ct.setDonGia(rs.getBigDecimal("donGia"));
@@ -219,7 +234,9 @@ public class DAO_KeToan {
             while (rs.next()) {
                 DanhSachKHNo khNo = new DanhSachKHNo();
 
-                khNo.setMaKhachHang(rs.getString("maKhachHang"));
+                KhachHang kh = new KhachHang();
+                kh.setMaKhachHang(rs.getString("maKhachHang"));
+                khNo.setMaKhachHang(kh);
                 khNo.setHoTen(rs.getString("hoTen"));
                 khNo.setSoDienThoai(rs.getString("soDienThoai"));
                 khNo.setBienSo(rs.getString("bienSo"));
@@ -268,11 +285,12 @@ public class DAO_KeToan {
                 if (rs.next()) {
                     DanhSachKHNo khNo = new DanhSachKHNo();
 
-                    khNo.setMaKhachHang(rs.getString("maKhachHang"));
-                    khNo.setBienSo(rs.getString("bienSo"));
-                    khNo.setHoTen(rs.getString("hoTen"));
-                    khNo.setSoDienThoai(rs.getString("soDienThoai"));
-                    khNo.setDiaChi(rs.getString("diaChi"));
+                    KhachHang kh = new KhachHang();
+                    kh.setMaKhachHang(rs.getString("maKhachHang"));
+                    kh.setHoTen(rs.getString("hoTen"));
+                    kh.setSoDienThoai(rs.getString("soDienThoai"));
+                    kh.setDiaChi(rs.getString("diaChi"));
+                    khNo.setMaKhachHang(kh);
                     khNo.setHanMucNo(rs.getBigDecimal("hanMucNo"));
                     khNo.setTongNo(rs.getBigDecimal("tongNo"));
 
@@ -481,31 +499,142 @@ public class DAO_KeToan {
     public boolean themHoaDon(HoaDon hoaDon) throws SQLException {
 
         String sql = """
-            INSERT INTO HOA_DON
-                (maHoaDon, ngayLap, maPhuongThuc, maPhieuSuaChua, maNhanVien)
-            VALUES (?, ?, ?, ?, ?)
-            """;
+        INSERT INTO HOA_DON
+            (maHoaDon, ngayLap, maPhuongThuc,
+             maPhieuSuaChua, maNhanVien)
+        VALUES (?, ?, ?, ?, ?)
+        """;
 
         try (
                 Connection conn = connectSQL.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)
         ) {
+
+            // 1. Mã hóa đơn
             ps.setString(1, hoaDon.getMaHoaDon());
 
+            // 2. Ngày lập hóa đơn
             if (hoaDon.getNgayLap() != null) {
                 ps.setTimestamp(
                         2,
                         Timestamp.valueOf(hoaDon.getNgayLap())
                 );
             } else {
-                ps.setTimestamp(2, null);
+                ps.setNull(2, Types.TIMESTAMP);
             }
 
-            ps.setString(3, hoaDon.getMaPhuongThuc());
-            ps.setString(4, hoaDon.getMaPhieuSuaChua());
-            ps.setString(5, hoaDon.getMaNhanVien());
+            // 3. Mã phương thức thanh toán
+            if (hoaDon.getMaPhuongThuc() != null) {
+                ps.setString(
+                        3,
+                        hoaDon.getMaPhuongThuc().getMaPhuongThuc()
+                );
+            } else {
+                ps.setNull(3, Types.VARCHAR);
+            }
+
+            // 4. Mã phiếu sửa chữa
+            if (hoaDon.getMaPhieuSuaChua() != null) {
+                ps.setString(
+                        4,
+                        hoaDon.getMaPhieuSuaChua().getMaPhieuSuaChua()
+                );
+            } else {
+                ps.setNull(4, Types.VARCHAR);
+            }
+
+            // 5. Mã nhân viên
+            if (hoaDon.getMaNhanVien() != null) {
+                ps.setString(
+                        5,
+                        hoaDon.getMaNhanVien()
+                                .getMaNhanVien()
+                                .getMaNhanVien()
+                );
+            } else {
+                ps.setNull(5, Types.VARCHAR);
+            }
 
             return ps.executeUpdate() > 0;
         }
+    }
+    public List<ChiTietHoaDon> layChiTietTheoPhieuSuaChua(String maPSC)
+            throws SQLException {
+
+        List<ChiTietHoaDon> ds = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                PT.tenPhuTung AS noiDung,
+                CTPSC.soLuong,
+                CTPSC.donGia,
+                CTPSC.soLuong * CTPSC.donGia AS thanhTien
+            FROM CHI_TIET_PHIEU_SUA_CHUA CTPSC
+            JOIN PHU_TUNG PT
+                ON CTPSC.maPhuTung = PT.maPhuTung
+            WHERE CTPSC.maPhieuSuaChua = ?
+
+            UNION ALL
+
+            SELECT
+                DV.tenDichVu AS noiDung,
+                CTDV.soLuong,
+                CTDV.donGia,
+                CTDV.soLuong * CTDV.donGia AS thanhTien
+            FROM CHI_TIET_DICH_VU CTDV
+            JOIN DICH_VU DV
+                ON CTDV.maDichVu = DV.maDichVu
+            WHERE CTDV.maPhieuSuaChua = ?
+            """;
+
+        try (
+                Connection conn = connectSQL.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, maPSC);
+            ps.setString(2, maPSC);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ChiTietHoaDon ct = new ChiTietHoaDon();
+
+                    ct.setNoiDung(rs.getString("noiDung"));
+                    ct.setSoLuong(rs.getInt("soLuong"));
+                    ct.setDonGia(rs.getBigDecimal("donGia"));
+                    ct.setThanhTien(rs.getBigDecimal("thanhTien"));
+
+                    ds.add(ct);
+                }
+            }
+        }
+
+        return ds;
+    }
+    public String layPhuongThucTheoHoaDon(String maHoaDon)
+            throws SQLException {
+
+        String sql = """
+        SELECT PT.tenPhuongThuc
+        FROM HOA_DON HD
+        INNER JOIN PHUONG_THUC_THANH_TOAN PT
+            ON HD.maPhuongThuc = PT.maPhuongThuc
+        WHERE HD.maHoaDon = ?
+        """;
+
+        try (
+                Connection conn = connectSQL.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, maHoaDon);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("tenPhuongThuc");
+                }
+            }
+        }
+        return "";
     }
 }
