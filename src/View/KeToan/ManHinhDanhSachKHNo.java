@@ -476,7 +476,7 @@ public class ManHinhDanhSachKHNo extends JFrame implements ActionListener {
             for (DanhSachKHNo dong : danhSach) {
                 model.addRow(new Object[]{
                         i++,
-                        dong.getMaKhachHang(),
+                        dong.getMaKhachHang().getMaKhachHang(),
                         dong.getHoTen(),
                         dong.getSoDienThoai(),
                         dong.getBienSo(),

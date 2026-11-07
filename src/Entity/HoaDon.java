@@ -5,16 +5,16 @@ import java.time.LocalDateTime;
 public class HoaDon {
     private String maHoaDon;
     private LocalDateTime ngayLap;
-    private String maPhuongThuc;
-    private String maPhieuSuaChua;
-    private String maNhanVien;
+    private PhuongThucThanhToan maPhuongThuc;
+    private PhieuSuaChua maPhieuSuaChua;
+    private KeToan maNhanVien;
 
     public HoaDon() {
     }
 
     public HoaDon(String maHoaDon, LocalDateTime ngayLap,
-                  String maPhuongThuc, String maPhieuSuaChua,
-                  String maNhanVien) {
+                  PhuongThucThanhToan maPhuongThuc, PhieuSuaChua maPhieuSuaChua,
+                  KeToan maNhanVien) {
         this.maHoaDon = maHoaDon;
         this.ngayLap = ngayLap;
         this.maPhuongThuc = maPhuongThuc;
@@ -38,27 +38,27 @@ public class HoaDon {
         this.ngayLap = ngayLap;
     }
 
-    public String getMaPhuongThuc() {
+    public PhuongThucThanhToan getMaPhuongThuc() {
         return maPhuongThuc;
     }
 
-    public void setMaPhuongThuc(String maPhuongThuc) {
+    public void setMaPhuongThuc(PhuongThucThanhToan maPhuongThuc) {
         this.maPhuongThuc = maPhuongThuc;
     }
 
-    public String getMaPhieuSuaChua() {
+    public PhieuSuaChua getMaPhieuSuaChua() {
         return maPhieuSuaChua;
     }
 
-    public void setMaPhieuSuaChua(String maPhieuSuaChua) {
+    public void setMaPhieuSuaChua(PhieuSuaChua maPhieuSuaChua) {
         this.maPhieuSuaChua = maPhieuSuaChua;
     }
 
-    public String getMaNhanVien() {
+    public KeToan getMaNhanVien() {
         return maNhanVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
+    public void setMaNhanVien(KeToan maNhanVien) {
         this.maNhanVien = maNhanVien;
     }
 }

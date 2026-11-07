@@ -65,8 +65,8 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
     private final JTextField txttongtienphutung;
     private final JLabel tongtiendichvu;
     private final JTextField txttongtiendichvu;
-    private final JLabel khuyenmai;
-    private final JTextField txtkhuyenmai;
+    private final JLabel phuongthuc;
+    private final JTextField txtphuongthuc;
     private final JLabel tongcong;
     private final JTextField txttongcong;
     private final JLabel trangthai;
@@ -298,8 +298,8 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         tongtiendichvu = taoNhan("Tổng tiền dịch vụ");
         txttongtiendichvu = taoTextField("");
 
-        khuyenmai = taoNhan("Khuyến mãi");
-        txtkhuyenmai = taoTextField("0");
+        phuongthuc = taoNhan("Phương thức");
+        txtphuongthuc = taoTextField("");
 
         tongcong = taoNhan("TỔNG CỘNG");
         txttongcong = taoTextField("");
@@ -315,8 +315,8 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         pCenter3.add(tongtiendichvu);
         pCenter3.add(txttongtiendichvu);
 
-        pCenter3.add(khuyenmai);
-        pCenter3.add(txtkhuyenmai);
+        pCenter3.add(phuongthuc);
+        pCenter3.add(txtphuongthuc);
 
         pCenter3.add(tongcong);
         pCenter3.add(txttongcong);
@@ -547,10 +547,10 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
             for (ChiTietHoaDon dong : danhSach) {
                 model.addRow(new Object[]{
                         stt++,
-                        dong.getMaHoaDon(),
-                        dong.getMaPhieuSuaChua(),
-                        dong.getBienSo(),
-                        dong.getMaPhuTung(),
+                        dong.getMaHoaDon().getMaHoaDon(),
+                        dong.getMaPhieuSuaChua().getMaPhieuSuaChua(),
+                        dong.getBienSo().getBienSo(),
+                        dong.getMaPhuTung().getMaPhuTung(),
                         dong.getTenPhuTung(),
                         dong.getSoLuong(),
                         dong.getDonGia(),
@@ -612,8 +612,24 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
                 table.setRowSelectionInterval(i, i);
                 table.scrollRectToVisible(
                         table.getCellRect(i, 0, true)
-
                 );
+
+                try {
+                    DAO_KeToan dao = new DAO_KeToan();
+
+                    String maPhuongThuc =
+                            dao.layPhuongThucTheoHoaDon(maHoaDon);
+
+                    txtphuongthuc.setText(maPhuongThuc);
+
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Lỗi lấy phương thức thanh toán: " + ex.getMessage(),
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
                 return;
             }
         }
@@ -711,10 +727,6 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
             );
 
             if (ketQua) {
-                txttrangthai.setText("Đã thanh toán");
-
-                // Khóa nút để tránh bấm lại
-                thanhtoan.setEnabled(false);
 
                 JOptionPane.showMessageDialog(
                         this,
@@ -723,7 +735,30 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
                         JOptionPane.INFORMATION_MESSAGE
                 );
 
-                laydulieu();
+                // Xóa hóa đơn vừa thanh toán khỏi bảng
+                model.removeRow(dongChon);
+
+                // Xóa thông tin tìm kiếm
+                txtmahd.setText("");
+                txtngaylap.setText("");
+                txtmaphieu.setText("");
+                txtkhachhang.setText("");
+                txtbienso.setText("");
+                txtsdt.setText("");
+
+                // Xóa thông tin tổng tiền
+                txttongtienphutung.setText("0");
+                txttongtiendichvu.setText("0");
+                txtphuongthuc.setText("0");
+                txttongcong.setText("0");
+
+                // Cập nhật trạng thái
+                txttrangthai.setText("Chờ thanh toán");
+
+                // Cho phép thanh toán hóa đơn tiếp theo
+                thanhtoan.setEnabled(true);
+
+                table.clearSelection();
             }
 
         } catch (SQLException ex) {

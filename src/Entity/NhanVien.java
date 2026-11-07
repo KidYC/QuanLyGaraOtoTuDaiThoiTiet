@@ -1,9 +1,10 @@
+
 package Entity;
 
 import java.util.Date;
 
 public class NhanVien {
-    private String maNV;
+    private String maNhanVien;
     private String hoTen;
     private String soDienThoai;
     private String diaChi;
@@ -14,8 +15,11 @@ public class NhanVien {
 
     public NhanVien() {}
 
-    public NhanVien(String maNV, String hoTen, String soDienThoai, String diaChi, Date ngayVaoLam, String tenDangNhap, String chucVu, String trangThai) {
-        this.maNV = maNV;
+    public NhanVien(String maNhanVien, String hoTen,
+                    String soDienThoai, String diaChi,
+                    Date ngayVaoLam, String tenDangNhap,
+                    String chucVu, String trangThai) {
+        this.maNhanVien = maNhanVien;
         this.hoTen = hoTen;
         this.soDienThoai = soDienThoai;
         this.diaChi = diaChi;
@@ -25,27 +29,75 @@ public class NhanVien {
         this.trangThai = trangThai;
     }
 
-    public String getMaNV() { return maNV; }
-    public void setMaNV(String maNV) { this.maNV = maNV; }
+    public String getMaNV() {
+        return maNhanVien;
+    }
 
-    public String getHoTen() { return hoTen; }
-    public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+    public void setMaNV(String maNV) {
+        this.maNhanVien = maNV;
+    }
 
-    public String getSoDienThoai() { return soDienThoai; }
-    public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
+    public String getMaNhanVien() {
+        return maNhanVien;
+    }
 
-    public String getDiaChi() { return diaChi; }
-    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
+    public void setMaNhanVien(String maNV) {
+        this.maNhanVien = maNV;
+    }
 
-    public Date getNgayVaoLam() { return ngayVaoLam; }
-    public void setNgayVaoLam(Date ngayVaoLam) { this.ngayVaoLam = ngayVaoLam; }
+    public String getHoTen() {
+        return hoTen;
+    }
 
-    public String getTenDangNhap() { return tenDangNhap; }
-    public void setTenDangNhap(String tenDangNhap) { this.tenDangNhap = tenDangNhap; }
+    public void setHoTen(String hoTen) {
+        this.hoTen = hoTen;
+    }
 
-    public String getChucVu() { return chucVu; }
-    public void setChucVu(String chucVu) { this.chucVu = chucVu; }
+    public String getSoDienThoai() {
+        return soDienThoai;
+    }
 
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
+    }
+
+    public String getDiaChi() {
+        return diaChi;
+    }
+
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
+    }
+
+    public Date getNgayVaoLam() {
+        return ngayVaoLam;
+    }
+
+    public void setNgayVaoLam(Date ngayVaoLam) {
+        this.ngayVaoLam = ngayVaoLam;
+    }
+
+    public String getTenDangNhap() {
+        return tenDangNhap;
+    }
+
+    public void setTenDangNhap(String tenDangNhap) {
+        this.tenDangNhap = tenDangNhap;
+    }
+
+    public String getChucVu() {
+        return chucVu;
+    }
+
+    public void setChucVu(String chucVu) {
+        this.chucVu = chucVu;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
 }

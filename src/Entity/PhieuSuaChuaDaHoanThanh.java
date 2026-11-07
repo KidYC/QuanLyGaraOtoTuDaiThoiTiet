@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 public class PhieuSuaChuaDaHoanThanh {
 
-    private String maPhieuSuaChua;
-    private String bienSo;
+    private PhieuSuaChua maPhieuSuaChua;
+    private Xe bienSo;
     private String soDienThoai;
     private String hoTenKTV;
     private BigDecimal tongTien;
@@ -17,8 +17,8 @@ public class PhieuSuaChuaDaHoanThanh {
 
     // Constructor đầy đủ
     public PhieuSuaChuaDaHoanThanh(
-            String maPhieuSuaChua,
-            String bienSo,
+            PhieuSuaChua maPhieuSuaChua,
+            Xe bienSo,
             String soDienThoai,
             String hoTenKTV,
             BigDecimal tongTien,
@@ -33,19 +33,19 @@ public class PhieuSuaChuaDaHoanThanh {
     }
 
     // Getter và Setter
-    public String getMaPhieuSuaChua() {
+    public PhieuSuaChua getMaPhieuSuaChua() {
         return maPhieuSuaChua;
     }
 
-    public void setMaPhieuSuaChua(String maPhieuSuaChua) {
+    public void setMaPhieuSuaChua(PhieuSuaChua maPhieuSuaChua) {
         this.maPhieuSuaChua = maPhieuSuaChua;
     }
 
-    public String getBienSo() {
+    public Xe getBienSo() {
         return bienSo;
     }
 
-    public void setBienSo(String bienSo) {
+    public void setBienSo(Xe bienSo) {
         this.bienSo = bienSo;
     }
 

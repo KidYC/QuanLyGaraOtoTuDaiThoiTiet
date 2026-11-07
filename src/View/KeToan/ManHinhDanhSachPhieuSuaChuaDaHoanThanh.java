@@ -327,8 +327,8 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
             for (PhieuSuaChuaDaHoanThanh dong : danhSach) {
                 model.addRow(new Object[]{
                         i++,
-                        dong.getMaPhieuSuaChua(),
-                        dong.getBienSo(),
+                        dong.getMaPhieuSuaChua().getMaPhieuSuaChua(),
+                        dong.getBienSo().getBienSo(),
                         dong.getSoDienThoai(),
                         dong.getHoTenKTV(),
                         dong.getTongTien(),

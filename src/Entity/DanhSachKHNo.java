@@ -3,7 +3,7 @@ package Entity;
 import java.math.BigDecimal;
 
 public class DanhSachKHNo {
-    private String maKhachHang;
+    private KhachHang maKhachHang;
     private String hoTen;
     private String soDienThoai;
     private String bienSo;
@@ -15,7 +15,7 @@ public class DanhSachKHNo {
     public DanhSachKHNo() {
     }
 
-    public DanhSachKHNo(String maKhachHang, String hoTen,
+    public DanhSachKHNo(KhachHang maKhachHang, String hoTen,
                         String soDienThoai, String bienSo, String diaChi,
                         BigDecimal hanMucNo, BigDecimal tongNo,
                         String trangThai) {
@@ -29,11 +29,11 @@ public class DanhSachKHNo {
         this.trangThai = trangThai;
     }
 
-    public String getMaKhachHang() {
+    public KhachHang getMaKhachHang() {
         return maKhachHang;
     }
 
-    public void setMaKhachHang(String maKhachHang) {
+    public void setMaKhachHang(KhachHang maKhachHang) {
         this.maKhachHang = maKhachHang;
     }
 

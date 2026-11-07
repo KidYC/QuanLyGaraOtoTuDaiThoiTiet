@@ -4,7 +4,7 @@ package Entity;
 import java.time.LocalDateTime;
 
 public class KeToan {
-    private String maNhanVien;
+    private NhanVien maNhanVien;
     private String hoTen;
     private String soDienThoai;
     private String diaChi;
@@ -14,7 +14,7 @@ public class KeToan {
     public KeToan() {
     }
 
-    public KeToan(String maNhanVien, String hoTen,
+    public KeToan(NhanVien maNhanVien, String hoTen,
                   String soDienThoai, String diaChi,
                   LocalDateTime ngayVaoLam, String trangThai) {
         this.maNhanVien = maNhanVien;
@@ -25,11 +25,11 @@ public class KeToan {
         this.trangThai = trangThai;
     }
 
-    public String getMaNhanVien() {
+    public NhanVien getMaNhanVien() {
         return maNhanVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
+    public void setMaNhanVien(NhanVien maNhanVien) {
         this.maNhanVien = maNhanVien;
     }
 

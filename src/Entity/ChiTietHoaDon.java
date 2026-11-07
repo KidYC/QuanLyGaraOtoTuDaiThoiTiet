@@ -6,10 +6,10 @@ public class ChiTietHoaDon {
 
     private String maChiTietHD;
     private String maHD;
-    private String maHoaDon;
-    private String maPhieuSuaChua;
-    private String bienSo;
-    private String maPhuTung;
+    private HoaDon maHoaDon;
+    private PhieuSuaChua maPhieuSuaChua;
+    private Xe bienSo;
+    private PhuTung maPhuTung;
     private String tenPhuTung;
     private String noiDung;
     private int soLuong;
@@ -49,35 +49,35 @@ public class ChiTietHoaDon {
         this.maHD = maHD;
     }
 
-    public String getMaHoaDon() {
+    public HoaDon getMaHoaDon() {
         return maHoaDon;
     }
 
-    public void setMaHoaDon(String maHoaDon) {
+    public void setMaHoaDon(HoaDon maHoaDon) {
         this.maHoaDon = maHoaDon;
     }
 
-    public String getMaPhieuSuaChua() {
+    public PhieuSuaChua getMaPhieuSuaChua() {
         return maPhieuSuaChua;
     }
 
-    public void setMaPhieuSuaChua(String maPhieuSuaChua) {
+    public void setMaPhieuSuaChua(PhieuSuaChua maPhieuSuaChua) {
         this.maPhieuSuaChua = maPhieuSuaChua;
     }
 
-    public String getBienSo() {
+    public Xe getBienSo() {
         return bienSo;
     }
 
-    public void setBienSo(String bienSo) {
+    public void setBienSo(Xe bienSo) {
         this.bienSo = bienSo;
     }
 
-    public String getMaPhuTung() {
+    public PhuTung getMaPhuTung() {
         return maPhuTung;
     }
 
-    public void setMaPhuTung(String maPhuTung) {
+    public void setMaPhuTung(PhuTung maPhuTung) {
         this.maPhuTung = maPhuTung;
     }
 
