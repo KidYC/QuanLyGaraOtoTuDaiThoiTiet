@@ -6,21 +6,21 @@ import java.time.LocalDateTime;
 
 public class ThanhToan {
     private String maThanhToan;
-    private String maHoaDon;
+    private HoaDon maHoaDon;
     private LocalDateTime ngayThanhToan;
     private BigDecimal soTienThanhToan;
-    private String maPhuongThuc;
-    private String maNhanVien;
+    private PhuongThucThanhToan maPhuongThuc;
+    private KeToan maNhanVien;
     private String trangThai;
     private String ghiChu;
 
     public ThanhToan() {
     }
 
-    public ThanhToan(String maThanhToan, String maHoaDon,
+    public ThanhToan(String maThanhToan, HoaDon maHoaDon,
                      LocalDateTime ngayThanhToan,
                      BigDecimal soTienThanhToan,
-                     String maPhuongThuc, String maNhanVien,
+                     PhuongThucThanhToan maPhuongThuc, KeToan maNhanVien,
                      String trangThai, String ghiChu) {
         this.maThanhToan = maThanhToan;
         this.maHoaDon = maHoaDon;
@@ -40,11 +40,11 @@ public class ThanhToan {
         this.maThanhToan = maThanhToan;
     }
 
-    public String getMaHoaDon() {
+    public HoaDon getMaHoaDon() {
         return maHoaDon;
     }
 
-    public void setMaHoaDon(String maHoaDon) {
+    public void setMaHoaDon(HoaDon maHoaDon) {
         this.maHoaDon = maHoaDon;
     }
 
@@ -64,19 +64,19 @@ public class ThanhToan {
         this.soTienThanhToan = soTienThanhToan;
     }
 
-    public String getMaPhuongThuc() {
+    public PhuongThucThanhToan getMaPhuongThuc() {
         return maPhuongThuc;
     }
 
-    public void setMaPhuongThuc(String maPhuongThuc) {
+    public void setMaPhuongThuc(PhuongThucThanhToan maPhuongThuc) {
         this.maPhuongThuc = maPhuongThuc;
     }
 
-    public String getMaNhanVien() {
+    public KeToan getMaNhanVien() {
         return maNhanVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
+    public void setMaNhanVien(KeToan maNhanVien) {
         this.maNhanVien = maNhanVien;
     }
 

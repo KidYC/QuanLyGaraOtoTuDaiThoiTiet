@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 public class LichSuCongNo {
     private long maGiaoDich;
-    private String maKhachHang;
-    private String maHoaDon;
+    private KhachHang maKhachHang;
+    private HoaDon maHoaDon;
     private LocalDateTime ngayGiaoDich;
     private String noiDung;
     private BigDecimal ghiNo;
@@ -16,8 +16,8 @@ public class LichSuCongNo {
     public LichSuCongNo() {
     }
 
-    public LichSuCongNo(long maGiaoDich, String maKhachHang,
-                        String maHoaDon, LocalDateTime ngayGiaoDich,
+    public LichSuCongNo(long maGiaoDich, KhachHang maKhachHang,
+                        HoaDon maHoaDon, LocalDateTime ngayGiaoDich,
                         String noiDung, BigDecimal ghiNo,
                         BigDecimal ghiCo, BigDecimal duNoCuoi) {
         this.maGiaoDich = maGiaoDich;
@@ -38,19 +38,19 @@ public class LichSuCongNo {
         this.maGiaoDich = maGiaoDich;
     }
 
-    public String getMaKhachHang() {
+    public KhachHang getMaKhachHang() {
         return maKhachHang;
     }
 
-    public void setMaKhachHang(String maKhachHang) {
+    public void setMaKhachHang(KhachHang maKhachHang) {
         this.maKhachHang = maKhachHang;
     }
 
-    public String getMaHoaDon() {
+    public HoaDon getMaHoaDon() {
         return maHoaDon;
     }
 
-    public void setMaHoaDon(String maHoaDon) {
+    public void setMaHoaDon(HoaDon maHoaDon) {
         this.maHoaDon = maHoaDon;
     }
 
