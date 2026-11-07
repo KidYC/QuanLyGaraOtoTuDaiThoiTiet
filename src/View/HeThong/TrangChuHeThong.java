@@ -46,16 +46,12 @@ import javax.swing.SwingConstants;
 
 import DAO.TrangChu_DAO;
 import View.DangNhap;
-import View.KeToan.ManHinhThongKeDoanhThu;
+import View.KeToan.*;
 import View.KyThuatVien.CapNhatTienDoSuaChua;
 import View.KyThuatVien.ChiTietKiemTraChanDoan;
 import View.KyThuatVien.KiemTraChatLuong;
 import View.KyThuatVien.LapPhieuSuaChua;
 import View.HeThong.QuanLyNhanVien;
-import View.KeToan.ManHinhChiTietHDVaThanhToan;
-import View.KeToan.ManHinhDanhSachKHNo;
-import View.KeToan.ManHinhDanhSachPhieuSuaChuaDaHoanThanh;
-import View.KeToan.ManHinhQuanLyCa;
 import View.LeTan.*;
 import View.ThuKho.*;
 import View.KyThuatVien.ManHinhThongKeSuaChua;
@@ -179,7 +175,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         THUC_HIEN_SUA_CHUA("Thực hiện sửa chữa", NhomChucNang.SUA_CHUA, "Cập nhật tiến độ thi công", VaiTro.KY_THUAT),
         KIEM_TRA_CHAT_LUONG("Kiểm tra chất lượng", NhomChucNang.SUA_CHUA, "Kiểm tra xe sau khi sửa chữa", VaiTro.KY_THUAT),
 
-        HOA_DON_THANH_TOAN("Hóa đơn", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
+        HOA_DON_THANH_TOAN("Lập hóa đơn", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
         DANH_SACH_PHIEU_HOAN_THANH("Danh sách phiếu hoàn thành", NhomChucNang.THANH_TOAN, "Tra cứu các phiếu sửa chữa đã hoàn thành", VaiTro.KE_TOAN),
         CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
         CA_THU_NGAN("Quản lý ca", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
@@ -452,7 +448,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case THUC_HIEN_SUA_CHUA:          hienThi(new CapNhatTienDoSuaChua()); return true;
             case KIEM_TRA_CHAT_LUONG:         hienThi(new KiemTraChatLuong()); return true;
 
-            case HOA_DON_THANH_TOAN:          hienThi(new ManHinhChiTietHDVaThanhToan()); return true;
+            case HOA_DON_THANH_TOAN:          hienThi(new ManHinhLapHoaDon()); return true;
             case DANH_SACH_PHIEU_HOAN_THANH:  hienThi(new ManHinhDanhSachPhieuSuaChuaDaHoanThanh()); return true;
             case CONG_NO:                     hienThi(new ManHinhDanhSachKHNo()); return true;
             case CA_THU_NGAN:                 hienThi(new ManHinhQuanLyCa()); return true;
