@@ -1,4 +1,3 @@
-
 package View.KyThuatVien;
 
 import java.awt.BorderLayout;
@@ -32,10 +31,7 @@ import DAO.KhachHang_DAO;
 import DAO.PhieuTiepNhan_DAO;
 import DAO.PhieuSuaChua_DAO;
 import DAO.Xe_DAO;
-import Entity.KhachHang;
-import Entity.PhieuTiepNhan;
-import Entity.PhieuSuaChua;
-import Entity.Xe;
+import Entity.*;
 
 public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, MouseListener {
 
@@ -87,7 +83,23 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
     private List<PhieuSuaChua> dsPhieuSuaChua = new ArrayList<>();
     private List<PhieuTiepNhan> dsPhieuTiepNhan = new ArrayList<>();
 
+    // Khai báo biến lưu mã nhân viên đăng nhập thực tế
+    private String maNV = "KTV01";
+
+    // Constructor nhận tham số maNV từ TrangChuHeThong truyền xuống
+    public ChiTietKiemTraChanDoan(String maNV) {
+        if (maNV != null && !maNV.trim().isEmpty()) {
+            this.maNV = maNV;
+        }
+        khoiTaoGiaoDien();
+    }
+
+    // Constructor mặc định khi test độc lập
     public ChiTietKiemTraChanDoan() {
+        this("KTV01");
+    }
+
+    private void khoiTaoGiaoDien() {
         setTitle("Kiểm tra & Chẩn đoán xe - Kỹ thuật viên");
         setSize(1200, 780);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -355,19 +367,19 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
             tableModelXe.setRowCount(0);
             dsPhieuTiepNhan = phieuTiepNhanDAO.getAllPhieuTiepNhan();
 
-            // CHỈ LOAD PHIẾU TIẾP NHẬN "Đang xử lý"
             for (PhieuTiepNhan ptn : dsPhieuTiepNhan) {
                 if (ptn.getTrangThai().equals("Đang xử lý")) {
                     Xe xe = xeDAO.getXeByBienSo(ptn.getBienSo());
-                    KhachHang kh = xe != null ? khachHangDAO.getKhachHangByMa(xe.getMaKhachHang()) : null;
+                    KhachHang kh = (xe != null && xe.getMaKhachHang() != null)
+                            ? khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang())
+                            : null;
                     String tenKH = kh != null ? kh.getHoTen() : "N/A";
 
-                    // Đổi cột hiển thị thành Mã Tiếp Nhận
                     tableModelXe.addRow(new Object[]{
-                            ptn.getMaPhieuTiepNhan(), // Cột 1
-                            ptn.getBienSo(),          // Cột 2
-                            tenKH,                    // Cột 3
-                            ptn.getTrangThai()        // Cột 4
+                            ptn.getMaPhieuTiepNhan(),
+                            ptn.getBienSo(),
+                            tenKH,
+                            ptn.getTrangThai()
                     });
                 }
             }
@@ -377,16 +389,12 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
     }
 
     private PhieuTiepNhan timPhieuTiepNhan(String maPhieuTiepNhan) {
-        if (maPhieuTiepNhan == null) {
-            return null;
-        }
-
+        if (maPhieuTiepNhan == null) return null;
         for (PhieuTiepNhan ptn : dsPhieuTiepNhan) {
             if (maPhieuTiepNhan.equals(ptn.getMaPhieuTiepNhan())) {
                 return ptn;
             }
         }
-
         return null;
     }
 
@@ -394,21 +402,18 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         int row = tblXe.getSelectedRow();
         if (row == -1) return;
 
-        // Bảng mới đã sửa: Cột 0 bây giờ là Mã Tiếp Nhận
         String maPhieuTN = tableModelXe.getValueAt(row, 0).toString();
         PhieuTiepNhan ptn = timPhieuTiepNhan(maPhieuTN);
-
         if (ptn == null) return;
 
-        // Hiển thị thông tin
-        txtMaPhieu.setText("Hệ thống tự tạo sau khi lưu"); // Phiếu SC chưa được tạo nên để text thông báo
+        txtMaPhieu.setText("Hệ thống tự tạo sau khi lưu");
         txtBienSo.setText(ptn.getBienSo());
         txtYeuCau.setText(ptn.getYeuCauKH());
 
         try {
             Xe xe = xeDAO.getXeByBienSo(ptn.getBienSo());
-            if (xe != null) {
-                KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang());
+            if (xe != null && xe.getMaKhachHang() != null) {
+                KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang());
                 txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
             } else {
                 txtKhachHang.setText("");
@@ -417,19 +422,9 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
             JOptionPane.showMessageDialog(this, "Lỗi tải thông tin khách hàng: " + ex.getMessage());
         }
 
-        // Làm trắng 3 ô textarea để KTV ghi bệnh mới
         txaLoiPhatHien.setText("");
         txaNguyenNhan.setText("");
         txaDeXuat.setText("");
-    }
-
-    private PhieuSuaChua timPhieuSuaChua(String maPhieuSC) {
-        for (PhieuSuaChua psc : dsPhieuSuaChua) {
-            if (maPhieuSC.equals(psc.getMaPhieuSuaChua())) {
-                return psc;
-            }
-        }
-        return null;
     }
 
     private void xacNhanKiemTra() {
@@ -444,20 +439,32 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
         }
 
         String maPhieuTN = tableModelXe.getValueAt(row, 0).toString();
-        String bienSo = tableModelXe.getValueAt(row, 1).toString();
+        String bienSoStr = tableModelXe.getValueAt(row, 1).toString();
 
         try {
-            // GỌI HÀM TỰ ĐỘNG SINH MÃ TĂNG DẦN (PSC04, PSC05...)
             String maPhieuSC = phieuSuaChuaDAO.phatSinhMaPhieuSuaChuaMoi();
 
+            // Khởi tạo đối tượng Xe để truyền vào PhieuSuaChua
+            Xe xe = new Xe();
+            xe.setBienSo(bienSoStr);
+
+            // Khởi tạo đối tượng KyThuatVien
+            KyThuatVien ktv = new KyThuatVien();
+            ktv.setMaKTV(this.maNV);
+
+            // Khởi tạo đối tượng PhieuTiepNhan
+            PhieuTiepNhan ptn = new PhieuTiepNhan();
+            ptn.setMaPhieuTiepNhan(maPhieuTN);
+
+            // Sử dụng các đối tượng đã bọc thay vì truyền String trực tiếp
             PhieuSuaChua psc = new PhieuSuaChua(
                     maPhieuSC,
                     new java.sql.Date(System.currentTimeMillis()),
                     new java.sql.Date(System.currentTimeMillis()),
                     "Đang lập vật tư",
-                    bienSo,
-                    "KTV01",
-                    maPhieuTN,
+                    xe,          // Truyền đối tượng Xe
+                    ktv,         // Truyền đối tượng KyThuatVien
+                    ptn,         // Truyền đối tượng PhieuTiepNhan
                     txaLoiPhatHien.getText().trim(),
                     txaNguyenNhan.getText().trim(),
                     txaDeXuat.getText().trim()

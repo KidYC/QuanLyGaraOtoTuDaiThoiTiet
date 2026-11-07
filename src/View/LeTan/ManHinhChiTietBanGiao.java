@@ -1,5 +1,8 @@
 package View.LeTan;
 
+import DAO.PhieuSuaChua_DAO;
+import Entity.ChiTietBanGiao_DTO;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -9,8 +12,14 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
 
@@ -44,7 +53,7 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
         txtMaPhieu.setText(maPhieu != null ? maPhieu : "KH005");
         txtBienSo.setText(bienSo != null ? bienSo : "51H-234.56");
 
-        loadDummyData();
+        loadDataFromDB(maPhieu);
     }
 
     public ManHinhChiTietBanGiao() {
@@ -219,12 +228,47 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
         btnXacNhanBanGiao.addActionListener(this);
     }
 
-    private void loadDummyData() {
-        modelSuaChua.addRow(new Object[]{1, "Dịch vụ", "Thay nhớt & Lọc nhớt", 1, "780,000", "Không"});
-        modelSuaChua.addRow(new Object[]{2, "Phụ tùng", "Bố thắng trước", 1, "1,200,000", "6 tháng"});
-        modelSuaChua.addRow(new Object[]{3, "Dịch vụ", "Vệ sinh buồng đốt", 1, "450,000", "Không"});
+    private void loadDataFromDB(String maPhieu) {
+        modelSuaChua.setRowCount(0);
+        PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
+        DecimalFormat df = new DecimalFormat("#,### VNĐ");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-        lblTongTien.setText("2,430,000 VNĐ");
+        try {
+            // 1. Lấy thông tin chung (Tên KH, Ngày hoàn thành)
+            try (ResultSet rs = dao.getThongTinBanGiao(maPhieu)) {
+                if (rs.next()) {
+                    txtTenKH.setText(rs.getString("hoTen"));
+                    Timestamp ngayHoanThanh = rs.getTimestamp("ngayDuKienHoanThanh");
+                    if (ngayHoanThanh != null) {
+                        txtNgaySuaXong.setText(sdf.format(ngayHoanThanh));
+                    }
+                }
+            }
+
+            // 2. Lấy danh sách chi tiết dịch vụ & phụ tùng thực hiện
+            List<ChiTietBanGiao_DTO> list = dao.getChiTietBanGiaoByMaPhieu(maPhieu);
+            int stt = 1;
+            double tongTien = 0;
+
+            for (ChiTietBanGiao_DTO item : list) {
+                tongTien += item.getThanhTien();
+                modelSuaChua.addRow(new Object[]{
+                        stt++,
+                        item.getLoai(),
+                        item.getTenHangMuc(),
+                        item.getSoLuong(),
+                        df.format(item.getThanhTien()),
+                        item.getBaoHanh()
+                });
+            }
+
+            lblTongTien.setText(df.format(tongTien));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu bàn giao từ CSDL: " + e.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override
@@ -251,14 +295,38 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
             return;
         }
 
-        JOptionPane.showMessageDialog(this,
-                "Xác nhận bàn giao xe " + txtBienSo.getText() + " thành công!\n"
-                        + "Hệ thống đang tự động in Biên bản bàn giao...",
-                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        int opt = JOptionPane.showConfirmDialog(this,
+                "Xác nhận hoàn tất bàn giao xe cho biển số: " + txtBienSo.getText() + "?",
+                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-         FormQuanLyBaoHanh formBaoHanh = new FormQuanLyBaoHanh();
-         formBaoHanh.setVisible(true);
-        this.dispose();
+        if (opt == JOptionPane.YES_OPTION) {
+            try {
+                PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
+
+                // Gọi hàm cập nhật trạng thái thành "Hoàn thành"
+                boolean success = dao.capNhatTrangThaiHoanThanh(txtMaPhieu.getText().trim());
+
+                if (success) {
+                    JOptionPane.showMessageDialog(this,
+                            "Xác nhận bàn giao xe thành công!\nTrạng thái phiếu đã chuyển sang 'Hoàn thành'.",
+                            "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+
+                    // Chuyển sang màn hình Quản lý bảo hành
+                    FormQuanLyBaoHanh formBaoHanh = new FormQuanLyBaoHanh(
+                            txtMaPhieu.getText().trim(),
+                            txtBienSo.getText().trim(),
+                            txtTenKH.getText().trim()
+                    );
+                    formBaoHanh.setVisible(true);
+                    this.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không thể cập nhật trạng thái bàn giao vào CSDL!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi CSDL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     public static void main(String[] args) {

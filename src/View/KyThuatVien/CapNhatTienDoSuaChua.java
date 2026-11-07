@@ -346,18 +346,25 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, List
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
             for (PhieuSuaChua psc : dsPhieuSuaChua) {
-                String ngayDuKien = psc.getNgayDuKienHoanThanh() != null
-                        ? sdf.format(psc.getNgayDuKienHoanThanh())
-                        : "";
+                String trangThai = psc.getTrangThai();
 
-                tableModelLenhSC.addRow(new Object[]{
-                        psc.getMaPhieuSuaChua(),
-                        psc.getBienSo(),
-                        psc.getTrangThai(),
-                        psc.getTienDo() + "%",
-                        ngayDuKien,
-                        psc.getGhiChu() != null ? psc.getGhiChu() : ""
-                });
+                // CHỈ HIỂN THỊ CÁC PHIẾU ĐANG TRONG GIAI ĐOẠN SỬA CHỮA / THI CÔNG
+                if (trangThai != null && (trangThai.equalsIgnoreCase("Đang sửa chữa")
+                        || trangThai.equalsIgnoreCase("Tạm dừng sửa chữa"))) {
+
+                    String ngayDuKien = psc.getNgayDuKienHoanThanh() != null
+                            ? sdf.format(psc.getNgayDuKienHoanThanh())
+                            : "";
+
+                    tableModelLenhSC.addRow(new Object[]{
+                            psc.getMaPhieuSuaChua(),
+                            psc.getBienSo(),
+                            psc.getTrangThai(),
+                            psc.getTienDo() + "%",
+                            ngayDuKien,
+                            psc.getGhiChu() != null ? psc.getGhiChu() : ""
+                    });
+                }
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(
@@ -408,13 +415,12 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, List
                     Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
 
                     if (xe != null) {
-                        KhachHang kh = khachHangDAO.getKhachHangByMa(
-                                xe.getMaKhachHang()
-                        );
+                        KhachHang kh = null;
+                        if (xe.getMaKhachHang() != null) {
+                            kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang());
+                        }
 
-                        txtKhachHang.setText(
-                                kh != null ? kh.getHoTen() : ""
-                        );
+                        txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
                     } else {
                         txtKhachHang.setText("");
                     }

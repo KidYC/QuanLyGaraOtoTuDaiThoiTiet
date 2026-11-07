@@ -1,5 +1,7 @@
 package View.LeTan;
 
+import DAO.PhieuTiepNhan_DAO;
+import Entity.PhieuTiepNhan;
 import View.HeThong.TrangChuHeThong;
 
 import javax.swing.*;
@@ -9,6 +11,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -18,19 +21,10 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
 
     private JTextField txtMaPhieu;
     private JTextField txtNgayTiepNhan;
-    private JTextField txtNhanVien;
-
-    private JTextField txtTenKH;
-    private JTextField txtSDT;
     private JTextField txtBienSo;
-    private JTextField txtLoaiXe;
-    private JTextField txtSoKM;
-
-    private JComboBox<String> cboMucNhienLieu;
+    private JComboBox<String> cboTrangThai;
     private JTextArea txtTinhTrangXe;
     private JTextArea txtYeuCauKhach;
-    private JTextField txtHenTraXe;
-    private JTextArea txtGhiChu;
 
     private JButton btnLuuPhieu;
     private JButton btnQuayLai;
@@ -42,17 +36,16 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
 
     public ManHinhLapPhieuTiepNhan(String tenKH, String sdt, String bienSo, String loaiXe) {
         setTitle("LẬP PHIẾU TIẾP NHẬN XE");
-        setSize(850, 400);
+        setSize(850, 600);
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         buildUI();
 
-        if (tenKH != null) txtTenKH.setText(tenKH);
-        if (sdt != null) txtSDT.setText(sdt);
-        if (bienSo != null) txtBienSo.setText(bienSo);
-        if (loaiXe != null) txtLoaiXe.setText(loaiXe);
+        if (bienSo != null) {
+            txtBienSo.setText(bienSo);
+        }
     }
 
     private void buildUI() {
@@ -68,83 +61,75 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
         add(lblTitle, BorderLayout.NORTH);
 
         //pCenter
-        JPanel pCenter = new JPanel();
-        pCenter.setLayout(new BoxLayout(pCenter, BoxLayout.Y_AXIS));
-        pCenter.setBackground(new Color(245, 245, 245));
-        pCenter.setBorder(new EmptyBorder(0, 20, 0, 20));
-
-        JPanel pThongTin = new JPanel(new GridBagLayout());
-        pThongTin.setBackground(Color.WHITE);
-        pThongTin.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
+        JPanel pCenter = new JPanel(new GridBagLayout());
+        pCenter.setBackground(Color.WHITE);
+        pCenter.setBorder(new CompoundBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(189, 195, 199)),
-                "Thông tin chung & Khách hàng - Xe",
+                "Thông Tin Phiếu Tiếp Nhận",
                 TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 13), new Color(44, 62, 80)),
                 new EmptyBorder(10, 15, 10, 15)
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 10, 6, 10);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
+        // Hang 1
         gbc.gridy = 0; gbc.gridx = 0;
-        pThongTin.add(new JLabel("Mã Phiếu:"), gbc);
+        pCenter.add(new JLabel("Mã Phiếu:"), gbc);
         gbc.gridx = 1;
-        txtMaPhieu = new JTextField("KH001");
+        DAO.PhieuTiepNhan_DAO ptnDao = new DAO.PhieuTiepNhan_DAO();
+        txtMaPhieu = new JTextField(ptnDao.getMaPhieuTiepNhanTuDong(), 15);
         txtMaPhieu.setEditable(false);
         txtMaPhieu.setBackground(new Color(236, 240, 241));
-        pThongTin.add(txtMaPhieu, gbc);
+        pCenter.add(txtMaPhieu, gbc);
 
         gbc.gridx = 2;
-        pThongTin.add(new JLabel("Ngày Tiếp Nhận:"), gbc);
+        pCenter.add(new JLabel("Ngày Tiếp Nhận:"), gbc);
         gbc.gridx = 3;
-        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         txtNgayTiepNhan = new JTextField(now, 15);
         txtNgayTiepNhan.setEditable(false);
         txtNgayTiepNhan.setBackground(new Color(236, 240, 241));
-        pThongTin.add(txtNgayTiepNhan, gbc);
-
-        // Hàng 1: Khách hàng & SĐT
+        pCenter.add(txtNgayTiepNhan, gbc);
+        // Hang 2
         gbc.gridy = 1; gbc.gridx = 0;
-        pThongTin.add(new JLabel("Tên Khách Hàng:"), gbc);
-        gbc.gridx = 1;
-        txtTenKH = new JTextField(15);
-        pThongTin.add(txtTenKH, gbc);
-
-        gbc.gridx = 2;
-        pThongTin.add(new JLabel("Số Điện Thoại:"), gbc);
-        gbc.gridx = 3;
-        txtSDT = new JTextField(15);
-        pThongTin.add(txtSDT, gbc);
-
-        gbc.gridy = 2; gbc.gridx = 0;
-        pThongTin.add(new JLabel("Biển Số Xe:"), gbc);
+        pCenter.add(new JLabel("Biển Số Xe:"), gbc);
         gbc.gridx = 1;
         txtBienSo = new JTextField(15);
-        pThongTin.add(txtBienSo, gbc);
+        pCenter.add(txtBienSo, gbc);
 
         gbc.gridx = 2;
-        pThongTin.add(new JLabel("Loại Xe:"), gbc);
+        pCenter.add(new JLabel("Trạng Thái:"), gbc);
         gbc.gridx = 3;
-        txtLoaiXe = new JTextField(15);
-        pThongTin.add(txtLoaiXe, gbc);
-
-        gbc.gridy = 3; gbc.gridx = 0;
-        pThongTin.add(new JLabel("Số KM Hiện Tại:"), gbc);
+        cboTrangThai = new JComboBox<>(new String[]{"Đang xử lý"});
+        pCenter.add(cboTrangThai, gbc);
+        // Hang 3
+        gbc.gridy = 2; gbc.gridx = 0;
+        pCenter.add(new JLabel("Tình Trạng Xe:"), gbc);
         gbc.gridx = 1;
-        txtSoKM = new JTextField(15);
-        pThongTin.add(txtSoKM, gbc);
-
-        gbc.gridx = 2;
-        pThongTin.add(new JLabel("Mức Nhiên Liệu:"), gbc);
-        gbc.gridx = 3;
-        cboMucNhienLieu = new JComboBox<>(new String[]{"Dưới 1/4", "1/4", "1/2", "3/4", "Đầy bình"});
-        pThongTin.add(cboMucNhienLieu, gbc);
-
-        pCenter.add(pThongTin);
-        pCenter.add(Box.createVerticalStrut(10));
-        add(pCenter, BorderLayout.CENTER);
+        gbc.gridwidth = 3;
+        txtTinhTrangXe = new JTextArea(3, 40);
+        txtTinhTrangXe.setLineWrap(true);
+        txtTinhTrangXe.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199)));
+        pCenter.add(new JScrollPane(txtTinhTrangXe), gbc);
+        // Hang 4
+        gbc.gridy = 3; gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        pCenter.add(new JLabel("Yêu Cầu KH:"), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 3;
+        txtYeuCauKhach = new JTextArea(3, 40);
+        txtYeuCauKhach.setLineWrap(true);
+        txtYeuCauKhach.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199)));
+        pCenter.add(new JScrollPane(txtYeuCauKhach), gbc);
+        // Bao bọc pCenter để căn lề đẹp hơn
+        JPanel pCenterWrapper = new JPanel(new BorderLayout());
+        pCenterWrapper.setBorder(new EmptyBorder(0, 20, 0, 20));
+        pCenterWrapper.add(pCenter, BorderLayout.NORTH);
+        add(pCenterWrapper, BorderLayout.CENTER);
 
         //PSouth
         JPanel pSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 12));
@@ -196,27 +181,59 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
     }
 
     private void xuLyLuuPhieu() {
-        if (txtTenKH.getText().trim().isEmpty() || txtBienSo.getText().trim().isEmpty()) {
+        String bienSoStr = txtBienSo.getText().trim();
+        String tinhTrang = txtTinhTrangXe.getText().trim();
+        String yeuCau = txtYeuCauKhach.getText().trim();
+        String trangThai = cboTrangThai.getSelectedItem().toString();
+        String maPhieu = txtMaPhieu.getText();
+
+        if (bienSoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập đầy đủ Tên khách hàng và Biển số xe!",
+                    "Vui lòng nhập Biển số xe!",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        int opt = JOptionPane.showConfirmDialog(this,
-                "Lập phiếu tiếp nhận " + txtMaPhieu.getText() + " thành công!\n"
-                        + "Xe đã được chuyển sang danh sách chờ báo giá.\n"
-                        + "Bạn có muốn mở 'Màn hình Danh sách xe chờ báo giá' ngay không?",
-                "Thông báo", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        java.sql.Date ngayTiepNhan = new java.sql.Date(System.currentTimeMillis());
 
-        if (opt == JOptionPane.YES_OPTION) {
-            ManHinhDanhSachXeChoBaoGia UI = new ManHinhDanhSachXeChoBaoGia();
-            UI.setVisible(true);
-            this.dispose();
-        } else {
-            TrangChuHeThong Home = new TrangChuHeThong();
-            Home.setVisible(true);
-            this.dispose();
+        // Khởi tạo đối tượng Xe theo cấu trúc OOP mới
+        Entity.Xe xe = new Entity.Xe();
+        xe.setBienSo(bienSoStr);
+
+        // Truyền đối tượng Xe thay vì chuỗi String vào PhieuTiepNhan
+        PhieuTiepNhan ptn = new PhieuTiepNhan(
+                maPhieu,
+                ngayTiepNhan,
+                tinhTrang,
+                yeuCau,
+                trangThai,
+                xe
+        );
+
+        PhieuTiepNhan_DAO dao = new PhieuTiepNhan_DAO();
+        try {
+            boolean success = dao.themPhieuTiepNhan(ptn);
+            if (success) {
+                int opt = JOptionPane.showConfirmDialog(this,
+                        "Lập phiếu tiếp nhận " + maPhieu + " thành công!\n"
+                                + "Bạn có muốn mở 'Màn hình Danh sách xe chờ báo giá' ngay không?",
+                        "Thông báo", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+
+                if (opt == JOptionPane.YES_OPTION) {
+                    ManHinhDanhSachXeChoBaoGia UI = new ManHinhDanhSachXeChoBaoGia();
+                    UI.setVisible(true);
+                    this.dispose();
+                } else {
+                    this.dispose();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể lưu phiếu tiếp nhận!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi lưu vào CSDL (Kiểm tra lại Biển số xe có trong bảng XE chưa):\n" + ex.getMessage(),
+                    "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -225,11 +242,10 @@ public class ManHinhLapPhieuTiepNhan extends JFrame implements ActionListener {
     }
 
     private void xuLyLamMoi() {
+        txtBienSo.setText("");
+        cboTrangThai.setSelectedIndex(0);
         txtTinhTrangXe.setText("");
         txtYeuCauKhach.setText("");
-        txtSoKM.setText("");
-        txtHenTraXe.setText("");
-        cboMucNhienLieu.setSelectedIndex(0);
     }
 
     public static void main(String[] args) {

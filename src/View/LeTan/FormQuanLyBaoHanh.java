@@ -1,5 +1,7 @@
 package View.LeTan;
 
+import DAO.PhieuSuaChua_DAO;
+import Entity.ChiTietBaoHanh_DTO;
 import View.HeThong.TrangChuHeThong;
 
 import javax.swing.*;
@@ -11,8 +13,11 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
 
@@ -40,11 +45,12 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
 
         buildUI();
 
+        loadData(maPhieu);
         txtMaPhieu.setText(maPhieu != null ? maPhieu : "KH005");
         txtBienSo.setText(bienSo != null ? bienSo : "51H-234.56");
         txtTenKH.setText(tenKH != null ? tenKH : "Phạm Văn D");
 
-        loadData();
+
     }
 
     public FormQuanLyBaoHanh() {
@@ -196,9 +202,35 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
         btnHoanTat.addActionListener(this);
     }
 
-    private void loadData() {
-        modelBaoHanh.addRow(new Object[]{1, "PT015", "Bố thắng trước Toyota", "6 Tháng", "06/04/2027", "Đang hiệu lực"});
-        modelBaoHanh.addRow(new Object[]{2, "PT088", "Bình ắc quy GS", "12 Tháng", "06/10/2027", "Đang hiệu lực"});
+    private void loadData(String maPhieu) {
+        modelBaoHanh.setRowCount(0);
+        PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        try {
+            List<ChiTietBaoHanh_DTO> list = dao.getChiTietBaoHanhByMaPhieu(maPhieu);
+            int stt = 1;
+
+            for (ChiTietBaoHanh_DTO item : list) {
+                String thoiHanStr = item.getThoiGianBaoHanhThang() + " Tháng";
+                String ngayHetHanStr = sdf.format(item.getNgayHetHan());
+
+                modelBaoHanh.addRow(new Object[]{
+                        stt++,
+                        item.getMaHangMuc(),
+                        item.getTenHangMuc(),
+                        thoiHanStr,
+                        ngayHetHanStr,
+                        item.getTrangThai()
+                });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi tải dữ liệu bảo hành từ CSDL: " + e.getMessage(),
+                    "Lỗi CSDL",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override
@@ -213,8 +245,8 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
 
     private void xuLyQuayLai() {
         this.dispose();
-        ManHinhChiTietBanGiao UI = new ManHinhChiTietBanGiao(txtMaPhieu.getText(), txtBienSo.getText());
-        UI.setVisible(true);
+//        ManHinhChiTietBanGiao UI = new ManHinhChiTietBanGiao(txtMaPhieu.getText(), txtBienSo.getText());
+//        UI.setVisible(true);
     }
 
     private void xuLyHoanTat() {
@@ -222,8 +254,8 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
                 "Đã kích hoạt bảo hành thành công cho xe " + txtBienSo.getText() + "!\nQuy trình dịch vụ đã hoàn tất.",
                 "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
-         TrangChuHeThong Home = new TrangChuHeThong();
-         Home.setVisible(true);
+//         TrangChuHeThong Home = new TrangChuHeThong();
+//         Home.setVisible(true);
         this.dispose();
 
     }
