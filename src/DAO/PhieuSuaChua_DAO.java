@@ -369,11 +369,13 @@ public class PhieuSuaChua_DAO {
 
     public List<XeDaHoanThanh_DTO> getDanhSachXeDaHoanThanh() throws SQLException {
         List<XeDaHoanThanh_DTO> list = new ArrayList<>();
-        String sql = "SELECT p.maPhieuSuaChua, k.hoTen, x.bienSo, (x.hangXe + ' ' + x.dongXe) AS loaiXe, " +
-                "p.ngayDuKienHoanThanh, p.trangThai " +
-                "FROM PHIEU_SUA_CHUA p " +
-                "JOIN XE x ON p.bienSo = x.bienSo " +
-                "JOIN KHACH_HANG k ON x.maKhachHang = k.maKhachHang " +
+        String sql = "SELECT p.maPhieuSuaChua, k.hoTen, x.bienSo, (h.tenHangXe + ' ' + d.tenDongXe) AS loaiXe, \n" +
+                "p.ngayDuKienHoanThanh, p.trangThai \n" +
+                "FROM PHIEU_SUA_CHUA p \n" +
+                "JOIN XE x ON p.bienSo = x.bienSo \n" +
+                "LEFT JOIN DONG_XE d ON x.maDongXe = d.maDongXe \n" +
+                "LEFT JOIN HANG_XE h ON d.maHangXe = h.maHangXe \n" +
+                "JOIN KHACH_HANG k ON x.maKhachHang = k.maKhachHang \n" +
                 "WHERE p.trangThai = N'Hoàn thành' OR p.trangThai = N'Chờ bàn giao'";
 
         try (Connection conn = connectSQL.getConnection();

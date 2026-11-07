@@ -29,14 +29,30 @@ CREATE TABLE KHACH_HANG (
 );
 GO
 
+CREATE TABLE HANG_XE (
+                         maHangXe VARCHAR(20) PRIMARY KEY,
+                         tenHangXe NVARCHAR(100) NOT NULL,
+                         xuatXu NVARCHAR(50)
+);
+GO
+
+--Bảng Dòng Xe
+CREATE TABLE DONG_XE (
+                         maDongXe VARCHAR(20) PRIMARY KEY,
+                         tenDongXe NVARCHAR(100) NOT NULL,
+                         maHangXe VARCHAR(20),
+                         FOREIGN KEY (maHangXe) REFERENCES HANG_XE(maHangXe) ON DELETE CASCADE
+);
+GO
+
 -- 2. Bảng Xe
 CREATE TABLE XE (
                     bienSo VARCHAR(20) PRIMARY KEY,
-                    hangXe NVARCHAR(50),
-                    dongXe NVARCHAR(50),
+                    maDongXe VARCHAR(20),
                     namSanXuat INT,
                     maKhachHang VARCHAR(20),
-                    FOREIGN KEY (maKhachHang) REFERENCES KHACH_HANG(maKhachHang) ON DELETE CASCADE
+                    FOREIGN KEY (maKhachHang) REFERENCES KHACH_HANG(maKhachHang) ON DELETE CASCADE,
+                    FOREIGN KEY (maDongXe) REFERENCES DONG_XE(maDongXe)
 );
 GO
 
@@ -413,14 +429,80 @@ INSERT INTO danhsachKHno (maKhachHang, hoTen, soDienThoai, hanMucNo, tongNo, tra
                                                                                             ('KH02', N'Trần Thị B', '0912345678', 200000000, 10000000, N'Chưa vượt mức'),
                                                                                             ('KH03', N'Lê Văn C', '0987654321', 50000000, 2000000, N'Chưa vượt mức');
 
--- Xe
-INSERT INTO XE (bienSo, hangXe, dongXe, namSanXuat, maKhachHang) VALUES
-                                                                     ('51G-123.45', 'Toyota', 'Vios', 2022, 'KH01'),
-                                                                     ('60B-987.65', 'Mazda', 'Mazda 3', 2023, 'KH02'),
-                                                                     ('51K-555.88', 'Honda', 'Civic', 2021, 'KH03'),
-                                                                     ('51A-888.88', 'Mercedes', 'E300', 2022, 'KH04'),
-                                                                     ('51K-999.99', 'Hyundai', 'Tucson', 2023, 'KH05');
+INSERT INTO HANG_XE (maHangXe, tenHangXe, xuatXu) VALUES
+                                                      ('HX01', N'Toyota', N'Nhật Bản'),
+                                                      ('HX02', N'Honda', N'Nhật Bản'),
+                                                      ('HX03', N'Mazda', N'Nhật Bản'),
+                                                      ('HX04', N'Hyundai', N'Hàn Quốc'),
+                                                      ('HX05', N'Kia', N'Hàn Quốc'),
+                                                      ('HX06', N'Mercedes-Benz', N'Đức'),
+                                                      ('HX07', N'BMW', N'Đức'),
+                                                      ('HX08', N'Audi', N'Đức'),
+                                                      ('HX09', N'Ford', N'Mỹ'),
+                                                      ('HX10', N'Chevrolet', N'Mỹ'),
+                                                      ('HX11', N'Lexus', N'Nhật Bản'),
+                                                      ('HX12', N'VinFast', N'Việt Nam'),
+                                                      ('HX13', N'Nissan', N'Nhật Bản'),
+                                                      ('HX14', N'Mitsubishi', N'Nhật Bản'),
+                                                      ('HX15', N'Suzuki', N'Nhật Bản'),
+                                                      ('HX16', N'Subaru', N'Nhật Bản'),
+                                                      ('HX17', N'Porsche', N'Đức'),
+                                                      ('HX18', N'Volvo', N'Thụy Điển'),
+                                                      ('HX19', N'Peugeot', N'Pháp'),
+                                                      ('HX20', N'Land Rover', N'Anh'),
+                                                      ('HX21', N'Skoda', N'Cộng hòa Séc'),
+                                                      ('HX22', N'MG', N'Anh / Trung Quốc'),
+                                                      ('HX23', N'Haval', N'Trung Quốc'),
+                                                      ('HX24', N'BYD', N'Trung Quốc'),
+                                                      ('HX25', N'Wuling', N'Trung Quốc');
+GO
 
+INSERT INTO DONG_XE (maDongXe, tenDongXe, maHangXe) VALUES
+('DX01', N'Vios', 'HX01'),
+('DX02', N'Camry', 'HX01'),
+('DX03', N'Civic', 'HX02'),
+('DX04', N'CR-V', 'HX02'),
+('DX05', N'Mazda 3', 'HX03'),
+('DX06', N'CX-5', 'HX03'),
+('DX07', N'Accent', 'HX04'),
+('DX08', N'Tucson', 'HX04'),
+('DX09', N'Morning', 'HX05'),
+('DX10', N'Seltos', 'HX05'),
+('DX11', N'C200', 'HX06'),
+('DX12', N'E300', 'HX06'),
+('DX13', N'320i', 'HX07'),
+('DX14', N'X5', 'HX07'),
+('DX15', N'A4', 'HX08'),
+('DX16', N'Q5', 'HX08'),
+('DX17', N'Ranger', 'HX09'),
+('DX18', N'Everest', 'HX09'),
+('DX19', N'Trailblazer', 'HX10'),
+('DX20', N'RX350', 'HX11'),
+('DX21', N'VF 5', 'HX12'),
+('DX22', N'VF 8', 'HX12'),
+('DX23', N'Almera', 'HX13'),
+('DX24', N'Xpander', 'HX14'),
+('DX25', N'XL7', 'HX15'),
+('DX26', N'Forester', 'HX16'),
+('DX27', N'Macan', 'HX17'),
+('DX28', N'XC90', 'HX18'),
+('DX29', N'3008', 'HX19'),
+('DX30', N'Range Rover', 'HX20'),
+('DX31', N'Kodiaq', 'HX21'),
+('DX32', N'MG5', 'HX22'),
+('DX33', N'H6', 'HX23'),
+('DX34', N'Atto 3', 'HX24'),
+('DX35', N'Hongguang Mini EV', 'HX25');
+GO
+
+-- Xe
+INSERT INTO XE (bienSo, maDongXe, namSanXuat, maKhachHang) VALUES
+('51G-123.45', 'DX01', 2022, 'KH01'),
+('60B-987.65', 'DX05', 2023, 'KH02'),
+('51K-555.88', 'DX03', 2021, 'KH03'),
+('51A-888.88', 'DX12', 2022, 'KH04'),
+('51K-999.99', 'DX08', 2023, 'KH05');
+GO
 -- Nhóm Nhân Sự (Đồng bộ ngayVaoLam cho tất cả)
 INSERT INTO KY_THUAT_VIEN (maKTV, hoTen, soDienThoai, diaChi, ngayVaoLam, trangThai) VALUES
                                                                                          ('KTV01', N'Phan Xuân Phụng', '0901112233', N'Thủ Đức, TP.HCM', '2023-01-15', N'Đang rảnh'),
@@ -891,9 +973,11 @@ VALUES
 ('KH05', NULL, '2023-10-12 15:40:00', N'Thanh toán công nợ',0, 70000),
 ('KH05', NULL, '2023-10-20 08:50:00', N'Thay lốp xe',300000, 0),
 ('KH05', NULL, '2023-10-26 17:30:00', N'Thanh toán cuối kỳ',0, 100000);
+GO
 insert into danhsachKHno values
                              ('KH04','Phạm Minh Dung','0984444444',10000000000,5000000,N'Chưa vượt mức'),
-                             ('KH05','Đặng Quốc Hùng','0985555555',20000000000,70000000,N'Chưa vượt mức')
+                             ('KH05','Đặng Quốc Hùng','0985555555',20000000000,70000000,N'Chưa vượt mức');
+GO
 -- ==========================================================
 -- PHẦN 3: VIEWS & PROCEDURES THỐNG KÊ DASHBOARD
 -- ==========================================================

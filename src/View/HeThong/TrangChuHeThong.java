@@ -182,7 +182,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         HOA_DON_THANH_TOAN("Hóa đơn", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
         DANH_SACH_PHIEU_HOAN_THANH("Danh sách phiếu hoàn thành", NhomChucNang.THANH_TOAN, "Tra cứu các phiếu sửa chữa đã hoàn thành", VaiTro.KE_TOAN),
         CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
-        CA_THU_NGAN("Quản lý ca thu ngân", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
+        CA_THU_NGAN("Quản lý ca", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
 
         THONG_KE_DOANH_THU("Doanh thu", NhomChucNang.THONG_KE, "Thống kê doanh thu theo kỳ", VaiTro.KE_TOAN),
         THONG_KE_SUA_CHUA("Sửa chữa", NhomChucNang.THONG_KE, "Thống kê xe và phiếu sửa chữa", VaiTro.KY_THUAT),
