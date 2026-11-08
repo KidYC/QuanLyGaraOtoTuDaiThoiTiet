@@ -36,14 +36,13 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
     private final JPanel pNorth;
     private final JLabel lbltieude;
     private final JPanel card;
-    private final JLabel trangthai;
     private final JLabel timkiem;
     private final JTextField txttimkiem;
-    private final JComboBox<String> txttrangthai;
     private final DefaultTableModel model;
     private final JTable table;
     private final JScrollPane scroll;
     private final JButton btnTim;
+    private final JButton btnLapHoaDon;
 
     public ManHinhDanhSachPhieuSuaChuaDaHoanThanh() {
         super("Danh sách phiếu sửa chữa đã hoàn thành");
@@ -115,20 +114,10 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
                 BorderFactory.createEmptyBorder(7, 10, 7, 10)
         ));
 
-        trangthai = new JLabel("Trạng thái:");
-        trangthai.setFont(FONT_DAM);
-        trangthai.setForeground(MAU_CHU);
-
-        txttrangthai = new JComboBox<>(
-                new String[]{"Tất cả", "Đang xử lý", "Hoàn thành"}
-        );
-        txttrangthai.setFont(FONT_NHAN);
-        txttrangthai.setForeground(MAU_CHU);
-        txttrangthai.setBackground(MAU_TRANG);
-        txttrangthai.setPreferredSize(new Dimension(170, 38));
-
         btnTim = taoNutBoGoc("Tìm kiếm", MAU_XANH);
         btnTim.setPreferredSize(new Dimension(130, 40));
+        btnLapHoaDon = taoNutBoGoc("Lập hóa đơn", MAU_XANH_PHU);
+        btnLapHoaDon.setPreferredSize(new Dimension(140, 40));
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -141,15 +130,19 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
 
         gbc.gridx = 2;
         gbc.weightx = 0;
-        card.add(trangthai, gbc);
+
 
         gbc.gridx = 3;
         gbc.weightx = 1;
-        card.add(txttrangthai, gbc);
+
 
         gbc.gridx = 4;
         gbc.weightx = 0;
         card.add(btnTim, gbc);
+
+        gbc.gridx = 5;
+        gbc.weightx = 0;
+        card.add(btnLapHoaDon, gbc);
 
         JPanel pTimKiem = new JPanel(new BorderLayout(0, 10));
         pTimKiem.setBackground(MAU_NEN);
@@ -250,6 +243,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
         add(pCenter, BorderLayout.CENTER);
 
         btnTim.addActionListener(this);
+        btnLapHoaDon.addActionListener(this);
 
         chinhmau();
         laydulieu();
@@ -307,7 +301,6 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
 
         lbltieude.setForeground(MAU_CHU);
         timkiem.setForeground(MAU_CHU);
-        trangthai.setForeground(MAU_CHU);
 
         table.getTableHeader().setBackground(MAU_XANH);
         table.getTableHeader().setForeground(MAU_CHU);
@@ -378,14 +371,37 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
                 "Không tìm thấy mã phiếu!"
         );
     }
+    private void moManHinhLapHoaDon() {
 
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vui lòng chọn phiếu sửa chữa cần lập hóa đơn!"
+            );
+            return;
+        }
+
+        int modelRow = table.convertRowIndexToModel(selectedRow);
+
+        String maPhieu = model.getValueAt(modelRow, 1).toString();
+
+        ManHinhLapHoaDon form = new ManHinhLapHoaDon(maPhieu);
+
+        form.setVisible(true);
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
         Object o = e.getSource();
 
         if (o == btnTim) {
             TimKiem();
+        }
+
+        if (o == btnLapHoaDon) {
+            moManHinhLapHoaDon();
         }
     }
     public static void main(String[] args) {

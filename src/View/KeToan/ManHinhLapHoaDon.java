@@ -29,7 +29,7 @@ public class ManHinhLapHoaDon extends JFrame {
     private JTextField txtNhanVien;
 
     private JComboBox<String> cboPhuongThuc;
-    private JComboBox<String> cboPhieuSuaChua;
+    private JTextField txtPhieuSuaChua;
 
     // Chi tiết hóa đơn
     private JTable tblChiTiet;
@@ -53,24 +53,27 @@ public class ManHinhLapHoaDon extends JFrame {
 
         getContentPane().setBackground(mauNen);
 
-        // Khu vực chính
         JPanel pnlChinh = new JPanel(new BorderLayout(10, 10));
         pnlChinh.setBackground(mauNen);
         pnlChinh.setBorder(BorderFactory.createEmptyBorder(
                 10, 15, 10, 15
         ));
 
-// Thông tin hóa đơn ở phía trên
         pnlChinh.add(formThongTin(), BorderLayout.NORTH);
-
-// Chi tiết hóa đơn ở giữa
         pnlChinh.add(formChiTietVaThanhToan(), BorderLayout.CENTER);
 
-// Thêm vào JFrame
         add(tieuDe(), BorderLayout.NORTH);
         add(pnlChinh, BorderLayout.CENTER);
 
         lamMoiForm();
+    }
+    public ManHinhLapHoaDon(String maPhieu) {
+        this();
+
+        if (maPhieu != null && !maPhieu.trim().isEmpty()) {
+            txtPhieuSuaChua.setText(maPhieu.trim());
+            loadChiTietTheoPhieu();
+        }
     }
 
     // ================= TIÊU ĐỀ =================
@@ -117,8 +120,8 @@ public class ManHinhLapHoaDon extends JFrame {
                 "Chuyển khoản",
         });
 
-        cboPhieuSuaChua = new JComboBox<>();
-        cboPhieuSuaChua.addItem("Chọn phiếu sửa chữa");
+        txtPhieuSuaChua = new JTextField();
+        txtPhieuSuaChua.setEditable(false);
 
         txtMaHoaDon.setEditable(false);
         txtNgayLap.setEditable(false);
@@ -140,7 +143,7 @@ public class ManHinhLapHoaDon extends JFrame {
 
         // Dòng 3
         themTruong(pnl, gbc, 0, 2,
-                "Phiếu sửa chữa:", cboPhieuSuaChua);
+                "Phiếu sửa chữa:", txtPhieuSuaChua);
 
         return pnl;
     }
@@ -177,7 +180,7 @@ public class ManHinhLapHoaDon extends JFrame {
                 0, 15, 15, 15));
         String[] columns = {
                 "STT",
-                "Nội dung",
+                "Dịch vụ/Phụ tùng",
                 "Số lượng",
                 "Đơn giá",
                 "Thành tiền"
@@ -260,22 +263,6 @@ public class ManHinhLapHoaDon extends JFrame {
         pnlDuoi.add(pnlNutChucNang, BorderLayout.SOUTH);
 
         pnl.add(pnlDuoi, BorderLayout.SOUTH);
-
-// Tải danh sách phiếu sửa chữa
-        loadPhieuSuaChua();
-
-// Bắt sự kiện khi chọn phiếu sửa chữa
-        cboPhieuSuaChua.addActionListener(e -> {
-
-            if (cboPhieuSuaChua.getSelectedIndex() > 0) {
-                loadChiTietTheoPhieu();
-            } else {
-                dsChiTiet.clear();
-                modelChiTiet.setRowCount(0);
-                capNhatTongTien();
-            }
-        });
-
         return pnl;
     }
 
@@ -389,12 +376,17 @@ public class ManHinhLapHoaDon extends JFrame {
 
         capNhatTongTien();
     }
+
     private void loadChiTietTheoPhieu() {
-
-        String maPSC = cboPhieuSuaChua.getSelectedItem().toString();
-
         dsChiTiet.clear();
         modelChiTiet.setRowCount(0);
+
+        String maPSC = txtPhieuSuaChua.getText().trim();
+
+        if (maPSC.isEmpty()) {
+            capNhatTongTien();
+            return;
+        }
 
         try {
             DAO_KeToan dao = new DAO_KeToan();
@@ -402,12 +394,13 @@ public class ManHinhLapHoaDon extends JFrame {
             List<ChiTietHoaDon> danhSach =
                     dao.layChiTietTheoPhieuSuaChua(maPSC);
 
+            if (danhSach != null) {
+                dsChiTiet.addAll(danhSach);
+            }
+
             int stt = 1;
 
-            for (ChiTietHoaDon ct : danhSach) {
-
-                dsChiTiet.add(ct);
-
+            for (ChiTietHoaDon ct : dsChiTiet) {
                 modelChiTiet.addRow(new Object[]{
                         stt++,
                         ct.getNoiDung(),
@@ -422,36 +415,28 @@ public class ManHinhLapHoaDon extends JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Lỗi tải chi tiết: " + e.getMessage()
+                    "Lỗi tải chi tiết phiếu sửa chữa: " + e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE
             );
-            e.printStackTrace();
         }
     }
-
-
-
     private void capNhatTongTien() {
-
         BigDecimal tongTien = BigDecimal.ZERO;
 
         for (ChiTietHoaDon ct : dsChiTiet) {
-
-            BigDecimal thanhTien = ct.getDonGia()
-                    .multiply(BigDecimal.valueOf(
-                            ct.getSoLuong()));
-
-            tongTien = tongTien.add(thanhTien);
+            if (ct.getThanhTien() != null) {
+                tongTien = tongTien.add(ct.getThanhTien());
+            }
         }
 
         lblTongTien.setText(dinhDangTien(tongTien) + " VNĐ");
     }
 
+
     // ================= LẬP HÓA ĐƠN =================
     private void lapHoaDon() {
-
-        if (cboPhieuSuaChua.getSelectedItem() == null
-                || cboPhieuSuaChua.getSelectedIndex() == 0) {
-
+        if (txtPhieuSuaChua.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
                     "Vui lòng chọn phiếu sửa chữa!"
@@ -489,7 +474,7 @@ public class ManHinhLapHoaDon extends JFrame {
             PhuongThucThanhToan pttt = new PhuongThucThanhToan();
             pttt.setMaPhuongThuc(maPhuongThuc);
 
-            String maPSC = cboPhieuSuaChua.getSelectedItem().toString();
+            String maPSC = txtPhieuSuaChua.getText().trim();
 
             PhieuSuaChua psc = new PhieuSuaChua();
             psc.setMaPhieuSuaChua(maPSC);
@@ -511,36 +496,23 @@ public class ManHinhLapHoaDon extends JFrame {
             );
 
             DAO_KeToan dao = new DAO_KeToan();
-
-            // Lưu hóa đơn vào SQL Server
             boolean ketQua = dao.themHoaDon(hoaDon);
-
             if (ketQua) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Lập hóa đơn thành công!\n"
-                                + "Mã hóa đơn: " + hoaDon.getMaHoaDon()
-                                + "\nTổng tiền: " + lblTongTien.getText()
+                        "Lập hóa đơn thành công!",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE
                 );
 
-                // Mở màn hình chi tiết hóa đơn
                 ManHinhChiTietHDVaThanhToan ui =
-                        new ManHinhChiTietHDVaThanhToan();
+                        new ManHinhChiTietHDVaThanhToan(
+                                hoaDon.getMaHoaDon()
+                        );
 
                 ui.setVisible(true);
-
-                // Đóng màn hình lập hóa đơn
                 dispose();
-
-            } else {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Không thể lưu hóa đơn!",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE
-                );
             }
-
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(
                     this,
@@ -556,30 +528,22 @@ public class ManHinhLapHoaDon extends JFrame {
 
     private void lamMoiForm() {
         txtMaHoaDon.setText(taoMaHoaDon());
+
         txtNgayLap.setText(
                 LocalDateTime.now().format(
-                        DateTimeFormatter.ofPattern(
-                                "dd/MM/yyyy HH:mm:ss"
-                        )
+                        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
                 )
         );
 
         txtNhanVien.setText("KT01");
-
         cboPhuongThuc.setSelectedIndex(0);
 
-        loadPhieuSuaChua();
-
-        if (cboPhieuSuaChua.getItemCount() > 0) {
-            cboPhieuSuaChua.setSelectedIndex(0);
-        }
+        txtPhieuSuaChua.setText("");
 
         dsChiTiet.clear();
         modelChiTiet.setRowCount(0);
 
         lblTongTien.setText("0 VNĐ");
-
-        modelChiTiet.fireTableDataChanged();
 
         tblChiTiet.clearSelection();
 
@@ -599,34 +563,6 @@ public class ManHinhLapHoaDon extends JFrame {
 
         return btn;
     }
-    private void loadPhieuSuaChua() {
-
-        cboPhieuSuaChua.removeAllItems();
-
-        // Thêm lựa chọn mặc định
-        cboPhieuSuaChua.addItem("Chọn phiếu sửa chữa");
-
-        try {
-
-            DAO_KeToan dao = new DAO_KeToan();
-
-            List<String> danhSach =
-                    dao.layMaPhieuSuaChuaDaHoanThanh();
-
-            for (String maPSC : danhSach) {
-                cboPhieuSuaChua.addItem(maPSC);
-            }
-
-        } catch (SQLException e) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Lỗi tải danh sách phiếu sửa chữa: "
-                            + e.getMessage()
-            );
-        }
-    }
-
     private String dinhDangTien(BigDecimal tien) {
 
         return String.format(
