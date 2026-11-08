@@ -1,18 +1,12 @@
 package DAO;
-
 import DB.connectSQL;
 import Entity.*;
-
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 public class DAO_KeToan {
 
-    // =========================================================
-    // 1. LẤY DANH SÁCH PHIẾU SỬA CHỮA ĐÃ HOÀN THÀNH
-    // =========================================================
     public List<PhieuSuaChuaDaHoanThanh> layDanhSachPhieuSuaChuaDaHoanThanh()
             throws SQLException {
 
@@ -70,10 +64,6 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-// LẤY CHI TIẾT HÓA ĐƠN VÀ THANH TOÁN
-// =========================================================
     public List<ChiTietHoaDon> laydulieuchitiethoadonvathanhtoan() {
         List<ChiTietHoaDon> ds = new ArrayList<>();
 
@@ -135,10 +125,6 @@ public class DAO_KeToan {
         return ds;
     }
 
-
-    // =========================================================
-    // 3. LẤY LỊCH SỬ CÔNG NỢ THEO KHÁCH HÀNG VÀ KHOẢNG NGÀY
-    // =========================================================
     public List<LichSuCongNo> laydulieucongno(
             String maKH,
             java.sql.Date tuNgay,
@@ -204,10 +190,6 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-    // 4. LẤY DANH SÁCH KHÁCH HÀNG NỢ
-    // =========================================================
     public List<DanhSachKHNo> laydulieuKHno() throws SQLException {
 
         List<DanhSachKHNo> danhSach = new ArrayList<>();
@@ -251,29 +233,25 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-    // 5. LẤY THÔNG TIN CHI TIẾT KHÁCH HÀNG NỢ
-    // =========================================================
     public DanhSachKHNo layThongTinKhachHangNo(String maKH)
             throws SQLException {
 
         String sql = """
-                SELECT
-                    KH.maKhachHang,
-                    K.hoTen,
-                    X.bienSo,
-                    K.soDienThoai,
-                    K.diaChi,
-                    KH.hanMucNo,
-                    KH.tongNo
-                FROM danhsachKHno KH
-                JOIN KHACH_HANG K
-                    ON KH.maKhachHang = K.maKhachHang
-                JOIN XE X
-                    ON KH.maKhachHang = X.maKhachHang
-                WHERE KH.maKhachHang = ?
-                """;
+            SELECT
+                KH.maKhachHang,
+                K.hoTen,
+                X.bienSo,
+                K.soDienThoai,
+                K.diaChi,
+                KH.hanMucNo,
+                KH.tongNo
+            FROM danhsachKHno KH
+            JOIN KHACH_HANG K
+                ON KH.maKhachHang = K.maKhachHang
+            JOIN XE X
+                ON KH.maKhachHang = X.maKhachHang
+            WHERE KH.maKhachHang = ?
+            """;
 
         try (
                 Connection conn = connectSQL.getConnection();
@@ -282,15 +260,21 @@ public class DAO_KeToan {
             ps.setString(1, maKH);
 
             try (ResultSet rs = ps.executeQuery()) {
+
                 if (rs.next()) {
+
                     DanhSachKHNo khNo = new DanhSachKHNo();
 
                     KhachHang kh = new KhachHang();
                     kh.setMaKhachHang(rs.getString("maKhachHang"));
-                    kh.setHoTen(rs.getString("hoTen"));
-                    kh.setSoDienThoai(rs.getString("soDienThoai"));
-                    kh.setDiaChi(rs.getString("diaChi"));
+
                     khNo.setMaKhachHang(kh);
+
+                    khNo.setHoTen(rs.getString("hoTen"));
+                    khNo.setBienSo(rs.getString("bienSo"));
+                    khNo.setSoDienThoai(rs.getString("soDienThoai"));
+                    khNo.setDiaChi(rs.getString("diaChi"));
+
                     khNo.setHanMucNo(rs.getBigDecimal("hanMucNo"));
                     khNo.setTongNo(rs.getBigDecimal("tongNo"));
 
@@ -302,10 +286,6 @@ public class DAO_KeToan {
         return null;
     }
 
-
-    // =========================================================
-    // 6. LẤY THÔNG TIN TỔNG THANH TOÁN
-    // =========================================================
     public ThongTinThanhToan laythongtinthanhtoan()
             throws SQLException {
 
@@ -339,10 +319,6 @@ public class DAO_KeToan {
         return null;
     }
 
-
-    // =========================================================
-    // 7. THANH TOÁN HÓA ĐƠN
-    // =========================================================
     public boolean thanhToanHoaDon(
             String maHoaDon,
             BigDecimal soTien,
@@ -384,10 +360,6 @@ public class DAO_KeToan {
         }
     }
 
-
-    // =========================================================
-    // 8. TẠO MÃ THANH TOÁN
-    // =========================================================
     public String taoMaThanhToan(Connection conn) throws SQLException {
 
         String sql = """
@@ -412,10 +384,6 @@ public class DAO_KeToan {
         return "TT01";
     }
 
-
-    // =========================================================
-    // 9. LẤY SỐ HÓA ĐƠN LỚN NHẤT
-    // =========================================================
     public int laySoHoaDonLonNhat() throws SQLException {
 
         String sql = """
@@ -440,10 +408,6 @@ public class DAO_KeToan {
         return 0;
     }
 
-
-    // =========================================================
-    // 10. LẤY MÃ PHIẾU SỬA CHỮA ĐÃ HOÀN THÀNH
-    // =========================================================
     public List<String> layMaPhieuSuaChuaDaHoanThanh()
             throws SQLException {
 
@@ -469,10 +433,6 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-    // 11. LẤY SỐ CHI TIẾT HÓA ĐƠN LỚN NHẤT
-    // =========================================================
     public int laySoChiTietHoaDonLonNhat() throws SQLException {
 
         String sql = """
