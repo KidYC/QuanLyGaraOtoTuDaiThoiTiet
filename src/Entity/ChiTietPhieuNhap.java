@@ -1,34 +1,33 @@
 package Entity;
 
 public class ChiTietPhieuNhap {
-    private String maPhieuNhap;
-    private String maPhuTung;
+    private PhieuNhapKho phieuNhapKho;
+    private PhuTung phuTung;
     private int soLuongNhap;
     private double donGiaNhap;
-    private String tenPhuTung;
-    private String donViTinh;
 
     public ChiTietPhieuNhap() {}
 
-    public ChiTietPhieuNhap(String maPhieuNhap, String maPhuTung, int soLuongNhap, double donGiaNhap) {
-        this.maPhieuNhap = maPhieuNhap;
-        this.maPhuTung = maPhuTung;
+    public ChiTietPhieuNhap(PhieuNhapKho phieuNhapKho, PhuTung phuTung, int soLuongNhap, double donGiaNhap) {
+        this.phieuNhapKho = phieuNhapKho;
+        this.phuTung = phuTung;
         this.soLuongNhap = soLuongNhap;
         this.donGiaNhap = donGiaNhap;
     }
 
-    public String getMaPhieuNhap() {return maPhieuNhap;}
-    public void setMaPhieuNhap(String maPhieuNhap) {this.maPhieuNhap = maPhieuNhap;}
-    public String getMaPhuTung() {return maPhuTung;}
-    public void setMaPhuTung(String maPhuTung) {this.maPhuTung = maPhuTung;}
+    public PhieuNhapKho getPhieuNhapKho() {return phieuNhapKho;}
+    public void setPhieuNhapKho(PhieuNhapKho phieuNhapKho) {this.phieuNhapKho = phieuNhapKho;}
+    public PhuTung getPhuTung() {return phuTung;}
+    public void setPhuTung(PhuTung phuTung) {this.phuTung = phuTung;}
     public int getSoLuongNhap() {return soLuongNhap;}
     public void setSoLuongNhap(int soLuongNhap) {this.soLuongNhap = soLuongNhap;}
     public double getDonGiaNhap() {return donGiaNhap;}
     public void setDonGiaNhap(double donGiaNhap) {this.donGiaNhap = donGiaNhap;}
-    public String getTenPhuTung() {return tenPhuTung;}
-    public void setTenPhuTung(String tenPhuTung) {this.tenPhuTung = tenPhuTung;}
-    public String getDonViTinh() {return donViTinh;}
-    public void setDonViTinh(String donViTinh) {this.donViTinh = donViTinh;}
+
+    public String getMaPhieuNhap() {return phieuNhapKho != null ? phieuNhapKho.getMaPhieuNhap() : "";}
+    public String getMaPhuTung() {return phuTung != null ? phuTung.getMaPhuTung() : "";}
+    public String getTenPhuTung() {return phuTung != null ? phuTung.getTenPhuTung() : "";}
+    public String getDonViTinh() {return phuTung != null ? phuTung.getDonViTinh() : "";}
 
     public double tinhTongTien() {
         return soLuongNhap * donGiaNhap;

@@ -455,8 +455,9 @@ public class ManHinhLapPhieuKiemKe extends JFrame implements ActionListener {
         pk.setTrangThai("Đang kiểm kê");
         List<ChiTietKiemKe> dsChiTiet = new ArrayList<>();
         for (int i = 0; i < modelchitiet.getRowCount(); i++) {
-            dsChiTiet.add(new ChiTietKiemKe(pk.getMaPhieuKiemKe(),
-                    modelchitiet.getValueAt(i, 0).toString(),
+            PhuTung pt = new PhuTung();
+            pt.setMaPhuTung(modelchitiet.getValueAt(i, 0).toString());
+            dsChiTiet.add(new ChiTietKiemKe(pk, pt,
                     Integer.parseInt(modelchitiet.getValueAt(i, 3).toString()),
                     Integer.parseInt(modelchitiet.getValueAt(i, 4).toString()),
                     modelchitiet.getValueAt(i, 6).toString()));

@@ -3,6 +3,7 @@ package View.ThuKho;
 import DAO.NhaCungCap_DAO;
 import DAO.PhieuNhapKho_DAO;
 import DAO.PhuTung_DAO;
+import DAO.ThuKho_DAO;
 import Entity.ChiTietPhieuNhap;
 import Entity.NhaCungCap;
 import Entity.PhieuNhapKho;
@@ -13,9 +14,14 @@ import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -39,6 +45,12 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
     private JTextField txtsoluong;
     private JTextField txtdongia;
     private JTextField txtthanhtien;
+    private JButton btnthemdong;
+    private JButton btnxoadong;
+
+    private JTable tblchitiet;
+    private DefaultTableModel modelchitiet;
+    private JLabel lbltongtien;
 
     private JButton btnquaylai;
     private JButton btnlammoi;
@@ -47,6 +59,7 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
     private final PhuTung_DAO phuTungDAO = new PhuTung_DAO();
     private final NhaCungCap_DAO nhaCungCapDAO = new NhaCungCap_DAO();
     private final PhieuNhapKho_DAO phieuNhapDAO = new PhieuNhapKho_DAO();
+    private final ThuKho_DAO thuKhoDAO = new ThuKho_DAO();
 
     private List<PhuTung> dsphutung = new ArrayList<>();
     private List<NhaCungCap> dsnhacungcap = new ArrayList<>();
@@ -59,6 +72,13 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         txtmaphieu.setText(taoMaPhieu());
     }
 
+    public ManHinhLapPhieuNhapKho(String maNhanVien, String maPhuTung) {
+        khoiTao();
+        txtmaphieu.setText(taoMaPhieu());
+        dienNhanVien(maNhanVien);
+        chonPhuTung(maPhuTung);
+    }
+
     public ManHinhLapPhieuNhapKho(String maphieu) {
         this.chedosua = true;
         this.maphieugoc = maphieu;
@@ -68,7 +88,7 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
 
     private void khoiTao() {
         setTitle(chedosua ? "SỬA PHIẾU NHẬP KHO" : "LẬP PHIẾU NHẬP KHO");
-        setSize(850, 480);
+        setSize(900, 640);
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -101,24 +121,54 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
                 }
             }
 
-            ChiTietPhieuNhap ct = dsct.get(0);
-            for (int i = 0; i < dsphutung.size(); i++) {
-                if (dsphutung.get(i).getMaPhuTung().equals(ct.getMaPhuTung())) {
-                    cbphutung.setSelectedIndex(i);
-                }
+            modelchitiet.setRowCount(0);
+            for (ChiTietPhieuNhap ct : dsct) {
+                modelchitiet.addRow(new Object[]{
+                        ct.getMaPhuTung(),
+                        ct.getTenPhuTung(),
+                        ct.getDonViTinh(),
+                        ct.getSoLuongNhap(),
+                        dinhdang.format(ct.getDonGiaNhap()),
+                        dinhdang.format(ct.tinhTongTien())});
             }
-            txtsoluong.setText(String.valueOf(ct.getSoLuongNhap()));
-            txtdongia.setText(String.valueOf((long) ct.getDonGiaNhap()));
-            tinhThanhTien();
-
-            if (dsct.size() > 1) {
-                JOptionPane.showMessageDialog(this,
-                        "Phiếu này có nhiều phụ tùng, màn hình chỉ sửa được phiếu có 1 phụ tùng!",
-                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                btnluu.setEnabled(false);
-            }
+            capNhatTongTien();
+            xoaONhap();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
+        }
+    }
+
+    private void dienNhanVien(String maNhanVien) {
+        if (maNhanVien == null || maNhanVien.trim().isEmpty()) return;
+
+        if (maNhanVien.trim().equalsIgnoreCase("ADMIN")) {
+            txtnhanvien.setText("ADMIN");
+            txtnhanvien.setToolTipText("Quản trị viên");
+            txtnhanvien.setEditable(false);
+            txtnhanvien.setBackground(new Color(236, 240, 241));
+            return;
+        }
+
+        try {
+            ThuKho tk = thuKhoDAO.timThuKhoTheoMa(maNhanVien.trim());
+            if (tk != null) {
+                txtnhanvien.setText(tk.getMaNhanVien());
+                txtnhanvien.setToolTipText(tk.getHoTen());
+                txtnhanvien.setEditable(false);
+                txtnhanvien.setBackground(new Color(236, 240, 241));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải thông tin nhân viên: " + e.getMessage());
+        }
+    }
+
+    private void chonPhuTung(String maPhuTung) {
+        if (maPhuTung == null) return;
+        for (int i = 0; i < dsphutung.size(); i++) {
+            if (dsphutung.get(i).getMaPhuTung().equalsIgnoreCase(maPhuTung)) {
+                cbphutung.setSelectedIndex(i);
+                break;
+            }
         }
     }
 
@@ -181,7 +231,10 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
             cbnhacungcap.addItem(ncc.getTenNhaCungCap());
         }
 
+        // Mã nhân viên lập lấy theo tài khoản đăng nhập hoặc theo phiếu khi sửa không cho sửa tay
         txtnhanvien = new JTextField();
+        txtnhanvien.setEditable(false);
+        txtnhanvien.setBackground(new Color(236, 240, 241));
 
         txtghichu = new JTextField();
 
@@ -214,14 +267,13 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         }
 
         txtdonvi = new JTextField();
-        if (!dsphutung.isEmpty()) {
-            txtdonvi.setText(dsphutung.get(0).getDonViTinh());
-        }
         txtdonvi.setEditable(false);
         txtdonvi.setBackground(new Color(236, 240, 241));
 
         txtsoluong = new JTextField();
         txtdongia = new JTextField();
+        txtdongia.setEditable(false);
+        txtdongia.setBackground(new Color(236, 240, 241));
 
         txtthanhtien = new JTextField();
         txtthanhtien.setEditable(false);
@@ -235,17 +287,45 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         pChiTiet.add(txtsoluong);
         pChiTiet.add(new JLabel("Đơn Giá:"));
         pChiTiet.add(txtdongia);
+        btnthemdong = new JButton("Thêm Vào Danh Sách");
+        btnthemdong.setBackground(new Color(46, 204, 113));
+        btnthemdong.setForeground(Color.WHITE);
+        btnthemdong.setFocusPainted(false);
+
+        btnxoadong = new JButton("Xóa Khỏi Danh Sách");
+        btnxoadong.setBackground(new Color(231, 76, 60));
+        btnxoadong.setForeground(Color.WHITE);
+        btnxoadong.setFocusPainted(false);
+
         pChiTiet.add(new JLabel("Thành Tiền:"));
         pChiTiet.add(txtthanhtien);
-        pChiTiet.add(new JLabel(""));
-        pChiTiet.add(new JLabel(""));
+        pChiTiet.add(btnthemdong);
+        pChiTiet.add(btnxoadong);
 
         pCenter.add(pThongTin, BorderLayout.NORTH);
         pCenter.add(pChiTiet, BorderLayout.CENTER);
 
+        String[] column = {"Mã Phụ Tùng", "Tên Phụ Tùng", "Đơn Vị", "Số Lượng", "Đơn Giá", "Thành Tiền"};
+        modelchitiet = new DefaultTableModel(column, 0) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
+        tblchitiet = new JTable(modelchitiet);
+        tblchitiet.setRowHeight(25);
+        JScrollPane scroll = new JScrollPane(tblchitiet);
+        scroll.setBorder(BorderFactory.createTitledBorder("Danh sách phụ tùng nhập"));
+
+        JPanel pBang = new JPanel(new BorderLayout());
+        pBang.setBackground(new Color(245, 245, 245));
+        pBang.setBorder(new EmptyBorder(10, 20, 0, 20));
+        pBang.add(scroll, BorderLayout.CENTER);
+
         JPanel pGiua = new JPanel(new BorderLayout());
         pGiua.setBackground(new Color(245, 245, 245));
         pGiua.add(pCenter, BorderLayout.NORTH);
+        pGiua.add(pBang, BorderLayout.CENTER);
         add(pGiua, BorderLayout.CENTER);
 
         //pSouth
@@ -274,9 +354,20 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         pSouth.add(btnquaylai);
         pSouth.add(btnlammoi);
         pSouth.add(btnluu);
-        add(pSouth, BorderLayout.SOUTH);
+
+        lbltongtien = new JLabel("Tổng tiền: 0 VNĐ");
+        lbltongtien.setFont(new Font("Arial", Font.BOLD, 16));
+        lbltongtien.setForeground(new Color(192, 57, 43));
+
+        JPanel pDuoi = new JPanel(new BorderLayout());
+        pDuoi.setBackground(new Color(245, 245, 245));
+        pDuoi.setBorder(new EmptyBorder(0, 20, 0, 5));
+        pDuoi.add(lbltongtien, BorderLayout.WEST);
+        pDuoi.add(pSouth, BorderLayout.EAST);
+        add(pDuoi, BorderLayout.SOUTH);
 
         initListener();
+        xuLyDoiPhuTung();
     }
 
     private void initListener() {
@@ -285,7 +376,33 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         btnlammoi.addActionListener(this);
         cbphutung.addActionListener(this);
         txtsoluong.addActionListener(this);
-        txtdongia.addActionListener(this);
+        btnthemdong.addActionListener(this);
+        btnxoadong.addActionListener(this);
+
+        tblchitiet.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                xuLyChonDong();
+            }
+        });
+
+        // gõ số lượng tới đâu thì tính thành tiền tới đó
+        txtsoluong.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                tinhThanhTien();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                tinhThanhTien();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                tinhThanhTien();
+            }
+        });
     }
 
     @Override
@@ -299,15 +416,22 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
             xuLyLamMoi();
         } else if (o == cbphutung) {
             xuLyDoiPhuTung();
-        } else if (o == txtsoluong || o == txtdongia) {
+        } else if (o == txtsoluong) {
             tinhThanhTien();
+        } else if (o == btnthemdong) {
+            xuLyThemDong();
+        } else if (o == btnxoadong) {
+            xuLyXoaDong();
         }
     }
 
     private void xuLyDoiPhuTung() {
         int vitri = cbphutung.getSelectedIndex();
         if (vitri >= 0) {
-            txtdonvi.setText(dsphutung.get(vitri).getDonViTinh());
+            PhuTung pt = dsphutung.get(vitri);
+            txtdonvi.setText(pt.getDonViTinh());
+            txtdongia.setText(String.valueOf((long) pt.getDonGiaNhap()));
+            tinhThanhTien();
         }
     }
 
@@ -324,13 +448,112 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         }
     }
 
+    // Thêm phụ tùng đang chọn vào bảng; nếu phụ tùng đã có trong bảng thì cập nhật lại dòng đó
+    private void xuLyThemDong() {
+        if (dsphutung.isEmpty() || cbphutung.getSelectedIndex() < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Hệ thống chưa có phụ tùng nào!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (layDonGia() <= 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Phụ tùng này chưa có đơn giá nhập! Hãy cập nhật đơn giá trong Danh mục phụ tùng trước.",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!tinhThanhTien()) {
+            JOptionPane.showMessageDialog(this,
+                    "Số lượng phải là số nguyên lớn hơn 0!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            txtsoluong.requestFocus();
+            return;
+        }
+
+        PhuTung pt = dsphutung.get(cbphutung.getSelectedIndex());
+        int soluong = Integer.parseInt(txtsoluong.getText().trim());
+        long dongia = layDonGia();
+        Object[] dong = {
+                pt.getMaPhuTung(),
+                pt.getTenPhuTung(),
+                pt.getDonViTinh(),
+                soluong,
+                dinhdang.format(dongia),
+                dinhdang.format(soluong * dongia)};
+
+        for (int i = 0; i < modelchitiet.getRowCount(); i++) {
+            if (modelchitiet.getValueAt(i, 0).equals(pt.getMaPhuTung())) {
+                for (int cot = 0; cot < dong.length; cot++) {
+                    modelchitiet.setValueAt(dong[cot], i, cot);
+                }
+                capNhatTongTien();
+                xoaONhap();
+                return;
+            }
+        }
+        modelchitiet.addRow(dong);
+        capNhatTongTien();
+        xoaONhap();
+    }
+
+    private void xuLyXoaDong() {
+        int dong = tblchitiet.getSelectedRow();
+        if (dong == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn phụ tùng cần xóa khỏi danh sách!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        modelchitiet.removeRow(dong);
+        capNhatTongTien();
+        xoaONhap();
+    }
+
+    private void xuLyChonDong() {
+        int dong = tblchitiet.getSelectedRow();
+        if (dong == -1) return;
+
+        String ma = modelchitiet.getValueAt(dong, 0).toString();
+        for (int i = 0; i < dsphutung.size(); i++) {
+            if (dsphutung.get(i).getMaPhuTung().equals(ma)) {
+                cbphutung.setSelectedIndex(i);
+            }
+        }
+        txtdongia.setText(modelchitiet.getValueAt(dong, 4).toString().replaceAll("[^0-9]", ""));
+        txtsoluong.setText(modelchitiet.getValueAt(dong, 3).toString());
+        tinhThanhTien();
+    }
+
+    private void xoaONhap() {
+        txtsoluong.setText("");
+        txtthanhtien.setText("");
+        xuLyDoiPhuTung();
+    }
+
+    private long layDonGia() {
+        try {
+            return Long.parseLong(txtdongia.getText().replaceAll("[^0-9]", ""));
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
+    }
+
+    private void capNhatTongTien() {
+        long tong = 0;
+        for (int i = 0; i < modelchitiet.getRowCount(); i++) {
+            tong += Long.parseLong(modelchitiet.getValueAt(i, 5).toString().replaceAll("[^0-9]", ""));
+        }
+        lbltongtien.setText(modelchitiet.getRowCount() + " phụ tùng  |  Tổng tiền: " + dinhdang.format(tong) + " VNĐ");
+    }
+
     private void xuLyLuuPhieu() {
         String manv = txtnhanvien.getText().trim();
         if (manv.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập mã nhân viên lập phiếu!",
+                    "Không xác định được nhân viên lập phiếu! Vui lòng đăng nhập bằng tài khoản thủ kho.",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            txtnhanvien.requestFocus();
             return;
         }
 
@@ -341,18 +564,14 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
             return;
         }
 
-        if (!tinhThanhTien()) {
+        if (modelchitiet.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this,
-                    "Số lượng và đơn giá phải là số lớn hơn 0!",
+                    "Vui lòng thêm ít nhất 1 phụ tùng vào danh sách!",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            txtsoluong.requestFocus();
             return;
         }
 
-        PhuTung pt = dsphutung.get(cbphutung.getSelectedIndex());
         NhaCungCap ncc = dsnhacungcap.get(cbnhacungcap.getSelectedIndex());
-        int soluong = Integer.parseInt(txtsoluong.getText().trim());
-        double dongia = Double.parseDouble(txtdongia.getText().replace(",", "").trim());
 
         PhieuNhapKho pn = new PhieuNhapKho();
         pn.setThuKho(new ThuKho(manv, null, null));
@@ -361,7 +580,13 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         pn.setTongTienNhap(0.0);
         pn.setNhaCungCap(ncc);
         List<ChiTietPhieuNhap> dsChiTiet = new ArrayList<>();
-        dsChiTiet.add(new ChiTietPhieuNhap(pn.getMaPhieuNhap(), pt.getMaPhuTung(), soluong, dongia));
+        for (int i = 0; i < modelchitiet.getRowCount(); i++) {
+            PhuTung pt = new PhuTung();
+            pt.setMaPhuTung(modelchitiet.getValueAt(i, 0).toString());
+            int soluong = Integer.parseInt(modelchitiet.getValueAt(i, 3).toString());
+            double dongia = Double.parseDouble(modelchitiet.getValueAt(i, 4).toString().replaceAll("[^0-9]", ""));
+            dsChiTiet.add(new ChiTietPhieuNhap(pn, pt, soluong, dongia));
+        }
 
         try {
             boolean thanhcong = chedosua
@@ -378,7 +603,6 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this,
                         "Mã nhân viên " + manv + " không tồn tại trong danh sách thủ kho!",
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
-                txtnhanvien.requestFocus();
             } else {
                 JOptionPane.showMessageDialog(this, "Lỗi lưu phiếu nhập: " + e.getMessage(),
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -398,13 +622,10 @@ public class ManHinhLapPhieuNhapKho extends JFrame implements ActionListener {
         }
         txtghichu.setText("");
         if (cbnhacungcap.getItemCount() > 0) cbnhacungcap.setSelectedIndex(0);
-        if (cbphutung.getItemCount() > 0) {
-            cbphutung.setSelectedIndex(0);
-            txtdonvi.setText(dsphutung.get(0).getDonViTinh());
-        }
-        txtsoluong.setText("");
-        txtdongia.setText("");
-        txtthanhtien.setText("");
+        modelchitiet.setRowCount(0);
+        capNhatTongTien();
+        if (cbphutung.getItemCount() > 0) cbphutung.setSelectedIndex(0);
+        xoaONhap();
     }
 
     private void xuLyQuayLai() {

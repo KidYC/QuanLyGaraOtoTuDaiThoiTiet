@@ -436,8 +436,8 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case LAP_BAO_GIA:                 hienThi(new ManHinhDanhSachXeChoBaoGia()); return true;
             case BAN_GIAO_XE:                 hienThi(new ManHinhDanhSachXeDaHoanThanhSuaChua()); return true;
 
-            case DANH_MUC_PHU_TUNG:           hienThi(new ManHinhQuanLyDanhMucPhuTung()); return true;
-            case NHAP_KHO:                    hienThi(new ManHinhDanhSachPhieuNhapKho()); return true;
+            case DANH_MUC_PHU_TUNG:           hienThi(new ManHinhQuanLyDanhMucPhuTung(maNV)); return true;
+            case NHAP_KHO:                    hienThi(new ManHinhDanhSachPhieuNhapKho(maNV)); return true;
             case LAP_PHIEU_NHAP_KHO:          hienThi(new ManHinhLapPhieuNhapKho()); return true;
             case XUAT_KHO:                    hienThi(new ManHinhDanhSachYeuCauXuatKho()); return true;
             case KIEM_KE:                     hienThi(new ManHinhDanhSachPhieuKiemKe()); return true;

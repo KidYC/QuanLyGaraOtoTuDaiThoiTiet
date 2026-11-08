@@ -1,6 +1,7 @@
 package View.ThuKho;
 
 import DAO.Kho_DAO;
+import DAO.PhuTung_DAO;
 import Entity.Kho;
 
 import javax.swing.*;
@@ -178,8 +179,18 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         }
     }
 
+    // Thêm mới thì tự sinh mã phụ tùng, sửa thì giữ mã cũ
+    private String taoMaPhuTung() {
+        try {
+            return new PhuTung_DAO().sinhMaPhuTung();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tạo mã phụ tùng: " + e.getMessage());
+            return "";
+        }
+    }
+
     private void napDuLieu() {
-        txtmaphutung.setText(magoc);
+        txtmaphutung.setText(chedosua ? magoc : taoMaPhuTung());
         txttenphutung.setText(tengoc);
         txtdonvi.setText(donvigoc);
         txtsoluong.setText(chedosua ? soluonggoc : "0");
@@ -188,9 +199,10 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
         txtsoluong.setEditable(false);
         txtsoluong.setBackground(new Color(236, 240, 241));
 
-        txtmaphutung.setEditable(!chedosua);
+        // mã phụ tùng luôn tự sinh
+        txtmaphutung.setEditable(false);
+        txtmaphutung.setBackground(new Color(236, 240, 241));
         cbkho.setEnabled(!chedosua);
-        txtmaphutung.setBackground(chedosua ? new Color(236, 240, 241) : Color.WHITE);
     }
 
     private void xuLyLuu() {
@@ -238,10 +250,11 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
             }
         } else {
             if (cha.tonTaiMa(ma)) {
+                // có người vừa thêm phụ tùng khác cùng mã -> sinh lại mã mới
+                txtmaphutung.setText(taoMaPhuTung());
                 JOptionPane.showMessageDialog(this,
-                        "Mã phụ tùng " + ma + " đã tồn tại!",
+                        "Mã phụ tùng " + ma + " vừa được dùng! Đã đổi sang mã mới " + txtmaphutung.getText() + ", vui lòng bấm Lưu lại.",
                         "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                txtmaphutung.requestFocus();
                 return;
             }
             if (cbkho.getSelectedItem() == null) {
@@ -258,9 +271,8 @@ public class FormThongTinPhuTung extends JDialog implements ActionListener {
                         "Nhập kho", JOptionPane.YES_NO_OPTION);
                 this.dispose();
                 if (chon == JOptionPane.YES_OPTION) {
-                    new ManHinhLapPhieuNhapKho().setVisible(true);
+                    new ManHinhLapPhieuNhapKho(cha.getMaNhanVien(), ma).setVisible(true);
                 }
-                this.dispose();
             }
         }
     }
