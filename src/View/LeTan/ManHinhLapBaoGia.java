@@ -253,6 +253,15 @@ public class ManHinhLapBaoGia extends JFrame implements ActionListener {
         }
     }
 
+    private boolean coPhuTung() {
+        for (int i = 0; i < modelBaoGia.getRowCount(); i++) {
+            String loai = modelBaoGia.getValueAt(i, 1).toString().trim().toLowerCase();
+            if (loai.contains("phụ tùng") || loai.contains("phu tung")) {
+                return true;
+            }
+        }
+        return false;
+    }
     private void tinhTongTien() {
         double tongTien = 0;
         for (int i = 0; i < modelBaoGia.getRowCount(); i++) {
@@ -326,55 +335,108 @@ public class ManHinhLapBaoGia extends JFrame implements ActionListener {
                 "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void xuLyChuyenXacNhan() {
-        if (modelBaoGia.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Báo giá đang trống. Vui lòng thêm hạng mục!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
+//    private void xuLyChuyenXacNhan() {
+//        if (modelBaoGia.getRowCount() == 0) {
+//            JOptionPane.showMessageDialog(this, "Báo giá đang trống. Vui lòng thêm hạng mục!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+//            return;
+//        }
+//
+//        int opt = JOptionPane.showConfirmDialog(this,
+//                "Lưu Báo giá này vào CSDL và chuyển trạng thái phiếu sang 'Chờ xuất kho'?",
+//                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+//
+//        if (opt == JOptionPane.YES_OPTION) {
+//            List<ChiTietBaoGia_DTO> danhSachChiTiet = new ArrayList<>();
+//            for (int i = 0; i < modelBaoGia.getRowCount(); i++) {
+//                String loai = modelBaoGia.getValueAt(i, 1).toString();
+//                String maHangMuc = modelBaoGia.getValueAt(i, 2).toString();
+//                String tenHangMuc = modelBaoGia.getValueAt(i, 3).toString();
+//                int soLuong = Integer.parseInt(modelBaoGia.getValueAt(i, 4).toString());
+//                double donGia = Double.parseDouble(modelBaoGia.getValueAt(i, 5).toString());
+//
+//                danhSachChiTiet.add(new ChiTietBaoGia_DTO(loai, maHangMuc, tenHangMuc, soLuong, donGia));
+//            }
+//
+//            PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
+//
+//
+//            boolean successBaoGia = dao.luuBaoGiaSuaChua(txtMaPhieu.getText().trim(), txtBienSo.getText().trim(), danhSachChiTiet);
+//
+//            if (successBaoGia) {
+//                boolean successTrangThai = dao.capNhatTrangThaiPhieu(txtMaPhieu.getText().trim(), "Chờ xuất kho");
+//
+//                if (successTrangThai) {
+//                    JOptionPane.showMessageDialog(this,
+//                            "Đã chuyển báo giá cho khách hàng xác nhận!\nTrạng thái phiếu: 'Chờ xuất kho'.",
+//                            "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+//                    this.dispose();
+//                    ManHinhDanhSachXeChoBaoGia formDanhSach = new ManHinhDanhSachXeChoBaoGia();
+//                    formDanhSach.setVisible(true);
+//                } else {
+//                    JOptionPane.showMessageDialog(this,
+//                            "Lưu báo giá thành công nhưng không thể cập nhật trạng thái!",
+//                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                }
+//            } else {
+//                JOptionPane.showMessageDialog(this,
+//                        "Lưu báo giá thất bại. Vui lòng kiểm tra lại!",
+//                        "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+//            }
+//        }
+//    }
+private void xuLyChuyenXacNhan() {
+    if (modelBaoGia.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(this, "Báo giá đang trống. Vui lòng thêm hạng mục!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // Có phụ tùng -> chờ xuất kho; chỉ có dịch vụ -> vào sửa chữa luôn
+    boolean coPhuTung = coPhuTung();
+    String trangThaiMoi = coPhuTung ? "Chờ xuất kho" : "Đang sửa chữa";
+
+    int opt = JOptionPane.showConfirmDialog(this,
+            "Lưu Báo giá này vào CSDL và chuyển trạng thái phiếu sang '" + trangThaiMoi + "'?",
+            "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+    if (opt == JOptionPane.YES_OPTION) {
+        List<ChiTietBaoGia_DTO> danhSachChiTiet = new ArrayList<>();
+        for (int i = 0; i < modelBaoGia.getRowCount(); i++) {
+            String loai = modelBaoGia.getValueAt(i, 1).toString();
+            String maHangMuc = modelBaoGia.getValueAt(i, 2).toString();
+            String tenHangMuc = modelBaoGia.getValueAt(i, 3).toString();
+            int soLuong = Integer.parseInt(modelBaoGia.getValueAt(i, 4).toString());
+            double donGia = Double.parseDouble(modelBaoGia.getValueAt(i, 5).toString());
+
+            danhSachChiTiet.add(new ChiTietBaoGia_DTO(loai, maHangMuc, tenHangMuc, soLuong, donGia));
         }
 
-        int opt = JOptionPane.showConfirmDialog(this,
-                "Lưu Báo giá này vào CSDL và chuyển trạng thái phiếu sang 'Chờ xuất kho'?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
+        String maPhieu = txtMaPhieu.getText().trim();
 
-        if (opt == JOptionPane.YES_OPTION) {
-            List<ChiTietBaoGia_DTO> danhSachChiTiet = new ArrayList<>();
-            for (int i = 0; i < modelBaoGia.getRowCount(); i++) {
-                String loai = modelBaoGia.getValueAt(i, 1).toString();
-                String maHangMuc = modelBaoGia.getValueAt(i, 2).toString();
-                String tenHangMuc = modelBaoGia.getValueAt(i, 3).toString();
-                int soLuong = Integer.parseInt(modelBaoGia.getValueAt(i, 4).toString());
-                double donGia = Double.parseDouble(modelBaoGia.getValueAt(i, 5).toString());
+        boolean successBaoGia = dao.luuBaoGiaSuaChua(maPhieu, txtBienSo.getText().trim(), danhSachChiTiet);
 
-                danhSachChiTiet.add(new ChiTietBaoGia_DTO(loai, maHangMuc, tenHangMuc, soLuong, donGia));
-            }
+        if (successBaoGia) {
+            boolean successTrangThai = dao.capNhatTrangThaiPhieu(maPhieu, trangThaiMoi);
 
-            PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
-
-
-            boolean successBaoGia = dao.luuBaoGiaSuaChua(txtMaPhieu.getText().trim(), txtBienSo.getText().trim(), danhSachChiTiet);
-
-            if (successBaoGia) {
-                boolean successTrangThai = dao.capNhatTrangThaiPhieu(txtMaPhieu.getText().trim(), "Chờ xuất kho");
-
-                if (successTrangThai) {
-                    JOptionPane.showMessageDialog(this,
-                            "Đã chuyển báo giá cho khách hàng xác nhận!\nTrạng thái phiếu: 'Chờ xuất kho'.",
-                            "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                    this.dispose();
-                    ManHinhDanhSachXeChoBaoGia formDanhSach = new ManHinhDanhSachXeChoBaoGia();
-                    formDanhSach.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Lưu báo giá thành công nhưng không thể cập nhật trạng thái!",
-                            "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
+            if (successTrangThai) {
+                String thongBao = coPhuTung
+                        ? "Đã chuyển báo giá cho khách hàng xác nhận!\nTrạng thái phiếu: 'Chờ xuất kho'."
+                        : "Báo giá không có phụ tùng.\nTrạng thái phiếu: 'Đang sửa chữa'.";
+                JOptionPane.showMessageDialog(this, thongBao, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+                new ManHinhDanhSachXeChoBaoGia().setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this,
-                        "Lưu báo giá thất bại. Vui lòng kiểm tra lại!",
-                        "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+                        "Lưu báo giá thành công nhưng không thể cập nhật trạng thái!",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Lưu báo giá thất bại. Vui lòng kiểm tra lại!",
+                    "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
         }
     }
+}
 
     private void xuLyQuayLai() {
         this.dispose();

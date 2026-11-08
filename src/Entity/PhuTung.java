@@ -8,7 +8,7 @@ public class PhuTung {
     private double donGiaNhap;
     private double donGiaBan;
     private int soLuongTon;
-    private String maKho;
+    private Kho kho = new Kho();
 
     public PhuTung() {}
     public PhuTung(String maPhuTung, String tenPhuTung, String donViTinh, double donGiaNhap, double donGiaBan, int soLuongTon, String maKho) {
@@ -18,7 +18,7 @@ public class PhuTung {
         this.donGiaNhap = donGiaNhap;
         this.donGiaBan = donGiaBan;
         this.soLuongTon = soLuongTon;
-        this.maKho = maKho;
+        this.kho.setMaKho(maKho);
     }
 
     public String getMaPhuTung() {
@@ -58,9 +58,9 @@ public class PhuTung {
         this.soLuongTon = soLuongTon;
     }
     public String getMaKho() {
-        return maKho;
+        return this.kho.getMaKho();
     }
     public void setMaKho(String maKho) {
-        this.maKho = maKho;
+        this.kho.setMaKho(maKho);
     }
 }

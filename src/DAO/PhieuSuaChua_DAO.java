@@ -508,36 +508,38 @@ public class PhieuSuaChua_DAO {
         return ps.executeQuery();
     }
 
-    public List<Entity.ChiTietBanGiao_DTO> getChiTietBanGiaoByMaPhieu(String maPhieuSuaChua) throws SQLException {
-        List<Entity.ChiTietBanGiao_DTO> list = new ArrayList<>();
+    public List<ChiTietBanGiao_DTO> getChiTietBanGiaoByMaPhieu(String maPhieu) throws SQLException {
+        List<ChiTietBanGiao_DTO> list = new ArrayList<>();
 
-        String sql = "SELECT N'Dịch vụ' AS loai, dv.tenDichVu AS tenHangMuc, ctdv.soLuong, " +
-                "(ctdv.soLuong * ctdv.donGia) AS thanhTien, " +
-                "CASE WHEN ISNULL(dv.thoiGianBaoHanh, 0) > 0 THEN CAST(dv.thoiGianBaoHanh AS VARCHAR) + N' tháng' ELSE N'Không' END AS baoHanh " +
-                "FROM CHI_TIET_DICH_VU ctdv " +
-                "JOIN DICH_VU dv ON ctdv.maDichVu = dv.maDichVu " +
-                "WHERE ctdv.maPhieuSuaChua = ? " +
-                "UNION ALL " +
-                "SELECT N'Phụ tùng' AS loai, pt.tenPhuTung AS tenHangMuc, ctpsc.soLuong, " +
-                "(ctpsc.soLuong * ctpsc.donGia) AS thanhTien, N'Không' AS baoHanh " +
-                "FROM CHI_TIET_PHIEU_SUA_CHUA ctpsc " +
-                "JOIN PHU_TUNG pt ON ctpsc.maPhuTung = pt.maPhuTung " +
-                "WHERE ctpsc.maPhieuSuaChua = ?";
+        String sql =
+                // Dịch vụ
+                "SELECT N'Dịch vụ' AS loai, dv.tenDichVu AS tenHangMuc, " +
+                        "       ct.soLuong AS soLuong, (ct.soLuong * ct.donGia) AS thanhTien, " +
+                        "       CASE WHEN dv.thoiGianBaoHanh > 0 " +
+                        "            THEN CAST(dv.thoiGianBaoHanh AS NVARCHAR(10)) + N' tháng' " +
+                        "            ELSE N'Không' END AS baoHanh " +
+                        "FROM CHI_TIET_DICH_VU ct " +
+                        "JOIN DICH_VU dv ON ct.maDichVu = dv.maDichVu " +
+                        "WHERE ct.maPhieuSuaChua = ? " +
+                        "UNION ALL " +
+                        // Phụ tùng
+                        "SELECT N'Phụ tùng', pt.tenPhuTung, " +
+                        "       ds.soLuongPhuTung, (ds.soLuongPhuTung * ds.donGiaBan), N'Không' " +
+                        "FROM DANH_SACH_PHU_TUNG ds " +
+                        "JOIN PHU_TUNG pt ON ds.maPhuTung = pt.maPhuTung " +
+                        "WHERE ds.maPhieuSuaChua = ?";
 
-        try (Connection conn = connectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maPhieuSuaChua);
-            ps.setString(2, maPhieuSuaChua);
-
+        try (PreparedStatement ps = connectSQL.getConnection().prepareStatement(sql)) {
+            ps.setString(1, maPhieu);
+            ps.setString(2, maPhieu);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new Entity.ChiTietBanGiao_DTO(
+                    list.add(new ChiTietBanGiao_DTO(
                             rs.getString("loai"),
                             rs.getString("tenHangMuc"),
                             rs.getInt("soLuong"),
                             rs.getDouble("thanhTien"),
-                            rs.getString("baoHanh")
-                    ));
+                            rs.getString("baoHanh")));
                 }
             }
         }

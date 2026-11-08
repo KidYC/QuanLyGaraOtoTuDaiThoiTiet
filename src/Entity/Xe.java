@@ -4,15 +4,15 @@ public class Xe {
     private String bienSo;
     private DongXe dongXe;
     private int namSanXuat;
-    private KhachHang maKhachHang;
+    private KhachHang KhachHang;
 
     public Xe() {}
 
-    public Xe(String bienSo, DongXe dongXe, int namSanXuat, KhachHang maKhachHang) {
+    public Xe(String bienSo, DongXe dongXe, int namSanXuat, KhachHang KhachHang) {
         this.bienSo = bienSo;
         this.dongXe = dongXe;
         this.namSanXuat = namSanXuat;
-        this.maKhachHang = maKhachHang;
+        this.KhachHang = KhachHang;
     }
 
     public String getBienSo() {
@@ -39,12 +39,12 @@ public class Xe {
         this.namSanXuat = namSanXuat;
     }
 
-    public KhachHang getMaKhachHang() {
-        return maKhachHang;
+    public KhachHang getKhachHang() {
+        return KhachHang;
     }
 
     public void setMaKhachHang(KhachHang maKhachHang) {
-        this.maKhachHang = maKhachHang;
+        this.KhachHang = maKhachHang;
     }
 
     public HangXe getHangXe() {
@@ -52,7 +52,7 @@ public class Xe {
     }
 
     public String getMaKhachHangStr() {
-        return (this.maKhachHang != null) ? this.maKhachHang.getMaKhachHang() : "";
+        return (this.KhachHang != null) ? this.KhachHang.getMaKhachHang() : "";
     }
 
     public String getTenHangXeStr() {

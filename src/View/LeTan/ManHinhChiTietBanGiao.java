@@ -235,7 +235,7 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         try {
-            // 1. Lấy thông tin chung (Tên KH, Ngày hoàn thành)
+
             try (ResultSet rs = dao.getThongTinBanGiao(maPhieu)) {
                 if (rs.next()) {
                     txtTenKH.setText(rs.getString("hoTen"));
@@ -246,7 +246,7 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
                 }
             }
 
-            // 2. Lấy danh sách chi tiết dịch vụ & phụ tùng thực hiện
+
             List<ChiTietBanGiao_DTO> list = dao.getChiTietBanGiaoByMaPhieu(maPhieu);
             int stt = 1;
             double tongTien = 0;
