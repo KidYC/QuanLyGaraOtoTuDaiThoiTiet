@@ -4,6 +4,7 @@ import DAO.NhaCungCap_DAO;
 import DAO.PhieuNhapKho_DAO;
 import Entity.NhaCungCap;
 import Entity.PhieuNhapKho;
+import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -20,10 +21,8 @@ import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListener {
 
@@ -32,7 +31,7 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
     private JTextField txtmaphieu;
     private JComboBox<String> cbnhacungcap;
     private JTextField txtnhanvien;
-    private JTextField txtngaynhap;
+    private JDateChooser chonngaynhap;
     private JButton btntim;
     private JButton btnlammoi;
 
@@ -50,7 +49,12 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
     private final PhieuNhapKho_DAO phieuNhapDAO = new PhieuNhapKho_DAO();
     private final NhaCungCap_DAO nhaCungCapDAO = new NhaCungCap_DAO();
 
-    private DateTimeFormatter dinhdangngay = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private String maNhanVien = "";
+
+    public ManHinhDanhSachPhieuNhapKho(String maNhanVien) {
+        this();
+        this.maNhanVien = maNhanVien == null ? "" : maNhanVien;
+    }
 
     public ManHinhDanhSachPhieuNhapKho() {
         setTitle("DANH SÁCH PHIẾU NHẬP KHO");
@@ -96,7 +100,9 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         cbnhacungcap = new JComboBox<>();
         napNhaCungCap();
         txtnhanvien = new JTextField();
-        txtngaynhap = new JTextField();
+        chonngaynhap = new JDateChooser();
+        chonngaynhap.setDateFormatString("dd/MM/yyyy");
+        chonngaynhap.setLocale(Locale.forLanguageTag("vi-VN"));
 
         btntim = new JButton("Tìm");
         btntim.setBackground(new Color(52, 152, 219));
@@ -114,8 +120,8 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         pTimKiem.add(cbnhacungcap);
         pTimKiem.add(new JLabel(""));
         pTimKiem.add(new JLabel(""));
-        pTimKiem.add(new JLabel("Ngày Nhập (dd/MM/yyyy):"));
-        pTimKiem.add(txtngaynhap);
+        pTimKiem.add(new JLabel("Ngày Nhập :"));
+        pTimKiem.add(chonngaynhap);
         pTimKiem.add(new JLabel("Nhân Viên:"));
         pTimKiem.add(txtnhanvien);
         pTimKiem.add(btntim);
@@ -268,16 +274,9 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
     }
 
     private void xuLyTim() {
-        LocalDate ngaynhap = null;
-        try {
-            if (!txtngaynhap.getText().trim().isEmpty()) {
-                ngaynhap = LocalDate.parse(txtngaynhap.getText().trim(), dinhdangngay);
-            }
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Ngày phải nhập đúng dạng dd/MM/yyyy (ví dụ 03/10/2026)!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
+        String ngaynhap = "";
+        if (chonngaynhap.getDate() != null) {
+            ngaynhap = new SimpleDateFormat("dd/MM/yyyy").format(chonngaynhap.getDate());
         }
 
         String ma = txtmaphieu.getText().trim().toLowerCase();
@@ -290,11 +289,7 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
             if (!ncc.equals("Tất cả") && !ncc.equals(p[2])) continue;
             if (!p[3].toLowerCase().contains(nv)) continue;
 
-            if (ngaynhap != null) {
-                if (p[1].isEmpty()) continue;
-                LocalDate ngay = LocalDate.parse(p[1], dinhdangngay);
-                if (!ngay.equals(ngaynhap)) continue;
-            }
+            if (!ngaynhap.isEmpty() && !p[1].equals(ngaynhap)) continue;
 
             ketqua.add(p);
         }
@@ -309,13 +304,13 @@ public class ManHinhDanhSachPhieuNhapKho extends JFrame implements ActionListene
         txtmaphieu.setText("");
         napNhaCungCap();
         txtnhanvien.setText("");
-        txtngaynhap.setText("");
+        chonngaynhap.setDate(null);
         taiDuLieu();
         napBangPhieu(dsphieu);
     }
 
     private void xuLyTaoPhieu() {
-        moManHinhCon(new ManHinhLapPhieuNhapKho());
+        moManHinhCon(new ManHinhLapPhieuNhapKho(maNhanVien, null));
     }
 
     private void xuLySua() {

@@ -1,31 +1,29 @@
 package Entity;
 
 public class ChiTietKiemKe {
-    private String maPhieuKiemKe;
-    private String maPhuTung;
+    private PhieuKiemKe phieuKiemKe;
+    private PhuTung phuTung;
     private int soLuongHeThong;
     private int soLuongThucTe;
     private int chenhLech;
     private String lyDoChenhLech;
-    private String tenPhuTung;
-    private String donViTinh;
 
     public ChiTietKiemKe() {}
 
-    public ChiTietKiemKe(String maPhieuKiemKe, String maPhuTung, int soLuongHeThong,
+    public ChiTietKiemKe(PhieuKiemKe phieuKiemKe, PhuTung phuTung, int soLuongHeThong,
                          int soLuongThucTe, String lyDoChenhLech) {
-        this.maPhieuKiemKe = maPhieuKiemKe;
-        this.maPhuTung = maPhuTung;
+        this.phieuKiemKe = phieuKiemKe;
+        this.phuTung = phuTung;
         this.soLuongHeThong = soLuongHeThong;
         this.soLuongThucTe = soLuongThucTe;
         this.chenhLech = soLuongThucTe - soLuongHeThong;
         this.lyDoChenhLech = lyDoChenhLech;
     }
 
-    public String getMaPhieuKiemKe() {return maPhieuKiemKe;}
-    public void setMaPhieuKiemKe(String maPhieuKiemKe) {this.maPhieuKiemKe = maPhieuKiemKe;}
-    public String getMaPhuTung() {return maPhuTung;}
-    public void setMaPhuTung(String maPhuTung) {this.maPhuTung = maPhuTung;}
+    public PhieuKiemKe getPhieuKiemKe() {return phieuKiemKe;}
+    public void setPhieuKiemKe(PhieuKiemKe phieuKiemKe) {this.phieuKiemKe = phieuKiemKe;}
+    public PhuTung getPhuTung() {return phuTung;}
+    public void setPhuTung(PhuTung phuTung) {this.phuTung = phuTung;}
     public int getSoLuongHeThong() {return soLuongHeThong;}
     public void setSoLuongHeThong(int soLuongHeThong) {this.soLuongHeThong = soLuongHeThong;}
     public int getSoLuongThucTe() {return soLuongThucTe;}
@@ -34,10 +32,12 @@ public class ChiTietKiemKe {
     public void setChenhLech(int chenhLech) {this.chenhLech = chenhLech;}
     public String getLyDoChenhLech() {return lyDoChenhLech;}
     public void setLyDoChenhLech(String lyDoChenhLech) {this.lyDoChenhLech = lyDoChenhLech;}
-    public String getTenPhuTung() {return tenPhuTung;}
-    public void setTenPhuTung(String tenPhuTung) {this.tenPhuTung = tenPhuTung;}
-    public String getDonViTinh() {return donViTinh;}
-    public void setDonViTinh(String donViTinh) {this.donViTinh = donViTinh;}
+
+
+    public String getMaPhieuKiemKe() {return phieuKiemKe != null ? phieuKiemKe.getMaPhieuKiemKe() : "";}
+    public String getMaPhuTung() {return phuTung != null ? phuTung.getMaPhuTung() : "";}
+    public String getTenPhuTung() {return phuTung != null ? phuTung.getTenPhuTung() : "";}
+    public String getDonViTinh() {return phuTung != null ? phuTung.getDonViTinh() : "";}
 
     public int tinhChenhLech() {
         this.chenhLech = soLuongThucTe - soLuongHeThong;

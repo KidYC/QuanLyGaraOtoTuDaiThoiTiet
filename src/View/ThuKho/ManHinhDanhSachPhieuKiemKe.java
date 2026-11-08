@@ -2,6 +2,7 @@ package View.ThuKho;
 
 import DAO.PhieuKiemKe_DAO;
 import Entity.PhieuKiemKe;
+import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -17,10 +18,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener {
 
@@ -28,7 +27,7 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
 
     private JTextField txtmaphieu;
     private JComboBox<String> cbtrangthai;
-    private JTextField txtngaykiemke;
+    private JDateChooser chonngaykiemke;
     private JButton btntim;
     private JButton btnlammoi;
 
@@ -38,7 +37,6 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
     private JButton btnthem;
     private JButton btnsua;
     private JButton btnxoa;
-    private JButton btnin;
     private JButton btnxacnhan;
     private JButton btnchitiet;
     private JButton btnquaylai;
@@ -46,8 +44,6 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
     private ArrayList<String[]> dsphieu = new ArrayList<>();
 
     private final PhieuKiemKe_DAO phieuKiemKeDAO = new PhieuKiemKe_DAO();
-
-    private DateTimeFormatter dinhdangngay = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ManHinhDanhSachPhieuKiemKe() {
         setTitle("DANH SÁCH PHIẾU KIỂM KÊ");
@@ -104,7 +100,9 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
 
         txtmaphieu = new JTextField();
         cbtrangthai = new JComboBox<>(new String[]{"Tất cả", "Đang kiểm kê", "Đã hoàn thành"});
-        txtngaykiemke = new JTextField();
+        chonngaykiemke = new JDateChooser();
+        chonngaykiemke.setDateFormatString("dd/MM/yyyy");
+        chonngaykiemke.setLocale(Locale.forLanguageTag("vi-VN")); // lịch hiện tháng, thứ bằng tiếng Việt
 
         btntim = new JButton("Tìm");
         btntim.setBackground(new Color(52, 152, 219));
@@ -122,8 +120,8 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
         pTimKiem.add(cbtrangthai);
         pTimKiem.add(new JLabel(""));
         pTimKiem.add(new JLabel(""));
-        pTimKiem.add(new JLabel("Ngày Kiểm Kê (dd/MM/yyyy):"));
-        pTimKiem.add(txtngaykiemke);
+        pTimKiem.add(new JLabel("Ngày Kiểm Kê:"));
+        pTimKiem.add(chonngaykiemke);
         pTimKiem.add(new JLabel(""));
         pTimKiem.add(new JLabel(""));
         pTimKiem.add(btntim);
@@ -265,16 +263,9 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
     }
 
     private void xuLyTim() {
-        LocalDate ngaykiemke = null;
-        try {
-            if (!txtngaykiemke.getText().trim().isEmpty()) {
-                ngaykiemke = LocalDate.parse(txtngaykiemke.getText().trim(), dinhdangngay);
-            }
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Ngày phải nhập đúng dạng dd/MM/yyyy (ví dụ 01/10/2026)!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
+        String ngaykiemke = "";
+        if (chonngaykiemke.getDate() != null) {
+            ngaykiemke = new SimpleDateFormat("dd/MM/yyyy").format(chonngaykiemke.getDate());
         }
 
         String ma = txtmaphieu.getText().trim().toLowerCase();
@@ -285,11 +276,7 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
             if (!p[0].toLowerCase().contains(ma)) continue;
             if (!trangthai.equals("Tất cả") && !p[3].equals(trangthai)) continue;
 
-            if (ngaykiemke != null) {
-                if (p[1].isEmpty()) continue;
-                LocalDate ngay = LocalDate.parse(p[1], dinhdangngay);
-                if (!ngay.equals(ngaykiemke)) continue;
-            }
+            if (!ngaykiemke.isEmpty() && !p[1].equals(ngaykiemke)) continue;
 
             ketqua.add(p);
         }
@@ -303,7 +290,7 @@ public class ManHinhDanhSachPhieuKiemKe extends JFrame implements ActionListener
     private void xuLyLamMoi() {
         txtmaphieu.setText("");
         cbtrangthai.setSelectedIndex(0);
-        txtngaykiemke.setText("");
+        chonngaykiemke.setDate(null);
         taiDuLieu();
         napBangPhieu(dsphieu);
     }

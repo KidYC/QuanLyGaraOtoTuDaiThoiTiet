@@ -220,8 +220,13 @@ public class ManHinhChiTietYeuCauXuatKho extends JFrame implements ActionListene
                         tinhtrang});
                 tong += thanhtien;
             }
-            lbltongket.setText(dsct.size() + " phụ tùng  |  Thiếu hàng: " + sothieu
-                    + "  |  Tổng tiền: " + dinhdangtien.format(tong) + " VNĐ");
+            if (dsct.isEmpty()) {
+                // phiếu không dùng phụ tùng nào (chỉ có dịch vụ) -> báo rõ để không tưởng là lỗi
+                lbltongket.setText("Phiếu này không có phụ tùng nào cần xuất kho");
+            } else {
+                lbltongket.setText(dsct.size() + " phụ tùng  |  Thiếu hàng: " + sothieu
+                        + "  |  Tổng tiền: " + dinhdangtien.format(tong) + " VNĐ");
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Lỗi tải chi tiết yêu cầu xuất kho: " + e.getMessage());
         }

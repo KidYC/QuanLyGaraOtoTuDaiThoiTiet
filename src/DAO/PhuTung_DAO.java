@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import DB.connectSQL;
+import Entity.Kho;
 import Entity.PhuTung;
 
 public class PhuTung_DAO {
@@ -22,7 +23,7 @@ public class PhuTung_DAO {
                         rs.getDouble("donGiaNhap"),
                         rs.getDouble("donGiaBan"),
                         rs.getInt("soLuongTon"),
-                        rs.getString("maKho")
+                        new Kho(rs.getString("maKho"), null, null)
                 ));
             }
         }
@@ -47,7 +48,7 @@ public class PhuTung_DAO {
                 rs.getDouble("donGiaNhap"),
                 rs.getDouble("donGiaBan"),
                 rs.getInt("soLuongTon"),
-                rs.getString("maKho"));
+                new Kho(rs.getString("maKho"), null, null));
     }
 
     public PhuTung timPhuTungTheoMa(String maPhuTung) throws SQLException {
@@ -125,6 +126,22 @@ public class PhuTung_DAO {
         return -1;
     }
 
+    public String sinhMaPhuTung() throws SQLException {
+        String sql = "SELECT maPhuTung FROM PHU_TUNG";
+        int max = 0;
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String so = rs.getString(1).replaceAll("[^0-9]", "");
+                if (!so.isEmpty() && Integer.parseInt(so) > max) {
+                    max = Integer.parseInt(so);
+                }
+            }
+        }
+        return String.format("PT%02d", max + 1);
+    }
+
     public boolean themPhuTung(PhuTung pt) throws SQLException {
         String sql = "INSERT INTO PHU_TUNG (maPhuTung, tenPhuTung, donViTinh, donGiaNhap, donGiaBan, soLuongTon, maKho) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = connectSQL.getConnection();
@@ -152,43 +169,6 @@ public class PhuTung_DAO {
             ps.setString(6, pt.getMaKho());
             ps.setString(7, pt.getMaPhuTung());
             return ps.executeUpdate() > 0;
-        }
-    }
-
-    // Kiểm tra phụ tùng đang được dùng ở những phiếu nào (vì có khóa ngoại nên không xóa được).
-    // Trả về chuỗi rỗng nếu phụ tùng chưa được dùng ở đâu -> xóa được.
-    public String kiemTraPhuTungDangDung(String maPhuTung) throws SQLException {
-        String sql = "SELECT "
-                + "(SELECT COUNT(DISTINCT maPhieuSuaChua) FROM CHI_TIET_PHIEU_SUA_CHUA WHERE maPhuTung = ?) AS soPhieuSua, "
-                + "(SELECT COUNT(DISTINCT maPhieuSuaChua) FROM DANH_SACH_PHU_TUNG WHERE maPhuTung = ?) AS soBaoGia, "
-                + "(SELECT COUNT(DISTINCT maPhieuNhap) FROM CHI_TIET_PHIEU_NHAP WHERE maPhuTung = ?) AS soPhieuNhap, "
-                + "(SELECT COUNT(DISTINCT maPhieuKiemKe) FROM CHI_TIET_KIEM_KE WHERE maPhuTung = ?) AS soPhieuKiemKe, "
-                + "(SELECT COUNT(*) FROM CANH_BAO_TON_KHO WHERE maPhuTung = ?) AS soCanhBao";
-        String ketqua = "";
-        try (Connection conn = connectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (int i = 1; i <= 5; i++) {
-                ps.setString(i, maPhuTung);
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    if (rs.getInt("soPhieuSua") > 0) ketqua += "- " + rs.getInt("soPhieuSua") + " phiếu sửa chữa / xuất kho\n";
-                    if (rs.getInt("soBaoGia") > 0) ketqua += "- " + rs.getInt("soBaoGia") + " báo giá\n";
-                    if (rs.getInt("soPhieuNhap") > 0) ketqua += "- " + rs.getInt("soPhieuNhap") + " phiếu nhập kho\n";
-                    if (rs.getInt("soPhieuKiemKe") > 0) ketqua += "- " + rs.getInt("soPhieuKiemKe") + " phiếu kiểm kê\n";
-                    if (rs.getInt("soCanhBao") > 0) ketqua += "- " + rs.getInt("soCanhBao") + " cảnh báo tồn kho\n";
-                }
-            }
-        }
-        return ketqua;
-    }
-
-    public boolean xoaPhuTung (String maPhuTung) throws SQLException {
-        String sql = "DELETE FROM PHU_TUNG WHERE maPhuTung = ?";
-        try (Connection conn = connectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maPhuTung);
-            return ps.executeUpdate() > 0 ;
         }
     }
 

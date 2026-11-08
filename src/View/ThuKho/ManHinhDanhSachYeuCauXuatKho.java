@@ -14,10 +14,12 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import DAO.PhieuSuaChua_DAO;
 import DAO.ThuKho_DAO;
 import Entity.PhieuSuaChua;
+import com.toedter.calendar.JDateChooser;
 
 public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListener {
 
@@ -26,7 +28,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
     private JTextField txtmayeucau;
     private JTextField txtnguoiyeucau;
     private JComboBox<String> cbtrangthai;
-    private JTextField txtngayyeucau;
+    private JDateChooser ngayyeucau;
     private JTextField txtbienso;
     private JButton btntim;
     private JButton btnlammoi;
@@ -88,8 +90,10 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         txtmayeucau = new JTextField();
         txtnguoiyeucau = new JTextField();
         cbtrangthai = new JComboBox<>(new String[]{"Chờ xuất kho", "Đã xuất kho", "Từ chối xuất kho", "Tất cả"});
-        cbtrangthai.setSelectedItem("Chờ xuất kho"); // mở lên là thấy ngay các yêu cầu cần duyệt
-        txtngayyeucau = new JTextField();
+        cbtrangthai.setSelectedItem("Chờ xuất kho"); // mở lên là thấy các yêu cầu cần duyệt
+        ngayyeucau = new JDateChooser();
+        ngayyeucau.setDateFormatString("dd/MM/yyyy");
+        ngayyeucau.setLocale(Locale.forLanguageTag("vi-VN")); // lịch hiện tháng thứ bằng tiếng Việt
         txtbienso = new JTextField();
 
         btntim = new JButton("Tìm");
@@ -108,8 +112,8 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         pTimKiem.add(txtnguoiyeucau);
         pTimKiem.add(new JLabel("Trạng Thái:"));
         pTimKiem.add(cbtrangthai);
-        pTimKiem.add(new JLabel("Ngày (dd/MM/yyyy):"));
-        pTimKiem.add(txtngayyeucau);
+        pTimKiem.add(new JLabel("Ngày Yêu Cầu:"));
+        pTimKiem.add(ngayyeucau);
         pTimKiem.add(new JLabel("Biển Số Xe:"));
         pTimKiem.add(txtbienso);
         pTimKiem.add(btntim);
@@ -286,17 +290,9 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
     }
 
     private List<PhieuSuaChua> locDanhSach() {
-        String ngay = txtngayyeucau.getText().trim();
-        if (!ngay.isEmpty()) {
-            try {
-                sdf.setLenient(false);
-                ngay = sdf.format(sdf.parse(ngay));
-            } catch (java.text.ParseException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Ngày phải nhập đúng dạng dd/MM/yyyy (ví dụ 01/10/2026)!",
-                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-                return null;
-            }
+        String ngay = "";
+        if (ngayyeucau.getDate() != null) {
+            ngay = sdf.format(ngayyeucau.getDate());
         }
 
         String ma = txtmayeucau.getText().trim().toLowerCase();
@@ -328,7 +324,7 @@ public class ManHinhDanhSachYeuCauXuatKho extends JFrame implements ActionListen
         txtmayeucau.setText("");
         txtnguoiyeucau.setText("");
         cbtrangthai.setSelectedItem("Chờ xuất kho");
-        txtngayyeucau.setText("");
+        ngayyeucau.setDate(null);
         txtbienso.setText("");
         loadDataFromDB();
     }

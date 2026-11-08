@@ -6,6 +6,7 @@ import java.util.List;
 import DB.connectSQL;
 import Entity.ChiTietKiemKe;
 import Entity.PhieuKiemKe;
+import Entity.PhuTung;
 import Entity.ThuKho;
 
 public class PhieuKiemKe_DAO {
@@ -66,15 +67,17 @@ public class PhieuKiemKe_DAO {
             ps.setString(1, maPhieuKiemKe);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    ChiTietKiemKe ct = new ChiTietKiemKe(
-                            rs.getString("maPhieuKiemKe"),
-                            rs.getString("maPhuTung"),
+                    PhieuKiemKe pk = new PhieuKiemKe();
+                    pk.setMaPhieuKiemKe(rs.getString("maPhieuKiemKe"));
+                    PhuTung pt = new PhuTung();
+                    pt.setMaPhuTung(rs.getString("maPhuTung"));
+                    pt.setTenPhuTung(rs.getString("tenPhuTung"));
+                    pt.setDonViTinh(rs.getString("donViTinh"));
+                    ChiTietKiemKe ct = new ChiTietKiemKe(pk, pt,
                             rs.getInt("soLuongHeThong"),
                             rs.getInt("soLuongThucTe"),
                             rs.getString("lyDoChenhLech"));
                     ct.setChenhLech(rs.getInt("chenhLech"));
-                    ct.setTenPhuTung(rs.getString("tenPhuTung"));
-                    ct.setDonViTinh(rs.getString("donViTinh"));
                     ds.add(ct);
                 }
             }
@@ -83,7 +86,6 @@ public class PhieuKiemKe_DAO {
     }
 
     // Sinh mã mới theo dạng của nhóm: PKK01, PKK02, ... Lấy số lớn nhất theo giá trị số
-    // (PKK02 -> 2, KK05 -> 5) để sau PKK99 ra PKK100 chứ không bị trùng.
     public String sinhMaPhieuKiemKe() throws SQLException {
         String sql = "SELECT maPhieuKiemKe FROM PHIEU_KIEM_KE";
         int max = 0;

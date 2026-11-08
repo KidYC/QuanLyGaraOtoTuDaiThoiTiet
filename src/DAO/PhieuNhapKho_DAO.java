@@ -7,6 +7,7 @@ import DB.connectSQL;
 import Entity.ChiTietPhieuNhap;
 import Entity.NhaCungCap;
 import Entity.PhieuNhapKho;
+import Entity.PhuTung;
 import Entity.ThuKho;
 
 public class PhieuNhapKho_DAO {
@@ -81,13 +82,15 @@ public class PhieuNhapKho_DAO {
             ps.setString(1, maPhieuNhap);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    ChiTietPhieuNhap ct = new ChiTietPhieuNhap(
-                            rs.getString("maPhieuNhap"),
-                            rs.getString("maPhuTung"),
+                    PhieuNhapKho pn = new PhieuNhapKho();
+                    pn.setMaPhieuNhap(rs.getString("maPhieuNhap"));
+                    PhuTung pt = new PhuTung();
+                    pt.setMaPhuTung(rs.getString("maPhuTung"));
+                    pt.setTenPhuTung(rs.getString("tenPhuTung"));
+                    pt.setDonViTinh(rs.getString("donViTinh"));
+                    ChiTietPhieuNhap ct = new ChiTietPhieuNhap(pn, pt,
                             rs.getInt("soLuongNhap"),
                             rs.getDouble("donGiaNhap"));
-                    ct.setTenPhuTung(rs.getString("tenPhuTung"));
-                    ct.setDonViTinh(rs.getString("donViTinh"));
                     ds.add(ct);
                 }
             }
@@ -96,7 +99,6 @@ public class PhieuNhapKho_DAO {
     }
 
     // 3. Sinh mã phiếu nhập mới theo dạng của nhóm: PNK01, PNK02, ...
-    // Lấy phần số của mọi mã (PNK02 -> 2, PN001 -> 1) rồi tìm số lớn nhất, nên không bị lỗi khi có mã cũ.
     public String sinhMaPhieuNhap() throws SQLException {
         String sql = "SELECT maPhieuNhap FROM PHIEU_NHAP_KHO";
         int max = 0;
@@ -104,7 +106,7 @@ public class PhieuNhapKho_DAO {
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                String so = rs.getString(1).replaceAll("[^0-9]", ""); // chỉ giữ chữ số
+                String so = rs.getString(1).replaceAll("[^0-9]", "");
                 if (!so.isEmpty() && Integer.parseInt(so) > max) {
                     max = Integer.parseInt(so);
                 }

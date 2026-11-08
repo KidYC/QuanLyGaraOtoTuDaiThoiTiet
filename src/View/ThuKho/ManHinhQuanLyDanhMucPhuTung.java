@@ -1,10 +1,13 @@
 package View.ThuKho;
 
 import DAO.PhuTung_DAO;
+import Entity.Kho;
 import Entity.PhuTung;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -26,10 +29,19 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
 
     private JButton btnthem;
     private JButton btnsua;
-    private JButton btnxoa;
     private JButton btnquaylai;
     private final PhuTung_DAO phuTungDAO = new PhuTung_DAO();
     private final DecimalFormat dinhdang = new DecimalFormat("#,###");
+    private String maNhanVien = ""; // nhân viên đang đăng nhập, dùng khi lập phiếu nhập
+
+    public ManHinhQuanLyDanhMucPhuTung(String maNhanVien) {
+        this();
+        this.maNhanVien = maNhanVien == null ? "" : maNhanVien;
+    }
+
+    public String getMaNhanVien() {
+        return maNhanVien;
+    }
 
     public ManHinhQuanLyDanhMucPhuTung() {
         setTitle("QUẢN LÝ DANH MỤC PHỤ TÙNG");
@@ -124,12 +136,6 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         btnquaylai.setForeground(Color.WHITE);
         btnquaylai.setFocusPainted(false);
 
-        btnxoa = new JButton("Xóa");
-        btnxoa.setPreferredSize(new Dimension(110, 35));
-        btnxoa.setBackground(new Color(231, 76, 60));
-        btnxoa.setForeground(Color.WHITE);
-        btnxoa.setFocusPainted(false);
-
         btnsua = new JButton("Sửa");
         btnsua.setPreferredSize(new Dimension(110, 35));
         btnsua.setBackground(new Color(52, 152, 219));
@@ -144,7 +150,6 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
         btnthem.setFocusPainted(false);
 
         pSouth.add(btnquaylai);
-        pSouth.add(btnxoa);
         pSouth.add(btnsua);
         pSouth.add(btnthem);
         add(pSouth, BorderLayout.SOUTH);
@@ -155,11 +160,28 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
     private void initListener() {
         btnthem.addActionListener(this);
         btnsua.addActionListener(this);
-        btnxoa.addActionListener(this);
         btnquaylai.addActionListener(this);
         btntimkiem.addActionListener(this);
         btnlammoi.addActionListener(this);
         txttimkiem.addActionListener(this);
+
+        // gõ tới đâu lọc danh sách tới đó
+        txttimkiem.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                napBang();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                napBang();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                napBang();
+            }
+        });
     }
 
     @Override
@@ -169,8 +191,6 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
             xuLyThem();
         } else if (o == btnsua) {
             xuLySua();
-        } else if (o == btnxoa) {
-            xuLyXoa();
         } else if (o == btnquaylai) {
             xuLyQuayLai();
         } else if (o == btntimkiem || o == txttimkiem) {
@@ -205,7 +225,7 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
     public boolean themPhuTung(String ma, String ten, String donvi, int soluong, String maKho,
                                double dongianhap, double dongiaban) {
         try {
-            boolean ok = phuTungDAO.themPhuTung(new PhuTung(ma, ten, donvi, dongianhap, dongiaban, soluong, maKho));
+            boolean ok = phuTungDAO.themPhuTung(new PhuTung(ma, ten, donvi, dongianhap, dongiaban, soluong, new Kho(maKho, null, null)));
             napBang();
             return ok;
         } catch (SQLException e) {
@@ -253,48 +273,6 @@ public class ManHinhQuanLyDanhMucPhuTung extends JFrame implements ActionListene
                 modelphutung.getValueAt(dong, 4).toString(),
                 modelphutung.getValueAt(dong, 5).toString());
         UI.setVisible(true);
-    }
-
-    private void xuLyXoa() {
-        int dong = tblphutung.getSelectedRow();
-        if (dong == -1) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng chọn phụ tùng cần xóa!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        String ma = modelphutung.getValueAt(dong, 0).toString();
-
-        // kiểm tra phụ tùng đã có trong phiếu nào thì báo rõ và không cho xóa
-        try {
-            String dangdung = phuTungDAO.kiemTraPhuTungDangDung(ma);
-            if (!dangdung.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "Không thể xóa phụ tùng " + ma + " vì đang được dùng trong:\n" + dangdung
-                                + "\nXóa sẽ làm mất thông tin phụ tùng trong các phiếu trên.",
-                        "Không thể xóa", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi kiểm tra phụ tùng: " + e.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int chon = JOptionPane.showConfirmDialog(this,
-                "Bạn có chắc muốn xóa phụ tùng " + ma + " không?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (chon == JOptionPane.YES_OPTION) {
-            try {
-                if (phuTungDAO.xoaPhuTung(ma)) {
-                    napBang();
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this,
-                        "Không xóa được phụ tùng " + ma + " (có thể đang được dùng trong phiếu nhập/xuất/kiểm kê).",
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        }
     }
 
     private void xuLyQuayLai() {

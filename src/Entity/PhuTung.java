@@ -1,4 +1,3 @@
-
 package Entity;
 
 public class PhuTung {
@@ -11,14 +10,16 @@ public class PhuTung {
     private Kho kho = new Kho();
 
     public PhuTung() {}
-    public PhuTung(String maPhuTung, String tenPhuTung, String donViTinh, double donGiaNhap, double donGiaBan, int soLuongTon, String maKho) {
+    public PhuTung(String maPhuTung, String tenPhuTung, String donViTinh, double donGiaNhap, double donGiaBan, int soLuongTon, Kho kho) {
         this.maPhuTung = maPhuTung;
         this.tenPhuTung = tenPhuTung;
         this.donViTinh = donViTinh;
         this.donGiaNhap = donGiaNhap;
         this.donGiaBan = donGiaBan;
         this.soLuongTon = soLuongTon;
-        this.kho.setMaKho(maKho);
+        if (kho != null) {
+            this.kho = kho;
+        }
     }
 
     public String getMaPhuTung() {
@@ -57,8 +58,16 @@ public class PhuTung {
     public void setSoLuongTon(int soLuongTon) {
         this.soLuongTon = soLuongTon;
     }
+    public Kho getKho() {
+        return kho;
+    }
+    public void setKho(Kho kho) {
+        this.kho = (kho != null) ? kho : new Kho();
+    }
+
+    // Lấy nhanh / gán nhanh mã kho
     public String getMaKho() {
-        return this.kho.getMaKho();
+        return kho.getMaKho();
     }
     public void setMaKho(String maKho) {
         this.kho.setMaKho(maKho);
