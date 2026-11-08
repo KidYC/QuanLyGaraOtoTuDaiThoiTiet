@@ -370,8 +370,8 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
             for (PhieuTiepNhan ptn : dsPhieuTiepNhan) {
                 if (ptn.getTrangThai().equals("Đang xử lý")) {
                     Xe xe = xeDAO.getXeByBienSo(ptn.getBienSo());
-                    KhachHang kh = (xe != null && xe.getMaKhachHang() != null)
-                            ? khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang())
+                    KhachHang kh = (xe != null && xe.getKhachHang() != null)
+                            ? khachHangDAO.getKhachHangByMa(xe.getKhachHang().getMaKhachHang())
                             : null;
                     String tenKH = kh != null ? kh.getHoTen() : "N/A";
 
@@ -412,8 +412,8 @@ public class ChiTietKiemTraChanDoan extends JFrame implements ActionListener, Mo
 
         try {
             Xe xe = xeDAO.getXeByBienSo(ptn.getBienSo());
-            if (xe != null && xe.getMaKhachHang() != null) {
-                KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang());
+            if (xe != null && xe.getKhachHang() != null) {
+                KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getKhachHang().getMaKhachHang());
                 txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
             } else {
                 txtKhachHang.setText("");

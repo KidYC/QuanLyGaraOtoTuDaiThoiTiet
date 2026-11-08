@@ -417,9 +417,9 @@ public class LapPhieuSuaChua extends JFrame implements ActionListener, MouseList
 
             try {
                 Xe xe = xeDAO.getXeByBienSo(psc.getBienSo());
-                if (xe != null && xe.getMaKhachHang() != null) {
+                if (xe != null && xe.getKhachHang() != null) {
                     // Lấy mã khách hàng (String) từ đối tượng KhachHang bên trong xe
-                    String maKH = xe.getMaKhachHang().getMaKhachHang();
+                    String maKH = xe.getKhachHang().getMaKhachHang();
 
                     KhachHang kh = khachHangDAO.getKhachHangByMa(maKH);
                     txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
