@@ -416,8 +416,8 @@ public class CapNhatTienDoSuaChua extends JFrame implements ActionListener, List
 
                     if (xe != null) {
                         KhachHang kh = null;
-                        if (xe.getMaKhachHang() != null) {
-                            kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang());
+                        if (xe.getKhachHang() != null) {
+                            kh = khachHangDAO.getKhachHangByMa(xe.getKhachHang().getMaKhachHang());
                         }
 
                         txtKhachHang.setText(kh != null ? kh.getHoTen() : "");

@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.awt.print.PrinterException;
 
 public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
 
@@ -40,6 +41,7 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
 
     private JButton btnQuayLai;
     private JButton btnXacNhanBanGiao;
+    private JButton btnInPhieu;
 
     public ManHinhChiTietBanGiao(String maPhieu, String bienSo) {
         setTitle("CHI TIẾT BÀN GIAO XE");
@@ -209,14 +211,22 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
         btnQuayLai.setFont(new Font("Arial", Font.BOLD, 13));
         btnQuayLai.setFocusPainted(false);
 
-        btnXacNhanBanGiao = new JButton("Xác Nhận Bàn Giao & In Phiếu");
+        btnXacNhanBanGiao = new JButton("Xác Nhận Bàn Giao");
         btnXacNhanBanGiao.setPreferredSize(new Dimension(250, 38));
         btnXacNhanBanGiao.setBackground(new Color(46, 204, 113));
         btnXacNhanBanGiao.setForeground(Color.WHITE);
         btnXacNhanBanGiao.setFont(new Font("Arial", Font.BOLD, 13));
         btnXacNhanBanGiao.setFocusPainted(false);
 
+        btnInPhieu = new JButton("In Phiếu");
+        btnInPhieu.setPreferredSize(new Dimension(130, 38));
+        btnInPhieu.setBackground(new Color(52, 152, 219));
+        btnInPhieu.setForeground(Color.WHITE);
+        btnInPhieu.setFont(new Font("Arial", Font.BOLD, 13));
+        btnInPhieu.setFocusPainted(false);
+
         pSouth.add(btnQuayLai);
+        pSouth.add(btnInPhieu);
         pSouth.add(btnXacNhanBanGiao);
         add(pSouth, BorderLayout.SOUTH);
 
@@ -225,6 +235,7 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
 
     private void initListener() {
         btnQuayLai.addActionListener(this);
+        btnInPhieu.addActionListener(this);
         btnXacNhanBanGiao.addActionListener(this);
     }
 
@@ -235,7 +246,7 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         try {
-            // 1. Lấy thông tin chung (Tên KH, Ngày hoàn thành)
+
             try (ResultSet rs = dao.getThongTinBanGiao(maPhieu)) {
                 if (rs.next()) {
                     txtTenKH.setText(rs.getString("hoTen"));
@@ -246,7 +257,7 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
                 }
             }
 
-            // 2. Lấy danh sách chi tiết dịch vụ & phụ tùng thực hiện
+
             List<ChiTietBanGiao_DTO> list = dao.getChiTietBanGiaoByMaPhieu(maPhieu);
             int stt = 1;
             double tongTien = 0;
@@ -276,6 +287,8 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
         Object source = e.getSource();
         if (source == btnQuayLai) {
             xuLyQuayLai();
+        } else if(source == btnInPhieu){
+            xuLyInPhieu();
         } else if (source == btnXacNhanBanGiao) {
             xuLyXacNhanBanGiao();
         }
@@ -327,6 +340,82 @@ public class ManHinhChiTietBanGiao extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Lỗi CSDL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+    private void xuLyInPhieu() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("            GARA Ô TÔ TỰ ĐẠI THỜI TIẾT\n");
+        sb.append("               PHIẾU BÀN GIAO XE\n");
+        sb.append("==========================================================\n");
+        sb.append("Mã phiếu       : ").append(txtMaPhieu.getText()).append("\n");
+        sb.append("Khách hàng     : ").append(txtTenKH.getText()).append("\n");
+        sb.append("Biển số xe     : ").append(txtBienSo.getText()).append("\n");
+        sb.append("Ngày hoàn thành: ").append(txtNgaySuaXong.getText()).append("\n");
+        sb.append("Ngày bàn giao  : ").append(txtNgayBanGiao.getText()).append("\n");
+        sb.append("----------------------------------------------------------\n");
+        sb.append(String.format("%-4s %-9s %-24s %-4s %-14s %-9s%n",
+                "STT", "Loại", "Hạng mục", "SL", "Thành tiền", "Bảo hành"));
+        sb.append("----------------------------------------------------------\n");
+
+        for (int i = 0; i < modelSuaChua.getRowCount(); i++) {
+            sb.append(String.format("%-4s %-9s %-24s %-4s %-14s %-9s%n",
+                    modelSuaChua.getValueAt(i, 0),
+                    modelSuaChua.getValueAt(i, 1),
+                    modelSuaChua.getValueAt(i, 2),
+                    modelSuaChua.getValueAt(i, 3),
+                    modelSuaChua.getValueAt(i, 4),
+                    modelSuaChua.getValueAt(i, 5)));
+        }
+
+        sb.append("----------------------------------------------------------\n");
+        sb.append("TỔNG THANH TOÁN: ").append(lblTongTien.getText()).append("\n\n");
+
+        String ghiChu = txtGhiChuBanGiao.getText().trim();
+        if (!ghiChu.isEmpty()) {
+            sb.append("Ghi chú: ").append(ghiChu).append("\n\n");
+        }
+        sb.append("   Khách hàng ký tên              Nhân viên bàn giao\n");
+        sb.append("\n\n\n");
+
+        JTextArea txtPhieu = new JTextArea(sb.toString());
+        txtPhieu.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        txtPhieu.setEditable(false);
+        txtPhieu.setMargin(new Insets(10, 10, 10, 10));
+
+        JDialog dlg = new JDialog(this, "Xem trước phiếu bàn giao", true);
+        dlg.setLayout(new BorderLayout(10, 10));
+        dlg.add(new JScrollPane(txtPhieu), BorderLayout.CENTER);
+
+        JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        JButton btnDong = new JButton("Đóng");
+        btnDong.setPreferredSize(new Dimension(100, 32));
+        btnDong.setBackground(new Color(149, 165, 166));
+        btnDong.setForeground(Color.WHITE);
+        btnDong.setFocusPainted(false);
+        btnDong.addActionListener(ev -> dlg.dispose());
+
+        JButton btnIn = new JButton("In");
+        btnIn.setPreferredSize(new Dimension(100, 32));
+        btnIn.setBackground(new Color(52, 152, 219));
+        btnIn.setForeground(Color.WHITE);
+        btnIn.setFocusPainted(false);
+        btnIn.addActionListener(ev -> {
+            try {
+                if (txtPhieu.print()) {
+                    dlg.dispose();
+                }
+            } catch (PrinterException ex) {
+                JOptionPane.showMessageDialog(dlg, "Lỗi khi in: " + ex.getMessage(),
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        pBtn.add(btnDong);
+        pBtn.add(btnIn);
+        dlg.add(pBtn, BorderLayout.SOUTH);
+
+        dlg.setSize(620, 560);
+        dlg.setLocationRelativeTo(this);
+        dlg.setVisible(true);
     }
 
     public static void main(String[] args) {

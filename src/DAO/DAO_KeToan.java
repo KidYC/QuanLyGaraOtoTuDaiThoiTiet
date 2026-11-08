@@ -1,18 +1,12 @@
 package DAO;
-
 import DB.connectSQL;
 import Entity.*;
-
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 public class DAO_KeToan {
 
-    // =========================================================
-    // 1. LẤY DANH SÁCH PHIẾU SỬA CHỮA ĐÃ HOÀN THÀNH
-    // =========================================================
     public List<PhieuSuaChuaDaHoanThanh> layDanhSachPhieuSuaChuaDaHoanThanh()
             throws SQLException {
 
@@ -70,10 +64,6 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-// LẤY CHI TIẾT HÓA ĐƠN VÀ THANH TOÁN
-// =========================================================
     public List<ChiTietHoaDon> laydulieuchitiethoadonvathanhtoan() {
         List<ChiTietHoaDon> ds = new ArrayList<>();
 
@@ -135,10 +125,6 @@ public class DAO_KeToan {
         return ds;
     }
 
-
-    // =========================================================
-    // 3. LẤY LỊCH SỬ CÔNG NỢ THEO KHÁCH HÀNG VÀ KHOẢNG NGÀY
-    // =========================================================
     public List<LichSuCongNo> laydulieucongno(
             String maKH,
             java.sql.Date tuNgay,
@@ -204,10 +190,6 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-    // 4. LẤY DANH SÁCH KHÁCH HÀNG NỢ
-    // =========================================================
     public List<DanhSachKHNo> laydulieuKHno() throws SQLException {
 
         List<DanhSachKHNo> danhSach = new ArrayList<>();
@@ -251,29 +233,25 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-    // 5. LẤY THÔNG TIN CHI TIẾT KHÁCH HÀNG NỢ
-    // =========================================================
     public DanhSachKHNo layThongTinKhachHangNo(String maKH)
             throws SQLException {
 
         String sql = """
-                SELECT
-                    KH.maKhachHang,
-                    K.hoTen,
-                    X.bienSo,
-                    K.soDienThoai,
-                    K.diaChi,
-                    KH.hanMucNo,
-                    KH.tongNo
-                FROM danhsachKHno KH
-                JOIN KHACH_HANG K
-                    ON KH.maKhachHang = K.maKhachHang
-                JOIN XE X
-                    ON KH.maKhachHang = X.maKhachHang
-                WHERE KH.maKhachHang = ?
-                """;
+            SELECT
+                KH.maKhachHang,
+                K.hoTen,
+                X.bienSo,
+                K.soDienThoai,
+                K.diaChi,
+                KH.hanMucNo,
+                KH.tongNo
+            FROM danhsachKHno KH
+            JOIN KHACH_HANG K
+                ON KH.maKhachHang = K.maKhachHang
+            JOIN XE X
+                ON KH.maKhachHang = X.maKhachHang
+            WHERE KH.maKhachHang = ?
+            """;
 
         try (
                 Connection conn = connectSQL.getConnection();
@@ -282,15 +260,21 @@ public class DAO_KeToan {
             ps.setString(1, maKH);
 
             try (ResultSet rs = ps.executeQuery()) {
+
                 if (rs.next()) {
+
                     DanhSachKHNo khNo = new DanhSachKHNo();
 
                     KhachHang kh = new KhachHang();
                     kh.setMaKhachHang(rs.getString("maKhachHang"));
-                    kh.setHoTen(rs.getString("hoTen"));
-                    kh.setSoDienThoai(rs.getString("soDienThoai"));
-                    kh.setDiaChi(rs.getString("diaChi"));
+
                     khNo.setMaKhachHang(kh);
+
+                    khNo.setHoTen(rs.getString("hoTen"));
+                    khNo.setBienSo(rs.getString("bienSo"));
+                    khNo.setSoDienThoai(rs.getString("soDienThoai"));
+                    khNo.setDiaChi(rs.getString("diaChi"));
+
                     khNo.setHanMucNo(rs.getBigDecimal("hanMucNo"));
                     khNo.setTongNo(rs.getBigDecimal("tongNo"));
 
@@ -302,10 +286,6 @@ public class DAO_KeToan {
         return null;
     }
 
-
-    // =========================================================
-    // 6. LẤY THÔNG TIN TỔNG THANH TOÁN
-    // =========================================================
     public ThongTinThanhToan laythongtinthanhtoan()
             throws SQLException {
 
@@ -339,10 +319,6 @@ public class DAO_KeToan {
         return null;
     }
 
-
-    // =========================================================
-    // 7. THANH TOÁN HÓA ĐƠN
-    // =========================================================
     public boolean thanhToanHoaDon(
             String maHoaDon,
             BigDecimal soTien,
@@ -384,10 +360,6 @@ public class DAO_KeToan {
         }
     }
 
-
-    // =========================================================
-    // 8. TẠO MÃ THANH TOÁN
-    // =========================================================
     public String taoMaThanhToan(Connection conn) throws SQLException {
 
         String sql = """
@@ -412,10 +384,6 @@ public class DAO_KeToan {
         return "TT01";
     }
 
-
-    // =========================================================
-    // 9. LẤY SỐ HÓA ĐƠN LỚN NHẤT
-    // =========================================================
     public int laySoHoaDonLonNhat() throws SQLException {
 
         String sql = """
@@ -440,10 +408,6 @@ public class DAO_KeToan {
         return 0;
     }
 
-
-    // =========================================================
-    // 10. LẤY MÃ PHIẾU SỬA CHỮA ĐÃ HOÀN THÀNH
-    // =========================================================
     public List<String> layMaPhieuSuaChuaDaHoanThanh()
             throws SQLException {
 
@@ -469,10 +433,6 @@ public class DAO_KeToan {
         return danhSach;
     }
 
-
-    // =========================================================
-    // 11. LẤY SỐ CHI TIẾT HÓA ĐƠN LỚN NHẤT
-    // =========================================================
     public int laySoChiTietHoaDonLonNhat() throws SQLException {
 
         String sql = """
@@ -510,10 +470,8 @@ public class DAO_KeToan {
                 PreparedStatement ps = conn.prepareStatement(sql)
         ) {
 
-            // 1. Mã hóa đơn
             ps.setString(1, hoaDon.getMaHoaDon());
 
-            // 2. Ngày lập hóa đơn
             if (hoaDon.getNgayLap() != null) {
                 ps.setTimestamp(
                         2,
@@ -523,7 +481,6 @@ public class DAO_KeToan {
                 ps.setNull(2, Types.TIMESTAMP);
             }
 
-            // 3. Mã phương thức thanh toán
             if (hoaDon.getMaPhuongThuc() != null) {
                 ps.setString(
                         3,
@@ -533,7 +490,6 @@ public class DAO_KeToan {
                 ps.setNull(3, Types.VARCHAR);
             }
 
-            // 4. Mã phiếu sửa chữa
             if (hoaDon.getMaPhieuSuaChua() != null) {
                 ps.setString(
                         4,
@@ -543,7 +499,6 @@ public class DAO_KeToan {
                 ps.setNull(4, Types.VARCHAR);
             }
 
-            // 5. Mã nhân viên
             if (hoaDon.getMaNhanVien() != null) {
                 ps.setString(
                         5,
@@ -558,6 +513,8 @@ public class DAO_KeToan {
             return ps.executeUpdate() > 0;
         }
     }
+
+
     public List<ChiTietHoaDon> layChiTietTheoPhieuSuaChua(String maPSC)
             throws SQLException {
 
@@ -565,26 +522,30 @@ public class DAO_KeToan {
 
         String sql = """
             SELECT
+                DV.tenDichVu AS noiDung,
+                1 AS soLuong,
+                CTDV.donGia AS donGia,
+                CTDV.donGia AS thanhTien,
+                1 AS loaiSapXep
+            FROM CHI_TIET_DICH_VU CTDV
+            JOIN DICH_VU DV
+                ON CTDV.maDichVu = DV.maDichVu
+            WHERE CTDV.maPhieuSuaChua = ?
+
+            UNION ALL
+
+            SELECT
                 PT.tenPhuTung AS noiDung,
-                CTPSC.soLuong,
-                CTPSC.donGia,
-                CTPSC.soLuong * CTPSC.donGia AS thanhTien
+                CTPSC.soLuong AS soLuong,
+                CTPSC.donGia AS donGia,
+                CTPSC.soLuong * CTPSC.donGia AS thanhTien,
+                2 AS loaiSapXep
             FROM CHI_TIET_PHIEU_SUA_CHUA CTPSC
             JOIN PHU_TUNG PT
                 ON CTPSC.maPhuTung = PT.maPhuTung
             WHERE CTPSC.maPhieuSuaChua = ?
 
-            UNION ALL
-
-            SELECT
-                DV.tenDichVu AS noiDung,
-                CTDV.soLuong,
-                CTDV.donGia,
-                CTDV.soLuong * CTDV.donGia AS thanhTien
-            FROM CHI_TIET_DICH_VU CTDV
-            JOIN DICH_VU DV
-                ON CTDV.maDichVu = DV.maDichVu
-            WHERE CTDV.maPhieuSuaChua = ?
+            ORDER BY loaiSapXep, noiDung
             """;
 
         try (
@@ -597,7 +558,6 @@ public class DAO_KeToan {
             try (ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-
                     ChiTietHoaDon ct = new ChiTietHoaDon();
 
                     ct.setNoiDung(rs.getString("noiDung"));
@@ -637,4 +597,229 @@ public class DAO_KeToan {
         }
         return "";
     }
+    public ThongTinHoaDon layThongTinChungTheoHoaDon(String maHoaDon)
+            throws SQLException {
+
+        String sql = """
+        SELECT
+            HD.maHoaDon,
+            CONVERT(VARCHAR(10), HD.ngayLap, 103)
+                + ' ' + CONVERT(VARCHAR(8), HD.ngayLap, 108) AS ngayLap,
+            PSC.maPhieuSuaChua,
+            KH.hoTen,
+            PSC.bienSo,
+            KH.soDienThoai,
+            PT.tenPhuongThuc,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM THANH_TOAN TT
+                    WHERE TT.maHoaDon = HD.maHoaDon
+                )
+                THEN N'Đã thanh toán'
+                ELSE N'Chờ thanh toán'
+            END AS trangThai
+        FROM HOA_DON HD
+        INNER JOIN PHIEU_SUA_CHUA PSC
+            ON HD.maPhieuSuaChua = PSC.maPhieuSuaChua
+        LEFT JOIN KHACH_HANG KH
+            ON KH.bienSo = PSC.bienSo
+        LEFT JOIN PHUONG_THUC_THANH_TOAN PT
+            ON HD.maPhuongThuc = PT.maPhuongThuc
+        WHERE HD.maHoaDon = ?
+        """;
+
+        try (Connection conn = connectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHoaDon);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+
+                    HoaDon hd = new HoaDon();
+                    hd.setMaHoaDon(rs.getString("maHoaDon"));
+
+                    PhieuSuaChua psc = new PhieuSuaChua();
+                    psc.setMaPhieuSuaChua(
+                            rs.getString("maPhieuSuaChua")
+                    );
+
+                    Xe xe = new Xe();
+                    xe.setBienSo(rs.getString("bienSo"));
+
+                    return new ThongTinHoaDon(
+                            hd,
+                            rs.getString("ngayLap"),
+                            psc,
+                            rs.getString("hoTen"),
+                            xe,
+                            rs.getString("soDienThoai"),
+                            rs.getString("tenPhuongThuc"),
+                            rs.getString("trangThai")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+    public List<ChiTietHoaDon> layChiTietTheoMaHoaDon(String maHoaDon)
+            throws SQLException {
+
+        List<ChiTietHoaDon> ds = new ArrayList<>();
+
+        String sql = """
+        SELECT
+            HD.maHoaDon,
+            PSC.maPhieuSuaChua,
+            PSC.bienSo,
+            CTDV.maDichVu AS maNoiDung,
+            DV.tenDichVu AS tenNoiDung,
+            CTDV.soLuong,
+            CTDV.donGia,
+            CTDV.thanhTien,
+            1 AS loaiSapXep
+        FROM HOA_DON HD
+        INNER JOIN PHIEU_SUA_CHUA PSC
+            ON HD.maPhieuSuaChua = PSC.maPhieuSuaChua
+        INNER JOIN CHI_TIET_DICH_VU CTDV
+            ON PSC.maPhieuSuaChua = CTDV.maPhieuSuaChua
+        INNER JOIN DICH_VU DV
+            ON CTDV.maDichVu = DV.maDichVu
+        WHERE HD.maHoaDon = ?
+
+        UNION ALL
+
+        SELECT
+            HD.maHoaDon,
+            PSC.maPhieuSuaChua,
+            PSC.bienSo,
+            CTPSC.maPhuTung AS maNoiDung,
+            PT.tenPhuTung AS tenNoiDung,
+            CTPSC.soLuong,
+            CTPSC.donGia,
+            CTPSC.soLuong * CTPSC.donGia AS thanhTien,
+            2 AS loaiSapXep
+        FROM HOA_DON HD
+        INNER JOIN PHIEU_SUA_CHUA PSC
+            ON HD.maPhieuSuaChua = PSC.maPhieuSuaChua
+        INNER JOIN CHI_TIET_PHIEU_SUA_CHUA CTPSC
+            ON PSC.maPhieuSuaChua = CTPSC.maPhieuSuaChua
+        INNER JOIN PHU_TUNG PT
+            ON CTPSC.maPhuTung = PT.maPhuTung
+        WHERE HD.maHoaDon = ?
+
+        ORDER BY loaiSapXep, tenNoiDung
+        """;
+
+        try (
+                Connection conn = connectSQL.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, maHoaDon);
+            ps.setString(2, maHoaDon);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    ChiTietHoaDon ct = new ChiTietHoaDon();
+
+                    HoaDon hd = new HoaDon();
+                    hd.setMaHoaDon(rs.getString("maHoaDon"));
+                    ct.setMaHoaDon(hd);
+
+                    PhieuSuaChua psc = new PhieuSuaChua();
+                    psc.setMaPhieuSuaChua(
+                            rs.getString("maPhieuSuaChua")
+                    );
+                    ct.setMaPhieuSuaChua(psc);
+
+                    Xe xe = new Xe();
+                    xe.setBienSo(rs.getString("bienSo"));
+                    ct.setBienSo(xe);
+
+                    PhuTung pt = new PhuTung();
+                    pt.setMaPhuTung(rs.getString("maNoiDung"));
+                    ct.setMaPhuTung(pt);
+
+                    ct.setTenPhuTung(
+                            rs.getString("tenNoiDung")
+                    );
+
+                    ct.setSoLuong(rs.getInt("soLuong"));
+                    ct.setDonGia(rs.getBigDecimal("donGia"));
+                    ct.setThanhTien(rs.getBigDecimal("thanhTien"));
+
+                    ds.add(ct);
+                }
+            }
+        }
+
+        return ds;
+    }
+    public ThongTinThanhToan layThongTinThanhToanTheoHoaDon(
+            String maHoaDon
+    ) throws SQLException {
+
+        String sql = """
+        SELECT
+            COALESCE((
+                SELECT SUM(CTPSC.soLuong * CTPSC.donGia)
+                FROM CHI_TIET_PHIEU_SUA_CHUA CTPSC
+                WHERE CTPSC.maPhieuSuaChua = HD.maPhieuSuaChua
+            ), 0) AS tongTienPhuTung,
+
+            COALESCE((
+                SELECT SUM(CTDV.thanhTien)
+                FROM CHI_TIET_DICH_VU CTDV
+                WHERE CTDV.maPhieuSuaChua = HD.maPhieuSuaChua
+            ), 0) AS tongTienDichVu
+
+        FROM HOA_DON HD
+        WHERE HD.maHoaDon = ?
+        """;
+
+        try (
+                Connection conn = connectSQL.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, maHoaDon);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    BigDecimal tongPhuTung =
+                            rs.getBigDecimal("tongTienPhuTung");
+
+                    BigDecimal tongDichVu =
+                            rs.getBigDecimal("tongTienDichVu");
+
+                    if (tongPhuTung == null) {
+                        tongPhuTung = BigDecimal.ZERO;
+                    }
+
+                    if (tongDichVu == null) {
+                        tongDichVu = BigDecimal.ZERO;
+                    }
+
+                    BigDecimal tongCong =
+                            tongPhuTung.add(tongDichVu);
+
+                    ThongTinThanhToan tt =
+                            new ThongTinThanhToan();
+
+                    tt.setTongTienPhuTung(tongPhuTung);
+                    tt.setTongTienDichVu(tongDichVu);
+                    tt.setTongCong(tongCong);
+
+                    return tt;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
 }

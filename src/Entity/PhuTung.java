@@ -7,7 +7,7 @@ public class PhuTung {
     private double donGiaNhap;
     private double donGiaBan;
     private int soLuongTon;
-    private Kho kho;
+    private Kho kho = new Kho();
 
     public PhuTung() {}
     public PhuTung(String maPhuTung, String tenPhuTung, String donViTinh, double donGiaNhap, double donGiaBan, int soLuongTon, Kho kho) {
@@ -17,7 +17,9 @@ public class PhuTung {
         this.donGiaNhap = donGiaNhap;
         this.donGiaBan = donGiaBan;
         this.soLuongTon = soLuongTon;
-        this.kho = kho;
+        if (kho != null) {
+            this.kho = kho;
+        }
     }
 
     public String getMaPhuTung() {
@@ -60,11 +62,14 @@ public class PhuTung {
         return kho;
     }
     public void setKho(Kho kho) {
-        this.kho = kho;
+        this.kho = (kho != null) ? kho : new Kho();
     }
 
-    // Lấy nhanh mã kho
+    // Lấy nhanh / gán nhanh mã kho
     public String getMaKho() {
-        return kho != null ? kho.getMaKho() : "";
+        return kho.getMaKho();
+    }
+    public void setMaKho(String maKho) {
+        this.kho.setMaKho(maKho);
     }
 }

@@ -3,6 +3,8 @@ package View.LeTan;
 import DAO.PhieuSuaChua_DAO;
 import Entity.ChiTietBaoHanh_DTO;
 import View.HeThong.TrangChuHeThong;
+import DAO.BaoHanh_DAO;
+import java.sql.Timestamp;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -35,6 +37,7 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
 
     private JButton btnQuayLai;
     private JButton btnHoanTat;
+    private boolean daKichHoat = false;
 
     public FormQuanLyBaoHanh(String maPhieu, String bienSo, String tenKH) {
         setTitle("QUẢN LÝ BẢO HÀNH");
@@ -45,10 +48,12 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
 
         buildUI();
 
-        loadData(maPhieu);
+
         txtMaPhieu.setText(maPhieu != null ? maPhieu : "KH005");
         txtBienSo.setText(bienSo != null ? bienSo : "51H-234.56");
         txtTenKH.setText(tenKH != null ? tenKH : "Phạm Văn D");
+
+        loadData(txtMaPhieu.getText());
 
 
     }
@@ -204,23 +209,36 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
 
     private void loadData(String maPhieu) {
         modelBaoHanh.setRowCount(0);
-        PhieuSuaChua_DAO dao = new PhieuSuaChua_DAO();
+        BaoHanh_DAO dao = new BaoHanh_DAO();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
         try {
-            List<ChiTietBaoHanh_DTO> list = dao.getChiTietBaoHanhByMaPhieu(maPhieu);
+            daKichHoat = dao.daKichHoat(maPhieu);
+            List<ChiTietBaoHanh_DTO> list;
+
+            if (daKichHoat) {
+                list = dao.getChiTietBaoHanh(maPhieu);
+
+                Timestamp ngay = dao.getNgayKichHoat(maPhieu);
+                if (ngay != null) txtNgayKichHoat.setText(sdf.format(ngay));
+
+                String dk = dao.getDieuKhoan(maPhieu);
+                if (dk != null) txtDieuKhoan.setText(dk);
+                txtDieuKhoan.setEditable(false);
+
+                btnHoanTat.setText("Đã kích hoạt - Đóng");
+            } else {
+                list = dao.getChiTietBaoHanhDuKien(maPhieu);
+            }
+
             int stt = 1;
-
             for (ChiTietBaoHanh_DTO item : list) {
-                String thoiHanStr = item.getThoiGianBaoHanhThang() + " Tháng";
-                String ngayHetHanStr = sdf.format(item.getNgayHetHan());
-
                 modelBaoHanh.addRow(new Object[]{
                         stt++,
                         item.getMaHangMuc(),
                         item.getTenHangMuc(),
-                        thoiHanStr,
-                        ngayHetHanStr,
+                        item.getThoiGianBaoHanhThang() + " Tháng",
+                        sdf.format(item.getNgayHetHan()),
                         item.getTrangThai()
                 });
             }
@@ -228,8 +246,7 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this,
                     "Lỗi tải dữ liệu bảo hành từ CSDL: " + e.getMessage(),
-                    "Lỗi CSDL",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -250,13 +267,37 @@ public class FormQuanLyBaoHanh extends JFrame implements ActionListener {
     }
 
     private void xuLyHoanTat() {
-        JOptionPane.showMessageDialog(this,
-                "Đã kích hoạt bảo hành thành công cho xe " + txtBienSo.getText() + "!\nQuy trình dịch vụ đã hoàn tất.",
-                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        // Đã kích hoạt từ trước: chỉ đóng form
+        if (daKichHoat) {
+            this.dispose();
+            return;
+        }
 
-//         TrangChuHeThong Home = new TrangChuHeThong();
-//         Home.setVisible(true);
-        this.dispose();
+        String maPhieu = txtMaPhieu.getText().trim();
+        int opt = JOptionPane.showConfirmDialog(this,
+                "Kích hoạt bảo hành cho xe " + txtBienSo.getText() + "?\nNgày hết hạn sẽ tính từ hôm nay.",
+                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (opt != JOptionPane.YES_OPTION) return;
+
+        try {
+            int soDong = new BaoHanh_DAO().kichHoatBaoHanh(maPhieu, txtDieuKhoan.getText().trim());
+
+            if (soDong > 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Đã kích hoạt bảo hành cho " + soDong + " hạng mục của xe " + txtBienSo.getText() + "!",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                // new TrangChuHeThong().setVisible(true);   // mở lại khi cần
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Phiếu này không có dịch vụ nào được bảo hành, hoặc đã kích hoạt trước đó.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi CSDL: " + ex.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
 
     }
 

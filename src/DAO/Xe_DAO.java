@@ -152,7 +152,7 @@ public class Xe_DAO {
 
             ps.setInt(3, xe.getNamSanXuat());
 
-            String maKhachHangStr = (xe.getMaKhachHang() != null) ? xe.getMaKhachHang().getMaKhachHang() : null;
+            String maKhachHangStr = (xe.getKhachHang() != null) ? xe.getKhachHang().getMaKhachHang() : null;
             ps.setString(4, maKhachHangStr);
 
             return ps.executeUpdate() > 0;

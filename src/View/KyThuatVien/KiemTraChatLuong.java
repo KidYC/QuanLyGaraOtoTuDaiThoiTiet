@@ -346,9 +346,9 @@ public class KiemTraChatLuong extends JFrame implements ActionListener, MouseLis
                 String bienSoStr = (psc.getBienSo() != null) ? psc.getBienSo().toString() : "";
                 Xe xe = xeDAO.getXeByBienSo(bienSoStr);
 
-                if (xe != null && xe.getMaKhachHang() != null) {
+                if (xe != null && xe.getKhachHang() != null) {
                     // SỬA Ở ĐÂY: Lấy mã chuỗi từ đối tượng KhachHang bên trong xe
-                    KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getMaKhachHang().getMaKhachHang());
+                    KhachHang kh = khachHangDAO.getKhachHangByMa(xe.getKhachHang().getMaKhachHang());
                     txtKhachHang.setText(kh != null ? kh.getHoTen() : "");
                 } else {
                     txtKhachHang.setText("");
