@@ -139,7 +139,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         TIEP_NHAN("TIẾP NHẬN & KHÁCH HÀNG"),
         KHO("KHO PHỤ TÙNG"),
         SUA_CHUA("SỬA CHỮA & BẢO HÀNH"),
-        THANH_TOAN("THANH TOÁN & THU NGÂN"),
+        THANH_TOAN("THANH TOÁN & CA THU NGÂN"),
         THONG_KE("THỐNG KÊ BÁO CÁO"),
         HE_THONG("HỆ THỐNG");
 
@@ -175,10 +175,11 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         THUC_HIEN_SUA_CHUA("Thực hiện sửa chữa", NhomChucNang.SUA_CHUA, "Cập nhật tiến độ thi công", VaiTro.KY_THUAT),
         KIEM_TRA_CHAT_LUONG("Kiểm tra chất lượng", NhomChucNang.SUA_CHUA, "Kiểm tra xe sau khi sửa chữa", VaiTro.KY_THUAT),
 
-        HOA_DON_THANH_TOAN("Lập hóa đơn", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
-        DANH_SACH_PHIEU_HOAN_THANH("Danh sách phiếu hoàn thành", NhomChucNang.THANH_TOAN, "Tra cứu các phiếu sửa chữa đã hoàn thành", VaiTro.KE_TOAN),
-        CONG_NO("Công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
         CA_THU_NGAN("Quản lý ca", NhomChucNang.THANH_TOAN, "Mở ca, đóng ca và đối soát doanh thu", VaiTro.KE_TOAN),
+        DANH_SACH_PHIEU_HOAN_THANH("Phiếu chờ thanh toán", NhomChucNang.THANH_TOAN, "Tra cứu các phiếu sửa chữa đã hoàn thành", VaiTro.KE_TOAN),
+        HOA_DON_THANH_TOAN("Hóa đơn & Thanh toán", NhomChucNang.THANH_TOAN, "Lập hóa đơn và thu tiền", VaiTro.KE_TOAN),
+        CONG_NO("Quản lý công nợ", NhomChucNang.THANH_TOAN, "Theo dõi công nợ khách thân thiết", VaiTro.KE_TOAN),
+
 
         THONG_KE_DOANH_THU("Doanh thu", NhomChucNang.THONG_KE, "Thống kê doanh thu theo kỳ", VaiTro.KE_TOAN),
         THONG_KE_SUA_CHUA("Sửa chữa", NhomChucNang.THONG_KE, "Thống kê xe và phiếu sửa chữa", VaiTro.KY_THUAT),
