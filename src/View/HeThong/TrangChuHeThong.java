@@ -162,6 +162,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
         TIEP_NHAN_XE("Tiếp nhận xe", NhomChucNang.TIEP_NHAN, "Lập phiếu tiếp nhận xe vào gara", VaiTro.LE_TAN),
         LAP_BAO_GIA("Lập báo giá", NhomChucNang.TIEP_NHAN, "Báo giá sửa chữa cho khách hàng", VaiTro.LE_TAN),
         BAN_GIAO_XE("Bàn giao xe", NhomChucNang.TIEP_NHAN, "Bàn giao xe và chăm sóc khách hàng", VaiTro.LE_TAN),
+        DANH_MUC_BAO_HANH("Danh mục bảo hành", NhomChucNang.TIEP_NHAN, "Hiển thị danh sách phiếu bảo hành", VaiTro.LE_TAN),
 
         DANH_MUC_PHU_TUNG("Danh mục phụ tùng", NhomChucNang.KHO, "Quản lý danh mục phụ tùng", VaiTro.THU_KHO),
         NHAP_KHO("Danh sách phiếu nhập kho", NhomChucNang.KHO, "Tra cứu các phiếu nhập kho", VaiTro.THU_KHO),
@@ -436,6 +437,7 @@ public class TrangChuHeThong extends JFrame implements ActionListener, MouseList
             case TIEP_NHAN_XE:                hienThi(new ManHinhLapPhieuTiepNhan()); return true;
             case LAP_BAO_GIA:                 hienThi(new ManHinhDanhSachXeChoBaoGia()); return true;
             case BAN_GIAO_XE:                 hienThi(new ManHinhDanhSachXeDaHoanThanhSuaChua()); return true;
+            case DANH_MUC_BAO_HANH:           hienThi(new ManHinhDanhSachBaoHanh()); return true;
 
             case DANH_MUC_PHU_TUNG:           hienThi(new ManHinhQuanLyDanhMucPhuTung(maNV)); return true;
             case NHAP_KHO:                    hienThi(new ManHinhDanhSachPhieuNhapKho(maNV)); return true;
