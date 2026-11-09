@@ -89,7 +89,11 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
                 pInfoKH.add(lblSDT);
 
                 tableModel = new DefaultTableModel(
-                        new String[]{"Biển Số Xe", "Hãng Xe", "Dòng Xe", "Năm Sản Xuất"}, 0);
+                        new String[]{"Biển Số Xe", "Hãng Xe", "Dòng Xe", "Năm Sản Xuất"}, 0){
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
             } else {
                 tableModel = new DefaultTableModel(
                         new String[]{"Biển Số Xe", "Hãng Xe", "Dòng Xe", "Năm Sản Xuất", "Mã Khách Hàng"}, 0);
@@ -278,7 +282,6 @@ public class DanhSachXeKhachHang extends JFrame implements ActionListener {
             KhachHang kh = new KhachHang();
             kh.setMaKhachHang(maKHStr);
 
-            // Tạo đối tượng Xe mới với DongXe đã chọn
             Xe xeMoi = new Xe(bienSoStr, selectedDongXe, namSanXuat, kh);
             try {
                 Xe_DAO dao = new Xe_DAO();
