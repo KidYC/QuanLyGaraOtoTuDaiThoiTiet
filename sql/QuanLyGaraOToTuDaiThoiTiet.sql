@@ -411,6 +411,19 @@ CREATE TABLE THANH_TOAN (
 );
 GO
 
+--29. Bảng Bảo Hành
+CREATE TABLE BAO_HANH (
+                          maPhieuSuaChua VARCHAR(20) NOT NULL,
+                          maDichVu       VARCHAR(20) NOT NULL,
+                          ngayKichHoat   DATETIME NOT NULL DEFAULT GETDATE(),
+                          ngayHetHan     DATETIME NOT NULL,
+                          dieuKhoan      NVARCHAR(MAX),
+                          trangThai      NVARCHAR(30) NOT NULL DEFAULT N'Đang hiệu lực',
+                          PRIMARY KEY (maPhieuSuaChua, maDichVu),
+                          FOREIGN KEY (maPhieuSuaChua) REFERENCES PHIEU_SUA_CHUA(maPhieuSuaChua) ON DELETE CASCADE,
+                          FOREIGN KEY (maDichVu) REFERENCES DICH_VU(maDichVu)
+);
+GOg
 
 -- ==========================================================
 -- PHẦN 2: THÊM DỮ LIỆU MẪU DML
