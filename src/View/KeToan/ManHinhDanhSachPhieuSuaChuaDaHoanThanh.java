@@ -44,6 +44,7 @@ public class ManHinhDanhSachPhieuSuaChuaDaHoanThanh
     private final JButton btnTim;
     private final JButton btnLapHoaDon;
 
+
     public ManHinhDanhSachPhieuSuaChuaDaHoanThanh() {
         super("Danh sách phiếu sửa chữa đã hoàn thành");
 
