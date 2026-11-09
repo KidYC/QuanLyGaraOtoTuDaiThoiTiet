@@ -14,7 +14,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.awt.print.PrinterJob;
+import java.awt.print.PrinterException;
 
 public class ManHinhChiTietHDVaThanhToan extends JFrame
         implements ActionListener {
@@ -73,10 +76,15 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
     private final JLabel trangthai;
     private final JTextField txttrangthai;
     private final JPanel pCenter4;
-
     private JButton thanhtoan;
     private JButton huybo;
     private JButton quaylai;
+    private JButton inhoadon;
+    private String maHoaDonThanhToanGanNhat = null;
+    private String[] thongTinHoaDonDaThanhToanGanNhat;
+    private List<Object[]> chiTietHoaDonDaThanhToanGanNhat =
+            new ArrayList<>();
+
 
     public ManHinhChiTietHDVaThanhToan() {
         super("Chi tiết hóa đơn và thanh toán");
@@ -321,17 +329,17 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         );
 
         thanhtoan = taoNutBoGoc("Thanh toán", MAU_XANH);
+        inhoadon = taoNutBoGoc("In hóa đơn", new Color(187, 247, 208));
         huybo = taoNutBoGoc("Hủy bỏ", MAU_DO);
-        quaylai = taoNutBoGoc(
-                "Quay lại danh sách",
-                new Color(226, 232, 240)
-        );
+        quaylai = taoNutBoGoc("Quay lại danh sách",new Color(226, 232, 240));
 
         thanhtoan.addActionListener(this);
         huybo.addActionListener(this);
         quaylai.addActionListener(this);
+        inhoadon.addActionListener(this);
 
         pCenter4.add(thanhtoan);
+        pCenter4.add(inhoadon);
         pCenter4.add(huybo);
         pCenter4.add(quaylai);
 
@@ -463,6 +471,247 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         tomtat.setForeground(MAU_CHU);
         table.getTableHeader().setBackground(MAU_XANH);
         table.getTableHeader().setForeground(MAU_CHU);
+    }
+    private void inHoaDon() {
+
+        // Kiểm tra đã có hóa đơn được thanh toán hay chưa
+        if (maHoaDonThanhToanGanNhat == null
+                || thongTinHoaDonDaThanhToanGanNhat == null) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Chưa có hóa đơn nào được thanh toán!",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // Lấy thông tin hóa đơn đã lưu
+        String maHDIn = maHoaDonThanhToanGanNhat;
+
+        String[] thongTin = thongTinHoaDonDaThanhToanGanNhat;
+
+        if (chiTietHoaDonDaThanhToanGanNhat.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Không có chi tiết hóa đơn để in!",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        PrinterJob printerJob = PrinterJob.getPrinterJob();
+
+        printerJob.setJobName("Hoa don " + maHDIn);
+
+        printerJob.setPrintable((graphics, pageFormat, pageIndex) -> {
+
+            if (pageIndex > 0) {
+                return java.awt.print.Printable.NO_SUCH_PAGE;
+            }
+
+            Graphics2D g2 = (Graphics2D) graphics;
+
+            g2.translate(
+                    pageFormat.getImageableX(),
+                    pageFormat.getImageableY()
+            );
+
+            double tiLe = Math.min(
+                    pageFormat.getImageableWidth() / 550,
+                    pageFormat.getImageableHeight() / 750
+            );
+
+            g2.scale(tiLe, tiLe);
+
+            int y = 30;
+
+            g2.setColor(Color.BLACK);
+
+            // Tiêu đề
+            g2.setFont(new Font("Arial", Font.BOLD, 22));
+            g2.drawString("HOA DON THANH TOAN", 150, y);
+
+            y += 35;
+
+            g2.setFont(new Font("Arial", Font.PLAIN, 12));
+
+            // Thông tin hóa đơn
+            g2.drawString("Ma hoa don: " + maHDIn, 20, y);
+            y += 22;
+
+            g2.drawString("Ngay lap: " + thongTin[0], 20, y);
+            y += 22;
+
+            g2.drawString("Ma phieu sua chua: " + thongTin[1], 20, y);
+            y += 22;
+
+            g2.drawString("Khach hang: " + thongTin[2], 20, y);
+            y += 22;
+
+            g2.drawString("Bien so xe: " + thongTin[3], 20, y);
+            y += 22;
+
+            g2.drawString("So dien thoai: " + thongTin[4], 20, y);
+            y += 35;
+
+            // Tiêu đề bảng
+            g2.setFont(new Font("Arial", Font.BOLD, 10));
+
+            int[] x = {20, 55, 155, 330, 375, 445};
+
+            String[] cot = {
+                    "STT",
+                    "Ma hang",
+                    "Ten dich vu/phu tung",
+                    "SL",
+                    "Don gia",
+                    "Thanh tien"
+            };
+
+            for (int i = 0; i < cot.length; i++) {
+                g2.drawString(cot[i], x[i], y);
+            }
+
+            y += 12;
+
+            g2.drawLine(20, y, 530, y);
+
+            y += 20;
+
+            // Chi tiết hóa đơn đã lưu
+            g2.setFont(new Font("Arial", Font.PLAIN, 9));
+
+            int stt = 1;
+
+            for (Object[] dong : chiTietHoaDonDaThanhToanGanNhat) {
+
+                g2.drawString(
+                        String.valueOf(stt++),
+                        x[0],
+                        y
+                );
+
+                g2.drawString(
+                        String.valueOf(dong[4]),
+                        x[1],
+                        y
+                );
+
+                String ten = String.valueOf(dong[5]);
+
+                if (ten.length() > 28) {
+                    ten = ten.substring(0, 28);
+                }
+
+                g2.drawString(ten, x[2], y);
+
+                g2.drawString(
+                        String.valueOf(dong[6]),
+                        x[3],
+                        y
+                );
+
+                g2.drawString(
+                        String.valueOf(dong[7]),
+                        x[4],
+                        y
+                );
+
+                g2.drawString(
+                        String.valueOf(dong[8]),
+                        x[5],
+                        y
+                );
+
+                y += 22;
+            }
+
+            y += 20;
+
+            g2.drawLine(20, y, 530, y);
+
+            y += 25;
+
+            // Tổng tiền
+            g2.setFont(new Font("Arial", Font.BOLD, 12));
+
+            g2.drawString(
+                    "Tong tien phu tung: " + thongTin[5] + " VNĐ",
+                    300,
+                    y
+            );
+
+            y += 22;
+
+            g2.drawString(
+                    "Tong tien dich vu: " + thongTin[6] + " VNĐ",
+                    300,
+                    y
+            );
+
+            y += 25;
+
+            // Tổng cộng
+            g2.setFont(new Font("Arial", Font.BOLD, 15));
+
+            g2.drawString(
+                    "TONG CONG: " + thongTin[8] + " VNĐ",
+                    300,
+                    y
+            );
+
+            y += 30;
+
+            // Phương thức và trạng thái
+            g2.setFont(new Font("Arial", Font.PLAIN, 11));
+
+            g2.drawString(
+                    "Phuong thuc: " + thongTin[7],
+                    300,
+                    y
+            );
+
+            y += 22;
+
+            g2.drawString(
+                    "Trang thai: " + thongTin[9],
+                    300,
+                    y
+            );
+
+            y += 50;
+
+            g2.drawString(
+                    "Cam on quy khach da su dung dich vu!",
+                    150,
+                    y
+            );
+
+            return java.awt.print.Printable.PAGE_EXISTS;
+        });
+
+        // Hiển thị hộp thoại chọn máy in
+        if (printerJob.printDialog()) {
+
+            try {
+
+                printerJob.print();
+
+            } catch (PrinterException e) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Lỗi in hóa đơn: " + e.getMessage(),
+                        "Lỗi in",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                e.printStackTrace();
+            }
+        }
     }
     private void loadThongTinTheoHoaDon(String maHoaDon) {
         DAO_KeToan dao = new DAO_KeToan();
@@ -616,17 +865,25 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
         }
     }
     private void xuLyThanhToan() {
+
         int dongChon = table.getSelectedRow();
+
         if (dongChon == -1) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Vui lòng tìm và chọn hóa đơn cần thanh toán!",
+                    "Vui lòng chọn hóa đơn cần thanh toán!",
                     "Thông báo",
                     JOptionPane.WARNING_MESSAGE
             );
             return;
         }
-        String maHoaDon = String.valueOf(table.getValueAt(dongChon, 1));
+
+        int dongModel = table.convertRowIndexToModel(dongChon);
+
+        String maHoaDon = String.valueOf(
+                model.getValueAt(dongModel, 1)
+        );
+
         if (maHoaDon.isEmpty() || maHoaDon.equals("null")) {
             JOptionPane.showMessageDialog(
                     this,
@@ -636,22 +893,42 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
             );
             return;
         }
+
+        // Đảm bảo thông tin đang hiển thị đúng hóa đơn được chọn
+        if (!maHoaDon.equals(txtmahd.getText().trim())) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Thông tin hóa đơn đang hiển thị không khớp với hóa đơn được chọn!\n"
+                            + "Vui lòng tải lại thông tin hóa đơn trước khi thanh toán.",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            loadThongTinTheoHoaDon(maHoaDon);
+            return;
+        }
+
         BigDecimal soTien;
+
         try {
+
             String tongTienText = txttongcong.getText()
                     .trim()
                     .replace(",", "");
 
             soTien = new BigDecimal(tongTienText);
+
         } catch (NumberFormatException ex) {
+
             JOptionPane.showMessageDialog(
                     this,
-                    "Tổng tiền không hợp lệ! Vui lòng tìm lại hóa đơn.",
+                    "Tổng tiền không hợp lệ! Vui lòng kiểm tra lại hóa đơn.",
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE
             );
             return;
         }
+
         if (soTien.compareTo(BigDecimal.ZERO) <= 0) {
             JOptionPane.showMessageDialog(
                     this,
@@ -661,6 +938,7 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
             );
             return;
         }
+
         int xacNhan = JOptionPane.showConfirmDialog(
                 this,
                 "Mã hóa đơn: " + maHoaDon
@@ -671,53 +949,124 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
+
         if (xacNhan != JOptionPane.YES_OPTION) {
             return;
         }
+
         DAO_KeToan dao = new DAO_KeToan();
+
         try {
+
             boolean ketQua = dao.thanhToanHoaDon(
                     maHoaDon,
                     soTien,
                     "PT01",
                     "KT01"
             );
+
             if (ketQua) {
+
+                // LƯU HÓA ĐƠN VỪA THANH TOÁN GẦN NHẤT
+                // Phải thực hiện trước khi xóa dữ liệu bảng và JTextField
+                luuHoaDonVuaThanhToan(maHoaDon);
+
                 JOptionPane.showMessageDialog(
                         this,
-                        "Thanh toán hóa đơn " + maHoaDon + " thành công!",
+                        "Thanh toán hóa đơn " + maHoaDon
+                                + " thành công!",
                         "Thông báo",
                         JOptionPane.INFORMATION_MESSAGE
                 );
-                model.removeRow(dongChon);
+
+                // Xóa tất cả dòng chi tiết thuộc hóa đơn vừa thanh toán
+                for (int i = model.getRowCount() - 1; i >= 0; i--) {
+
+                    String maHDTrongBang = String.valueOf(
+                            model.getValueAt(i, 1)
+                    );
+
+                    if (maHoaDon.equals(maHDTrongBang)) {
+                        model.removeRow(i);
+                    }
+                }
+
+                // Làm trống thông tin trên giao diện
                 txtmahd.setText("");
                 txtngaylap.setText("");
                 txtmaphieu.setText("");
                 txtkhachhang.setText("");
                 txtbienso.setText("");
                 txtsdt.setText("");
+
                 txttongtienphutung.setText("0");
                 txttongtiendichvu.setText("0");
-                txtphuongthuc.setText("0");
+                txtphuongthuc.setText("");
                 txttongcong.setText("0");
+
                 txttrangthai.setText("Chờ thanh toán");
-                thanhtoan.setEnabled(true);
+
                 table.clearSelection();
+                table.revalidate();
+                table.repaint();
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Thanh toán không thành công! Vui lòng kiểm tra lại hóa đơn.",
+                        "Thông báo",
+                        JOptionPane.WARNING_MESSAGE
+                );
             }
+
         } catch (SQLException ex) {
+
             JOptionPane.showMessageDialog(
                     this,
                     "Thanh toán thất bại: " + ex.getMessage(),
                     "Lỗi thanh toán",
                     JOptionPane.ERROR_MESSAGE
             );
+
+            ex.printStackTrace();
+        }
+    }
+    private void luuHoaDonVuaThanhToan(String maHoaDon) {
+        maHoaDonThanhToanGanNhat = maHoaDon;
+        thongTinHoaDonDaThanhToanGanNhat = new String[]{
+                txtngaylap.getText(),
+                txtmaphieu.getText(),
+                txtkhachhang.getText(),
+                txtbienso.getText(),
+                txtsdt.getText(),
+                txttongtienphutung.getText(),
+                txttongtiendichvu.getText(),
+                txtphuongthuc.getText(),
+                txttongcong.getText(),
+                "Đã thanh toán"
+        };
+        chiTietHoaDonDaThanhToanGanNhat.clear();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            String maHDTrongBang = String.valueOf(
+                    model.getValueAt(i, 1)
+            );
+            if (maHoaDon.equals(maHDTrongBang)) {
+                Object[] dong = new Object[model.getColumnCount()];
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    dong[j] = model.getValueAt(i, j);
+                }
+                chiTietHoaDonDaThanhToanGanNhat.add(dong);
+            }
         }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
+
         Object o = e.getSource();
 
         if (o == quaylai) {
+
             ManHinhDanhSachPhieuSuaChuaDaHoanThanh ui =
                     new ManHinhDanhSachPhieuSuaChuaDaHoanThanh();
 
@@ -725,7 +1074,12 @@ public class ManHinhChiTietHDVaThanhToan extends JFrame
             dispose();
 
         } else if (o == thanhtoan) {
+
             xuLyThanhToan();
+
+        } else if (o == inhoadon) {
+
+            inHoaDon();
         }
     }
     public static void main(String[] args) {
